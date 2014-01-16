@@ -1,6 +1,8 @@
 *.class
-
-# Package Files #
-*.jar
 *.war
 *.ear
+/build/
+/dist/
+/lib/CopyLibs/
+/lib/nblibraries.properties
+/nbproject
