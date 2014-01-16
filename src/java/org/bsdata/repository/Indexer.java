@@ -48,7 +48,7 @@ public class Indexer {
     }
     
     /**
-     * Return a map of fileName to inputStream where all filenames are ensured to be compressed names. 
+     * Returns a new map of fileName to inputStream where all filenames are ensured to be compressed names. 
      * When an uncompressed file name is encountered, the associated inputStream is compressed.
      * 
      * @param dataFiles
@@ -60,6 +60,7 @@ public class Indexer {
         for (String fileName : dataFiles.keySet()) {
             ByteArrayInputStream inputStream = dataFiles.get(fileName);
             
+            // Make sure it's just the filename, not full path
             fileName = FilenameUtils.getName(fileName);
             if (!Utils.isCompressedPath(fileName)) {
                 inputStream = Utils.compressStream(fileName, inputStream);
@@ -93,13 +94,14 @@ public class Indexer {
 
         for (String fileName : dataFiles.keySet()) {
             ByteArrayInputStream inputStream = dataFiles.get(fileName);
-            // Make sure we use compressed file names in the index
-            fileName = Utils.getCompressedFileName(fileName);
-            
-            if (!Utils.isCompressedPath(fileName)) {
+            if (Utils.isCompressedPath(fileName)) {
                 // Decompress the stream if we need to so we can read the XML
                 inputStream = Utils.decompressStream(inputStream);
             }
+            
+            // Make sure we use compressed file names in the index. 
+            // This will also ensure it's just the filename, not full path.
+            fileName = Utils.getCompressedFileName(fileName);
             
             try {
                 // Create a data index entry and add it to our data index

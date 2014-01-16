@@ -1,8 +1,8 @@
 *.class
 *.war
 *.ear
-/build/
-/dist/
-/lib/CopyLibs/
-/lib/nblibraries.properties
-/nbproject
+build/
+dist/
+lib/CopyLibs/
+lib/nblibraries.properties
+nbproject
