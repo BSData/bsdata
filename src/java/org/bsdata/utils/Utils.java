@@ -25,10 +25,10 @@ public class Utils {
             return null;
         }
 
+        url = url.trim().replace(" ", "%20");
         if (!url.contains("://")) {
             url = "http://" + url;
         }
-        url = url.trim().replace(" ", "%20");
         
         if (url.equals("http://")) {
             return null;
@@ -121,7 +121,19 @@ public class Utils {
         return getCompressedFileName(file);
     }
     
+    /**
+     * Returns a filename (not full path!) with a compressed file extension (.gstz/.catz/.rosz/.bsi)
+     * 
+     * @param fileName
+     * @return 
+     */
     public static String getCompressedFileName(String fileName) {
+        if (StringUtils.isEmpty(fileName)) {
+            return null;
+        }
+        
+        fileName = FilenameUtils.getName(fileName);
+        
         // LEGACY FILE NAMES //
         if (fileName.endsWith(DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION_OLD)) {
             fileName = fileName.replace(DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION_OLD, DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION);
@@ -134,7 +146,7 @@ public class Utils {
         }
         
         if (isCompressedPath(fileName)) {
-            return FilenameUtils.getName(fileName);
+            return fileName;
         }
         
         if (isGameSytstemPath(fileName)) {
@@ -146,6 +158,9 @@ public class Utils {
         else if (isRosterPath(fileName)) {
             fileName = FilenameUtils.getBaseName(fileName) + DataConstants.ROSTER_COMPRESSED_FILE_EXTENSION;
         }
+        else if (isIndexPath(fileName)) {
+            fileName = FilenameUtils.getBaseName(fileName) + DataConstants.INDEX_COMPRESSED_FILE_EXTENSION;
+        }
         
         return fileName;
     }
@@ -154,12 +169,21 @@ public class Utils {
         return getUncompressedFileName(file.getName());
     }
     
+    /**
+     * Returns a filename (not full path!) with an uncompressed file extension (.gst/.cat/.ros/.xml)
+     * 
+     * @param fileName
+     * @return 
+     */
     public static String getUncompressedFileName(String fileName) {
         if (StringUtils.isEmpty(fileName)) {
             return null;
         }
+        
+        fileName = FilenameUtils.getName(fileName);
+        
         if (!isCompressedPath(fileName)) {
-            return FilenameUtils.getName(fileName);
+            return fileName;
         }
         
         if (isGameSytstemPath(fileName)) {
@@ -208,7 +232,7 @@ public class Utils {
      * 
      * @return 
      */
-    public static ByteArrayInputStream decompressStream(InputStream inputStream) throws IOException {
+    public static ByteArrayInputStream decompressStream(ByteArrayInputStream inputStream) throws IOException {
         ZipInputStream zipInputStream = getDecompressedInputStream(inputStream);
         return readStreamToMemory(zipInputStream);
     }
@@ -222,7 +246,7 @@ public class Utils {
      * @return
      * @throws IOException 
      */
-    public static ByteArrayInputStream compressStream(String zipEntryName, InputStream inputStream) throws IOException {
+    public static byte[] compressInputStream(String zipEntryName, ByteArrayInputStream inputStream) throws IOException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             ZipOutputStream zipOutputStream = getCompressedOutputStream(zipEntryName, outputStream);
@@ -230,21 +254,34 @@ public class Utils {
             IOUtils.copy(inputStream, zipOutputStream);
             zipOutputStream.finish();
             
-            return new ByteArrayInputStream(outputStream.toByteArray());
+            return outputStream.toByteArray();
         }
         finally {
             IOUtils.closeQuietly(inputStream);
         }
     }
     
-    public static ZipOutputStream getCompressedOutputStream(String zipEntryName, OutputStream outputStream) throws IOException {
+    /**
+     * Buffers internally.
+     * Closes inputStream.
+     * 
+     * @param zipEntryName
+     * @param inputStream
+     * @return
+     * @throws IOException 
+     */
+    public static ByteArrayInputStream getCompressedInputStream(String zipEntryName, ByteArrayInputStream inputStream) throws IOException {
+        return new ByteArrayInputStream(compressInputStream(zipEntryName, inputStream));
+    }
+    
+    private static ZipOutputStream getCompressedOutputStream(String zipEntryName, ByteArrayOutputStream outputStream) throws IOException {
         ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream);
         ZipEntry zipEntry = new ZipEntry(getUncompressedFileName(zipEntryName));
         zipOutputStream.putNextEntry(zipEntry);
         return zipOutputStream;
     }
     
-    public static ZipInputStream getDecompressedInputStream(InputStream inputStream) throws IOException {
+    private static ZipInputStream getDecompressedInputStream(ByteArrayInputStream inputStream) throws IOException {
         ZipInputStream zipInputStream = new ZipInputStream(inputStream);
         zipInputStream.getNextEntry();
         return zipInputStream;

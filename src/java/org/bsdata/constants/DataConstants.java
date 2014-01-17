@@ -14,6 +14,15 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DataConstants {
     
+    public static final String REPOSITORY_FILE_MIME_TYPE = "application/battlescribe.bsr";
+    public static final String INDEX_FILE_MIME_TYPE = "application/battlescribe.bsi";
+    public static final String ROSTER_FILE_MIME_TYPE = "application/battlescribe.rosz";
+    public static final String CATALOGUE_FILE_MIME_TYPE = "application/battlescribe.catz";
+    public static final String GAME_SYSTEM_FILE_MIME_TYPE = "application/battlescribe.gstz";
+    public static final String OCTETSTREAM_MIME_TYPE = "application/octet-stream";
+    public static final String TEXT_MIME_TYPE = "text/plain";
+    public static final String HTML_MIME_TYPE = "text/html";
+    
     public static final String ROSTER_FILE_EXTENSION = ".ros";
     public static final String CATALOGUE_FILE_EXTENSION = ".cat";
     public static final String GAME_SYSTEM_FILE_EXTENSION = ".gst";

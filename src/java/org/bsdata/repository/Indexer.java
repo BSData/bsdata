@@ -10,6 +10,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.model.Catalogue;
 import org.bsdata.model.DataIndex;
@@ -26,7 +27,7 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class Indexer {
     
-    public static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
+    private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
     private static Persister persister;
     
     private static Persister getPersister() {
@@ -36,7 +37,7 @@ public class Indexer {
         return persister;
     }
 
-    public static ByteArrayInputStream writeDataIndex(DataIndex dataIndex) throws IOException, XmlException {
+    private static ByteArrayInputStream writeDataIndex(DataIndex dataIndex) throws IOException, XmlException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             getPersister().write(dataIndex, outputStream, "UTF-8");
@@ -47,32 +48,50 @@ public class Indexer {
         }
     }
     
+    public static HashMap<String, byte[]> getRepoFiles(
+            String repositoryName, 
+            String indexUrl, 
+            List<String> repositoryUrls, 
+            HashMap<String, ByteArrayInputStream> dataFiles) throws IOException {
+        
+        DataIndex dataIndex = createDataIndex(repositoryName, indexUrl, repositoryUrls, dataFiles);
+        dataFiles.put(DataConstants.DEFAULT_INDEX_FILE_NAME, writeDataIndex(dataIndex));
+        return compressRepoFiles(dataFiles);
+    }
+    
     /**
-     * Returns a new map of fileName to inputStream where all filenames are ensured to be compressed names. 
+     * Returns a new map of fileName to inputStream ensuring all file names are compressed names and all data is compressed
      * When an uncompressed file name is encountered, the associated inputStream is compressed.
      * 
      * @param dataFiles
      * @return
      * @throws IOException 
      */
-    public static HashMap<String, ByteArrayInputStream> compressFiles(HashMap<String, ByteArrayInputStream> dataFiles) throws IOException {
-        HashMap<String, ByteArrayInputStream> compressedDataFiles = new HashMap<>();
+    private static HashMap<String, byte[]> compressRepoFiles(HashMap<String, ByteArrayInputStream> dataFiles) throws IOException {
+        HashMap<String, byte[]> compressedDataFiles = new HashMap<>();
         for (String fileName : dataFiles.keySet()) {
             ByteArrayInputStream inputStream = dataFiles.get(fileName);
-            
-            // Make sure it's just the filename, not full path
-            fileName = FilenameUtils.getName(fileName);
-            if (!Utils.isCompressedPath(fileName)) {
-                inputStream = Utils.compressStream(fileName, inputStream);
-                fileName = Utils.getCompressedFileName(fileName);
+
+            if (Utils.isCompressedPath(fileName)) {
+                // Data already compressed - just copy it to a byte[]
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                IOUtils.copy(inputStream, outputStream);
+                fileName = FilenameUtils.getName(fileName);
+                compressedDataFiles.put(fileName, outputStream.toByteArray());
             }
-            compressedDataFiles.put(fileName, inputStream);
+            else {
+                // We need to compress the data
+                byte[] compressedData = Utils.compressInputStream(fileName, inputStream);
+                fileName = Utils.getCompressedFileName(fileName);
+                compressedDataFiles.put(fileName, compressedData);
+            }
         }
         return compressedDataFiles;
     }
 
     /**
      * Create a data index from a set of data files
+     * Ensures the resulting data index entries use compressed file names
      * 
      * @param repositoryName A name for the repo
      * @param indexUrl The URL the index.bsi will be hosted at
@@ -83,7 +102,7 @@ public class Indexer {
      * @throws IOException
      * @throws XmlException 
      */
-    public static DataIndex createIndex(
+    private static DataIndex createDataIndex(
             String repositoryName, 
             String indexUrl, 
             List<String> repositoryUrls, 
@@ -99,7 +118,7 @@ public class Indexer {
                 inputStream = Utils.decompressStream(inputStream);
             }
             
-            // Make sure we use compressed file names in the index. 
+            // Make sure we use a compressed file names in the index. 
             // This will also ensure it's just the filename, not full path.
             fileName = Utils.getCompressedFileName(fileName);
             
@@ -140,7 +159,7 @@ public class Indexer {
      * @return
      * @throws XmlException 
      */
-    public static Catalogue readCatalogue(ByteArrayInputStream inputStream) throws XmlException, IOException {
+    private static Catalogue readCatalogue(ByteArrayInputStream inputStream) throws XmlException, IOException {
         final Catalogue catalogue = new Catalogue();
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -181,7 +200,7 @@ public class Indexer {
      * @throws XmlException
      * @throws IOException 
      */
-    public static GameSystem readGameSystem(ByteArrayInputStream inputStream) throws XmlException, IOException {
+    private static GameSystem readGameSystem(ByteArrayInputStream inputStream) throws XmlException, IOException {
         final GameSystem gameSystem = new GameSystem();
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -221,7 +240,7 @@ public class Indexer {
      * @throws XmlException
      * @throws IOException 
      */
-    public static Roster readRoster(ByteArrayInputStream inputStream) throws XmlException, IOException {
+    private static Roster readRoster(ByteArrayInputStream inputStream) throws XmlException, IOException {
         final Roster roster = new Roster();
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
