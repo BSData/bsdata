@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.zip.ZipEntry;
@@ -238,40 +237,22 @@ public class Utils {
     }
     
     /**
-     * Buffers internally.
-     * Closes inputStream.
+     * Compress the given data array using the zipEntryName
      * 
      * @param zipEntryName
-     * @param inputStream
+     * @param data
      * @return
      * @throws IOException 
      */
-    public static byte[] compressInputStream(String zipEntryName, ByteArrayInputStream inputStream) throws IOException {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            ZipOutputStream zipOutputStream = getCompressedOutputStream(zipEntryName, outputStream);
+    public static byte[] compressData(String zipEntryName, byte[] data) throws IOException {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        ZipOutputStream zipOutputStream = getCompressedOutputStream(zipEntryName, outputStream);
 
-            IOUtils.copy(inputStream, zipOutputStream);
-            zipOutputStream.finish();
-            
-            return outputStream.toByteArray();
-        }
-        finally {
-            IOUtils.closeQuietly(inputStream);
-        }
-    }
-    
-    /**
-     * Buffers internally.
-     * Closes inputStream.
-     * 
-     * @param zipEntryName
-     * @param inputStream
-     * @return
-     * @throws IOException 
-     */
-    public static ByteArrayInputStream getCompressedInputStream(String zipEntryName, ByteArrayInputStream inputStream) throws IOException {
-        return new ByteArrayInputStream(compressInputStream(zipEntryName, inputStream));
+        IOUtils.copy(inputStream, zipOutputStream);
+        zipOutputStream.finish();
+
+        return outputStream.toByteArray();
     }
     
     private static ZipOutputStream getCompressedOutputStream(String zipEntryName, ByteArrayOutputStream outputStream) throws IOException {

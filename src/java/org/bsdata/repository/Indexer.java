@@ -10,7 +10,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.model.Catalogue;
 import org.bsdata.model.DataIndex;
@@ -37,26 +36,26 @@ public class Indexer {
         return persister;
     }
 
-    private static ByteArrayInputStream writeDataIndex(DataIndex dataIndex) throws IOException, XmlException {
+    private static byte[] writeDataIndex(DataIndex dataIndex) throws IOException, XmlException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             getPersister().write(dataIndex, outputStream, "UTF-8");
-            return new ByteArrayInputStream(outputStream.toByteArray());
+            return outputStream.toByteArray();
         }
         catch (Exception ex) {
             throw new XmlException(ex);
         }
     }
     
-    public static HashMap<String, byte[]> getRepoFiles(
+    public static HashMap<String, byte[]> createRepositoryData(
             String repositoryName, 
-            String indexUrl, 
+            String baseUrl, 
             List<String> repositoryUrls, 
-            HashMap<String, ByteArrayInputStream> dataFiles) throws IOException {
+            HashMap<String, byte[]> dataFiles) throws IOException {
         
-        DataIndex dataIndex = createDataIndex(repositoryName, indexUrl, repositoryUrls, dataFiles);
+        DataIndex dataIndex = createDataIndex(repositoryName, baseUrl, repositoryUrls, dataFiles);
         dataFiles.put(DataConstants.DEFAULT_INDEX_FILE_NAME, writeDataIndex(dataIndex));
-        return compressRepoFiles(dataFiles);
+        return compressRepositoryData(dataFiles);
     }
     
     /**
@@ -67,21 +66,19 @@ public class Indexer {
      * @return
      * @throws IOException 
      */
-    private static HashMap<String, byte[]> compressRepoFiles(HashMap<String, ByteArrayInputStream> dataFiles) throws IOException {
+    private static HashMap<String, byte[]> compressRepositoryData(HashMap<String, byte[]> dataFiles) throws IOException {
         HashMap<String, byte[]> compressedDataFiles = new HashMap<>();
         for (String fileName : dataFiles.keySet()) {
-            ByteArrayInputStream inputStream = dataFiles.get(fileName);
+            byte[] data = dataFiles.get(fileName);
 
             if (Utils.isCompressedPath(fileName)) {
-                // Data already compressed - just copy it to a byte[]
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                IOUtils.copy(inputStream, outputStream);
+                // Data already compressed - just make sure it's a file name (not full path)
                 fileName = FilenameUtils.getName(fileName);
-                compressedDataFiles.put(fileName, outputStream.toByteArray());
+                compressedDataFiles.put(fileName, data);
             }
             else {
                 // We need to compress the data
-                byte[] compressedData = Utils.compressInputStream(fileName, inputStream);
+                byte[] compressedData = Utils.compressData(fileName, data);
                 fileName = Utils.getCompressedFileName(fileName);
                 compressedDataFiles.put(fileName, compressedData);
             }
@@ -94,7 +91,7 @@ public class Indexer {
      * Ensures the resulting data index entries use compressed file names
      * 
      * @param repositoryName A name for the repo
-     * @param indexUrl The URL the index.bsi will be hosted at
+     * @param baseUrl The part of the URL before "index.bsi"
      * @param repositoryUrls Optional list of repo URLs to include in the index
      * @param dataFiles The data files to make the index from
      * 
@@ -104,15 +101,15 @@ public class Indexer {
      */
     private static DataIndex createDataIndex(
             String repositoryName, 
-            String indexUrl, 
+            String baseUrl, 
             List<String> repositoryUrls, 
-            HashMap<String, ByteArrayInputStream> dataFiles)
+            HashMap<String, byte[]> dataFiles)
             throws IOException, XmlException {
 
-        DataIndex dataIndex = new DataIndex(repositoryName, indexUrl, repositoryUrls);
+        DataIndex dataIndex = new DataIndex(repositoryName, baseUrl + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME, repositoryUrls);
 
         for (String fileName : dataFiles.keySet()) {
-            ByteArrayInputStream inputStream = dataFiles.get(fileName);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(dataFiles.get(fileName));
             if (Utils.isCompressedPath(fileName)) {
                 // Decompress the stream if we need to so we can read the XML
                 inputStream = Utils.decompressStream(inputStream);
