@@ -5,11 +5,15 @@
 package org.bsdata.dao;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.codec.binary.Base64;
+import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.PropertiesConstants;
+import org.bsdata.model.Repository;
 import org.bsdata.repository.Indexer;
 import org.bsdata.utils.ApplicationProperties;
 import org.kohsuke.github.GHContent;
@@ -66,5 +70,35 @@ public class GitHubDao {
         }
         
         return repoFiles;
+    }
+    
+    public List<Repository> getRepositories(String baseUrl) throws IOException {
+        Properties properties = ApplicationProperties.getProperties();
+        
+        GitHub gitHub = GitHub.connect(
+                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
+                properties.getProperty(PropertiesConstants.GITHUB_TOKEN));
+        
+        Map<String, GHRepository> ghRepositories = gitHub
+                .getOrganization(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))
+                .getRepositories();
+        
+        List<Repository> repositories = new ArrayList<>();
+        for (GHRepository ghRepository : ghRepositories.values()) {
+            if (ghRepository.getName().equals(DataConstants.GITHUB_BSDATA_REPO_NAME)) {
+                continue;
+            }
+            
+            Repository repository = new Repository();
+            repository.setName(ghRepository.getName());
+            repository.setDescription(ghRepository.getDescription());
+            repository.setRepoUrl(baseUrl + ghRepository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);
+            repository.setGitHubUrl(ghRepository.getUrl());
+            repository.setBugTrackerUrl(ghRepository.getUrl() + "/issues");
+            repositories.add(repository);
+        }
+        
+        // TODO: this should probably be cached...
+        return repositories;
     }
 }

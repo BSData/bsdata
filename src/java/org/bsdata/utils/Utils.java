@@ -42,6 +42,10 @@ public class Utils {
 
         return url;
     }
+    
+    public static String getBaseUrl(String url) {
+        return url.substring(0, url.lastIndexOf('/') + 1);
+    }
 
     public static boolean isRosterFile(File file) {
         return isRosterPath(file.getName());

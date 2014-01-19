@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DataConstants {
     
+    public static final String GITHUB_BSDATA_REPO_NAME = "bsdata";
+    
     public static final String REPOSITORY_FILE_MIME_TYPE = "application/battlescribe.bsr";
     public static final String INDEX_FILE_MIME_TYPE = "application/battlescribe.bsi";
     public static final String ROSTER_FILE_MIME_TYPE = "application/battlescribe.rosz";
