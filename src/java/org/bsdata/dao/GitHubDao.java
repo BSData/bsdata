@@ -44,6 +44,13 @@ public class GitHubDao {
 //                properties.getProperty(PropertiesConstants.GITHUB_PASSWORD));
     }
     
+    public synchronized void primeCache(String baseUrl) throws IOException {
+        RepositoryList repositoryList = getRepos(baseUrl);
+        for (Repository repository : repositoryList.getRepositories()) {
+            getRepoFileData(repository.getName(), baseUrl + "/" + repository.getName() + "/", null);
+        }
+    }
+    
     public synchronized HashMap<String, byte[]> getRepoFileData(
             String repositoryName, 
             String baseUrl, 

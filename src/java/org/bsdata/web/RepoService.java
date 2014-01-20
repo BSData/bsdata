@@ -7,7 +7,6 @@ package org.bsdata.web;
 import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
@@ -21,8 +20,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
+import org.bsdata.constants.WebConstants;
 import org.bsdata.dao.GitHubDao;
-import org.bsdata.model.Repository;
 import org.bsdata.model.RepositoryList;
 import org.bsdata.utils.Utils;
 
@@ -31,7 +30,7 @@ import org.bsdata.utils.Utils;
  *
  * @author Jonskichov
  */
-@Path("repos")
+@Path(WebConstants.REPO_SERVICE_PATH)
 public class RepoService {
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
@@ -48,6 +47,17 @@ public class RepoService {
             logger.log(Level.SEVERE, "Could not load GitHubDao: {0}", e.getMessage());
             throw new RuntimeException("Could not load GitHubDao: " + e.getMessage());
         }
+    }
+    
+    /**
+     * Returns the URL of this service request without the path info/conext.
+     * So... http://something.com/service/some/thing becomes http://something.com/service
+     * 
+     * @param request
+     * @return 
+     */
+    public static String getBaseUrl(HttpServletRequest request) {
+        return request.getRequestURL().toString().replace(request.getPathInfo(), "") + "/" + WebConstants.REPO_SERVICE_PATH;
     }
 
     @GET
@@ -134,5 +144,21 @@ public class RepoService {
         
         Gson gson = new Gson();
         return gson.toJson(repositoryList);
+    }
+
+    @GET
+    @Path("/prime")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String primeRepositoryCache(@Context HttpServletRequest request) {
+        try {
+            dao.primeCache(request.getRequestURL().toString().replace("/prime", ""));
+        }
+        catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to prime repo cache: {0}", e.getMessage());
+            e.printStackTrace();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        
+        return "Repo cache primed!";
     }
 }
