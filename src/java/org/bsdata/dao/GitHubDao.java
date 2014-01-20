@@ -31,6 +31,11 @@ import org.kohsuke.github.GitHub;
 public class GitHubDao {
     
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
+    private Indexer indexer;
+    
+    public GitHubDao() {
+        indexer = new Indexer();
+    }
     
     private GitHub connectToGitHub() throws IOException {
         Properties properties = ApplicationProperties.getProperties();
@@ -62,7 +67,7 @@ public class GitHubDao {
         
         if (!repoFileCache.containsKey(repositoryName)) {
             HashMap<String, byte[]> repositoryData = downloadFromGitHub(repositoryName);
-            repositoryData = Indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
+            repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
             repoFileCache.put(repositoryName, repositoryData);
         }
         

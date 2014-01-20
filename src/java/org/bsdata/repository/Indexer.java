@@ -36,7 +36,7 @@ public class Indexer {
         return persister;
     }
 
-    private static byte[] writeDataIndex(DataIndex dataIndex) throws IOException, XmlException {
+    private byte[] writeDataIndex(DataIndex dataIndex) throws IOException, XmlException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             getPersister().write(dataIndex, outputStream, "UTF-8");
@@ -47,7 +47,7 @@ public class Indexer {
         }
     }
     
-    public static HashMap<String, byte[]> createRepositoryData(
+    public HashMap<String, byte[]> createRepositoryData(
             String repositoryName, 
             String baseUrl, 
             List<String> repositoryUrls, 
@@ -66,7 +66,7 @@ public class Indexer {
      * @return
      * @throws IOException 
      */
-    private static HashMap<String, byte[]> compressRepositoryData(HashMap<String, byte[]> dataFiles) throws IOException {
+    private HashMap<String, byte[]> compressRepositoryData(HashMap<String, byte[]> dataFiles) throws IOException {
         HashMap<String, byte[]> compressedDataFiles = new HashMap<>();
         for (String fileName : dataFiles.keySet()) {
             byte[] data = dataFiles.get(fileName);
@@ -99,7 +99,7 @@ public class Indexer {
      * @throws IOException
      * @throws XmlException 
      */
-    private static DataIndex createDataIndex(
+    private DataIndex createDataIndex(
             String repositoryName, 
             String baseUrl, 
             List<String> repositoryUrls, 
@@ -157,7 +157,7 @@ public class Indexer {
      * @return
      * @throws XmlException 
      */
-    private static Catalogue readCatalogue(ByteArrayInputStream inputStream) throws XmlException, IOException {
+    private Catalogue readCatalogue(ByteArrayInputStream inputStream) throws XmlException, IOException {
         final Catalogue catalogue = new Catalogue();
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -198,7 +198,7 @@ public class Indexer {
      * @throws XmlException
      * @throws IOException 
      */
-    private static GameSystem readGameSystem(ByteArrayInputStream inputStream) throws XmlException, IOException {
+    private GameSystem readGameSystem(ByteArrayInputStream inputStream) throws XmlException, IOException {
         final GameSystem gameSystem = new GameSystem();
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
@@ -238,7 +238,7 @@ public class Indexer {
      * @throws XmlException
      * @throws IOException 
      */
-    private static Roster readRoster(ByteArrayInputStream inputStream) throws XmlException, IOException {
+    private Roster readRoster(ByteArrayInputStream inputStream) throws XmlException, IOException {
         final Roster roster = new Roster();
         try {
             SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
