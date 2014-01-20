@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.WebConstants;
 import org.bsdata.dao.GitHubDao;
+import org.bsdata.model.RepositoryFileList;
 import org.bsdata.model.RepositoryList;
 import org.bsdata.utils.Utils;
 
@@ -121,12 +122,20 @@ public class RepoService {
     public String getRepositoryFiles(
             @PathParam("repoName") String repoName,
             @Context HttpServletRequest request) {
-        
-        if (StringUtils.isEmpty(repoName)) {
-            // No repo name
+    
+        RepositoryFileList repositoryFileList;
+        try {
+            repositoryFileList = dao.getRepoFiles(repoName,getBaseUrl(request));
+        }
+        catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to load repo file list: {0}", e.getMessage());
+            e.printStackTrace();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
-        return "";
+        Gson gson = new Gson();
+        return gson.toJson(repositoryFileList);
+       
     }
     
     @GET
