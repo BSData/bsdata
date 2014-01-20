@@ -106,7 +106,8 @@ public class Indexer {
             HashMap<String, byte[]> dataFiles)
             throws IOException, XmlException {
 
-        DataIndex dataIndex = new DataIndex(repositoryName, baseUrl + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME, repositoryUrls);
+        String indexUrl = Utils.checkUrl(baseUrl + "/" + repositoryName + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);
+        DataIndex dataIndex = new DataIndex(repositoryName, indexUrl, repositoryUrls);
 
         for (String fileName : dataFiles.keySet()) {
             ByteArrayInputStream inputStream = new ByteArrayInputStream(dataFiles.get(fileName));

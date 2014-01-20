@@ -57,7 +57,8 @@ public class RepoService {
      * @return 
      */
     public static String getBaseUrl(HttpServletRequest request) {
-        return request.getRequestURL().toString().replace(request.getPathInfo(), "") + "/" + WebConstants.REPO_SERVICE_PATH;
+        return request.getRequestURL().toString().replace(request.getPathInfo(), "") 
+                + "/" + WebConstants.REPO_SERVICE_PATH;
     }
 
     @GET
@@ -94,8 +95,7 @@ public class RepoService {
         
         HashMap<String, byte[]> repoData;
         try {
-            String baseUrl = Utils.getBaseUrl(request.getRequestURL().toString());
-            repoData = dao.getRepoFileData(repoName, baseUrl, null);
+            repoData = dao.getRepoFileData(repoName, getBaseUrl(request), null);
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo data: {0}", e.getMessage());
@@ -134,7 +134,7 @@ public class RepoService {
     public String getRepositories(@Context HttpServletRequest request) {
         RepositoryList repositoryList;
         try {
-            repositoryList = dao.getRepos(request.getRequestURL().toString() + "/");
+            repositoryList = dao.getRepos(getBaseUrl(request));
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo list: {0}", e.getMessage());
@@ -151,7 +151,7 @@ public class RepoService {
     @Produces(MediaType.TEXT_PLAIN)
     public String primeRepositoryCache(@Context HttpServletRequest request) {
         try {
-            dao.primeCache(request.getRequestURL().toString().replace("/prime", ""));
+            dao.primeCache(getBaseUrl(request));
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to prime repo cache: {0}", e.getMessage());

@@ -47,7 +47,7 @@ public class GitHubDao {
     public synchronized void primeCache(String baseUrl) throws IOException {
         RepositoryList repositoryList = getRepos(baseUrl);
         for (Repository repository : repositoryList.getRepositories()) {
-            getRepoFileData(repository.getName(), baseUrl + "/" + repository.getName() + "/", null);
+            getRepoFileData(repository.getName(), baseUrl, null);
         }
     }
     
@@ -65,7 +65,7 @@ public class GitHubDao {
             repositoryData = Indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
             repoFileCache.put(repositoryName, repositoryData);
         }
-        getRepoFiles(repositoryName, baseUrl);
+        
         return repoFileCache.get(repositoryName);
     }
     
@@ -105,7 +105,8 @@ public class GitHubDao {
             Repository repository = new Repository();
             repository.setName(ghRepository.getName());
             repository.setDescription(ghRepository.getDescription());
-            repository.setRepoUrl(Utils.checkUrl(baseUrl + ghRepository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
+            String indexUrl = Utils.checkUrl(baseUrl + "/" + ghRepository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);
+            repository.setRepoUrl(indexUrl);
             repository.setGitHubUrl(ghRepository.getUrl());
             repository.setBugTrackerUrl(ghRepository.getUrl() + "/issues");
             repositories.add(repository);
@@ -129,7 +130,8 @@ public class GitHubDao {
         List<RepositoryFile> repositoryFiles = new ArrayList<>();
         RepositoryFileList repositoryFileList = new RepositoryFileList();
         repositoryFileList.setName(ghRepository.getName());
-        repositoryFileList.setRepoUrl(Utils.checkUrl(baseUrl + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
+        String indexUrl = Utils.checkUrl(baseUrl + "/" + ghRepository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);
+        repositoryFileList.setRepoUrl(indexUrl);
         repositoryFileList.setGitHubUrl(ghRepository.getUrl());
         
         for (GHContent ghContent : directoryContent) {
