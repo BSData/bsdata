@@ -14,8 +14,12 @@ import org.apache.commons.codec.binary.Base64;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.PropertiesConstants;
 import org.bsdata.model.Repository;
+import org.bsdata.model.RepositoryFile;
+import org.bsdata.model.RepositoryFileList;
+import org.bsdata.model.RepositoryList;
 import org.bsdata.repository.Indexer;
 import org.bsdata.utils.ApplicationProperties;
+import org.bsdata.utils.Utils;
 import org.kohsuke.github.GHContent;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -28,7 +32,19 @@ public class GitHubDao {
     
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
     
-    public synchronized HashMap<String, byte[]> getRepoFiles(
+    private GitHub connectToGitHub() throws IOException {
+        Properties properties = ApplicationProperties.getProperties();
+        
+        return GitHub.connect(
+                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
+                properties.getProperty(PropertiesConstants.GITHUB_TOKEN));
+        
+//        GitHub gitHub = GitHub.connectUsingPassword(
+//                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
+//                properties.getProperty(PropertiesConstants.GITHUB_PASSWORD));
+    }
+    
+    public synchronized HashMap<String, byte[]> getRepoFileData(
             String repositoryName, 
             String baseUrl, 
             List<String> repositoryUrls) throws IOException {
@@ -42,20 +58,13 @@ public class GitHubDao {
             repositoryData = Indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
             repoFileCache.put(repositoryName, repositoryData);
         }
-        
+        getRepoFiles(repositoryName, baseUrl);
         return repoFileCache.get(repositoryName);
     }
     
     private HashMap<String, byte[]> downloadFromGitHub(String repositoryName) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
-        
-        GitHub gitHub = GitHub.connect(
-                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
-                properties.getProperty(PropertiesConstants.GITHUB_TOKEN));
-        
-//        GitHub gitHub = GitHub.connectUsingPassword(
-//                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
-//                properties.getProperty(PropertiesConstants.GITHUB_PASSWORD));
+        GitHub gitHub = connectToGitHub();
         
         GHRepository repository = gitHub
                 .getOrganization(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))
@@ -72,12 +81,9 @@ public class GitHubDao {
         return repoFiles;
     }
     
-    public List<Repository> getRepositories(String baseUrl) throws IOException {
+    public RepositoryList getRepos(String baseUrl) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
-        
-        GitHub gitHub = GitHub.connect(
-                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
-                properties.getProperty(PropertiesConstants.GITHUB_TOKEN));
+        GitHub gitHub = connectToGitHub();
         
         Map<String, GHRepository> ghRepositories = gitHub
                 .getOrganization(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))
@@ -92,13 +98,48 @@ public class GitHubDao {
             Repository repository = new Repository();
             repository.setName(ghRepository.getName());
             repository.setDescription(ghRepository.getDescription());
-            repository.setRepoUrl(baseUrl + ghRepository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);
+            repository.setRepoUrl(Utils.checkUrl(baseUrl + ghRepository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
             repository.setGitHubUrl(ghRepository.getUrl());
             repository.setBugTrackerUrl(ghRepository.getUrl() + "/issues");
             repositories.add(repository);
         }
         
         // TODO: this should probably be cached...
-        return repositories;
+        RepositoryList repositoryList = new RepositoryList();
+        repositoryList.setRepositories(repositories);
+        return repositoryList;
+    }
+    
+    public RepositoryFileList getRepoFiles(String repositoryName, String baseUrl) throws IOException {
+        Properties properties = ApplicationProperties.getProperties();
+        GitHub gitHub = connectToGitHub();
+        
+        GHRepository ghRepository = gitHub
+                .getOrganization(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))
+                .getRepository(repositoryName);
+        List<GHContent> directoryContent = ghRepository.getDirectoryContent("/");
+        
+        List<RepositoryFile> repositoryFiles = new ArrayList<>();
+        RepositoryFileList repositoryFileList = new RepositoryFileList();
+        repositoryFileList.setName(ghRepository.getName());
+        repositoryFileList.setRepoUrl(Utils.checkUrl(baseUrl + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
+        repositoryFileList.setGitHubUrl(ghRepository.getUrl());
+        
+        for (GHContent ghContent : directoryContent) {
+            String fileName = Utils.getCompressedFileName(ghContent.getName());
+            if (!Utils.isDataFilePath(fileName)) {
+                continue;
+            }
+            
+            RepositoryFile repositoryFile = new RepositoryFile();
+            repositoryFile.setName(fileName);
+            repositoryFile.setGitHubUrl(ghContent.getHtmlUrl());
+            repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + fileName));
+            repositoryFiles.add(repositoryFile);
+        }
+        
+        // TODO: this should probably be cached...
+        repositoryFileList.setRepositoryFiles(repositoryFiles);
+        return repositoryFileList;
     }
 }

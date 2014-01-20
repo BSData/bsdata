@@ -1,3 +1,4 @@
+
 package org.bsdata.model;
 
 import java.io.Serializable;
@@ -9,6 +10,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Namespace;
 import org.simpleframework.xml.Root;
+
 
 @Root
 @Namespace(reference = "http://www.battlescribe.net/schema/dataIndexSchema")

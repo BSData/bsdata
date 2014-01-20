@@ -49,5 +49,4 @@ public class Repository {
     public void setDescription(String description) {
         this.description = description;
     }
-    
 }

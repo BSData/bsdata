@@ -85,7 +85,7 @@ public class RepoService {
         HashMap<String, byte[]> repoData;
         try {
             String baseUrl = Utils.getBaseUrl(request.getRequestURL().toString());
-            repoData = dao.getRepoFiles(repoName, baseUrl, null);
+            repoData = dao.getRepoFileData(repoName, baseUrl, null);
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo data: {0}", e.getMessage());
@@ -104,22 +104,33 @@ public class RepoService {
                 .type(mimeType)
                 .build();
     }
+
+    @GET
+    @Path("/{repoName}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getRepositoryFiles(
+            @PathParam("repoName") String repoName,
+            @Context HttpServletRequest request) {
+        
+        if (StringUtils.isEmpty(repoName)) {
+            // No repo name
+        }
+        
+        return "";
+    }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getRepositories(@Context HttpServletRequest request) {
-        List<Repository> repositories;
+        RepositoryList repositoryList;
         try {
-            repositories = dao.getRepositories(request.getRequestURL().toString() + "/");
+            repositoryList = dao.getRepos(request.getRequestURL().toString() + "/");
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo list: {0}", e.getMessage());
             e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
-        
-        RepositoryList repositoryList = new RepositoryList();
-        repositoryList.setRepositories(repositories);
         
         Gson gson = new Gson();
         return gson.toJson(repositoryList);

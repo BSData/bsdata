@@ -1,9 +1,11 @@
+
 package org.bsdata.model;
 
 import java.io.Serializable;
 import java.util.Date;
 import org.bsdata.constants.DataConstants.DataType;
 import org.simpleframework.xml.Attribute;
+
 
 public class DataIndexEntry implements Serializable {
 

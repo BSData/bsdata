@@ -2,7 +2,6 @@
 package org.bsdata.model;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 
 public class GameSystem implements Serializable {

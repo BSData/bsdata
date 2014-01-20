@@ -46,6 +46,10 @@ public class Utils {
     public static String getBaseUrl(String url) {
         return url.substring(0, url.lastIndexOf('/') + 1);
     }
+    
+    public static boolean isDataFilePath(String path) {
+        return (isRosterPath(path) || isCataloguePath(path) || isGameSytstemPath(path));
+    }
 
     public static boolean isRosterFile(File file) {
         return isRosterPath(file.getName());
