@@ -24,11 +24,21 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 
+/**
+ * Handles creating a BattleScribe repository index from a set of data files.
+ * 
+ * @author Jonskichov
+ */
 public class Indexer {
     
     private static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
     private static Persister persister;
     
+    /**
+     * The SimpleXML persister used to read/write a data index object to/from XML.
+     * 
+     * @return 
+     */
     private static Persister getPersister() {
         if (persister == null) {
             persister = new Persister(new Format(2, XML_DECLARATION));
@@ -36,6 +46,14 @@ public class Indexer {
         return persister;
     }
 
+    /**
+     * Writes a data file repository index to an in-memory XML file.
+     * 
+     * @param dataIndex
+     * @return
+     * @throws IOException
+     * @throws XmlException 
+     */
     private byte[] writeDataIndex(DataIndex dataIndex) throws IOException, XmlException {
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -47,6 +65,21 @@ public class Indexer {
         }
     }
     
+    /**
+     * Returns a complete data file repository from a set of data files from a particular GitHub repository.
+     * 1) A data file repository index is created from the data files.
+     * 2) All data files and the index file are ensured to be compressed.
+     * 3) All file names are ensured to be the compressed format.
+     * 4) A HashMap of compressed data file name to compressed file data is created.
+     * 5) The HashMap is returned so it can be cached and/or served.
+     * 
+     * @param repositoryName
+     * @param baseUrl
+     * @param repositoryUrls
+     * @param dataFiles
+     * @return
+     * @throws IOException 
+     */
     public HashMap<String, byte[]> createRepositoryData(
             String repositoryName, 
             String baseUrl, 
@@ -59,7 +92,7 @@ public class Indexer {
     }
     
     /**
-     * Returns a new map of fileName to inputStream ensuring all file names are compressed names and all data is compressed
+     * Returns a new map of fileName to fileData ensuring all file names are compressed names and all data is compressed.
      * When an uncompressed file name is encountered, the associated inputStream is compressed.
      * 
      * @param dataFiles
@@ -87,8 +120,8 @@ public class Indexer {
     }
 
     /**
-     * Create a data index from a set of data files
-     * Ensures the resulting data index entries use compressed file names
+     * Create a data index from a set of data files.
+     * Ensures the resulting data index entries use compressed file names.
      * 
      * @param repositoryName A name for the repo
      * @param baseUrl The part of the URL before "index.bsi"

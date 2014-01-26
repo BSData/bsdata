@@ -42,6 +42,12 @@ public class GitHubDao {
         lastCacheRefreshes = new HashMap<>();
     }
     
+    /**
+     * Gets a connection to GitHub using the username and token in bsdata.properties
+     * 
+     * @return
+     * @throws IOException 
+     */
     private GitHub connectToGitHub() throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         
