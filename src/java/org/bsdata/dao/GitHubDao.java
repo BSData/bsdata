@@ -6,6 +6,8 @@ package org.bsdata.dao;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +32,13 @@ import org.kohsuke.github.GitHub;
  */
 public class GitHubDao {
     
+    private static HashMap<String, Date> lastCacheRefreshes;
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
     private Indexer indexer;
     
     public GitHubDao() {
         indexer = new Indexer();
+        lastCacheRefreshes = new HashMap<>();
     }
     
     private GitHub connectToGitHub() throws IOException {
@@ -64,11 +68,18 @@ public class GitHubDao {
         if (repoFileCache == null) {
             repoFileCache = new HashMap<>();
         }
-        
-        if (!repoFileCache.containsKey(repositoryName)) {
+
+        Date lastCacheRefresh = lastCacheRefreshes.get(repositoryName);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, -1);
+        if (!repoFileCache.containsKey(repositoryName) 
+                || lastCacheRefresh == null 
+                || lastCacheRefresh.before(calendar.getTime())) {
+            
             HashMap<String, byte[]> repositoryData = downloadFromGitHub(repositoryName);
             repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
             repoFileCache.put(repositoryName, repositoryData);
+            lastCacheRefreshes.put(repositoryName, new Date());
         }
         
         return repoFileCache.get(repositoryName);
@@ -130,15 +141,15 @@ public class GitHubDao {
         GHRepository ghRepository = gitHub
                 .getOrganization(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))
                 .getRepository(repositoryName);
-        List<GHContent> directoryContent = ghRepository.getDirectoryContent("/");
         
-        List<RepositoryFile> repositoryFiles = new ArrayList<>();
         RepositoryFileList repositoryFileList = new RepositoryFileList();
         repositoryFileList.setName(ghRepository.getName());
         String indexUrl = Utils.checkUrl(baseUrl + "/" + ghRepository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);
         repositoryFileList.setRepoUrl(indexUrl);
         repositoryFileList.setGitHubUrl(ghRepository.getUrl());
         
+        List<GHContent> directoryContent = ghRepository.getDirectoryContent("/");
+        List<RepositoryFile> repositoryFiles = new ArrayList<>();
         for (GHContent ghContent : directoryContent) {
             String fileName = Utils.getCompressedFileName(ghContent.getName());
             if (!Utils.isDataFilePath(fileName)) {
