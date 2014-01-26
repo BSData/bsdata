@@ -39,7 +39,6 @@ public class GitHubDao {
     
     public GitHubDao() {
         indexer = new Indexer();
-        lastCacheRefreshes = new HashMap<>();
     }
     
     /**
@@ -67,7 +66,7 @@ public class GitHubDao {
      * @throws IOException 
      */
     public synchronized void primeCache(String baseUrl) throws IOException {
-        lastCacheRefreshes = new HashMap<>(); // Recreate the date map so it forces data to be re-cached.
+        lastCacheRefreshes = null; // Clear the date map so it forces data to be re-cached.
         RepositoryList repositoryList = getRepos(baseUrl);
         for (Repository repository : repositoryList.getRepositories()) {
             getRepoFileData(repository.getName(), baseUrl, null);
@@ -88,6 +87,9 @@ public class GitHubDao {
             String baseUrl, 
             List<String> repositoryUrls) throws IOException {
         
+        if (lastCacheRefreshes == null) {
+            lastCacheRefreshes = new HashMap<>();
+        }
         if (repoFileCache == null) {
             repoFileCache = new HashMap<>();
         }

@@ -66,8 +66,9 @@ public class Indexer {
     }
     
     /**
-     * Returns a complete data file repository from a set of data files from a particular GitHub repository.
-     * 1) A data file repository index is created from the data files.
+     * Returns a complete data file repository from a set of data files (including the index) from a particular GitHub repository.
+     * 
+     * 1) A data file repository index file is created from the data files.
      * 2) All data files and the index file are ensured to be compressed.
      * 3) All file names are ensured to be the compressed format.
      * 4) A HashMap of compressed data file name to compressed file data is created.
