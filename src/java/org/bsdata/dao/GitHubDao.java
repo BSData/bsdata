@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.bsdata.dao;
 
 import java.io.IOException;
@@ -15,10 +12,10 @@ import java.util.Properties;
 import org.apache.commons.codec.binary.Base64;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.PropertiesConstants;
-import org.bsdata.model.Repository;
-import org.bsdata.model.RepositoryFile;
-import org.bsdata.model.RepositoryFileList;
-import org.bsdata.model.RepositoryList;
+import org.bsdata.viewmodel.Repository;
+import org.bsdata.viewmodel.RepositoryFile;
+import org.bsdata.viewmodel.RepositoryFileList;
+import org.bsdata.viewmodel.RepositoryList;
 import org.bsdata.repository.Indexer;
 import org.bsdata.utils.ApplicationProperties;
 import org.bsdata.utils.Utils;
@@ -26,8 +23,12 @@ import org.kohsuke.github.GHContent;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 
+
 /**
- *
+ * Handles all reading and writing of data files to/from GitHub.
+ * Methods in this class will generally convert GitHub objects to/from simpler objects from the viewmodel package.
+ * These viewmodel objects can then be converted to/from JSON for sending/receiving over the wire.
+ * 
  * @author Jonskichov
  */
 public class GitHubDao {
@@ -53,13 +54,29 @@ public class GitHubDao {
 //                properties.getProperty(PropertiesConstants.GITHUB_PASSWORD));
     }
     
+    /**
+     * Ensures data files are cached for all data file repositories.
+     * 
+     * @param baseUrl
+     * @throws IOException 
+     */
     public synchronized void primeCache(String baseUrl) throws IOException {
+        lastCacheRefreshes = new HashMap<>(); // Recreate the date map so it forces data to be re-cached.
         RepositoryList repositoryList = getRepos(baseUrl);
         for (Repository repository : repositoryList.getRepositories()) {
             getRepoFileData(repository.getName(), baseUrl, null);
         }
     }
     
+    /**
+     * Gets the data files for a particular data file repository. File data is cached for 24hrs.
+     * 
+     * @param repositoryName
+     * @param baseUrl
+     * @param repositoryUrls
+     * @return
+     * @throws IOException 
+     */
     public synchronized HashMap<String, byte[]> getRepoFileData(
             String repositoryName, 
             String baseUrl, 
@@ -85,6 +102,13 @@ public class GitHubDao {
         return repoFileCache.get(repositoryName);
     }
     
+    /**
+     * Downloads all the data files from a particular data file repository.
+     * 
+     * @param repositoryName
+     * @return
+     * @throws IOException 
+     */
     private HashMap<String, byte[]> downloadFromGitHub(String repositoryName) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         GitHub gitHub = connectToGitHub();
@@ -104,6 +128,13 @@ public class GitHubDao {
         return repoFiles;
     }
     
+    /**
+     * Gets details of the data file repositories managed by the system.
+     * 
+     * @param baseUrl
+     * @return
+     * @throws IOException 
+     */
     public RepositoryList getRepos(String baseUrl) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         GitHub gitHub = connectToGitHub();
@@ -134,6 +165,14 @@ public class GitHubDao {
         return repositoryList;
     }
     
+    /**
+     * Gets details of a particular data file repository and the files stored in it.
+     * 
+     * @param repositoryName
+     * @param baseUrl
+     * @return
+     * @throws IOException 
+     */
     public RepositoryFileList getRepoFiles(String repositoryName, String baseUrl) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         GitHub gitHub = connectToGitHub();

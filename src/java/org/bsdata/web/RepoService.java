@@ -22,7 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.WebConstants;
 import org.bsdata.dao.GitHubDao;
-import org.bsdata.model.RepositoryList;
+import org.bsdata.viewmodel.RepositoryList;
 import org.bsdata.utils.Utils;
 
 /**

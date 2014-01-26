@@ -1,5 +1,5 @@
 
-package org.bsdata.model;
+package org.bsdata.viewmodel;
 
 
 public class Repository {
