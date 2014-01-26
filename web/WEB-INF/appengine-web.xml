@@ -9,6 +9,12 @@
     -->
     <threadsafe>false</threadsafe>
     
+    <static-files>
+        <include path="/**.html" />
+        <include path="/**.css" />
+        <include path="/**.js" />
+    </static-files>
+    
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
