@@ -1,14 +1,31 @@
 
 package org.bsdata.viewmodel;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class Repository {
+
+public class RepositoryVm {
     
     private String name;
     private String description;
     private String repoUrl;
     private String gitHubUrl;
     private String bugTrackerUrl;
+    private String errorMessage;
+    private List<RepositoryFileVm> repositoryFiles;
+    
+    public RepositoryVm() {
+        repositoryFiles = new ArrayList<>();
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
 
     public String getName() {
         return name;
@@ -48,5 +65,13 @@ public class Repository {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<RepositoryFileVm> getRepositoryFiles() {
+        return repositoryFiles;
+    }
+
+    public void setRepositoryFiles(List<RepositoryFileVm> repositoryFiles) {
+        this.repositoryFiles = repositoryFiles;
     }
 }

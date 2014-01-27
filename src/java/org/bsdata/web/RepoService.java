@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -22,9 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.WebConstants;
 import org.bsdata.dao.GitHubDao;
-import org.bsdata.viewmodel.RepositoryList;
+import org.bsdata.viewmodel.RepositoryListVm;
 import org.bsdata.utils.Utils;
-import org.bsdata.viewmodel.RepositoryFileList;
+import org.bsdata.viewmodel.RepositoryVm;
 
 /**
  * REST Web Service
@@ -123,9 +125,9 @@ public class RepoService {
             @PathParam("repoName") String repoName,
             @Context HttpServletRequest request) {
     
-        RepositoryFileList repositoryFileList;
+        RepositoryVm repositoryVm;
         try {
-            repositoryFileList = dao.getRepoFiles(repoName,getBaseUrl(request));
+            repositoryVm = dao.getRepoFiles(repoName,getBaseUrl(request));
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo file list: {0}", e.getMessage());
@@ -134,14 +136,14 @@ public class RepoService {
         }
         
         Gson gson = new Gson();
-        return gson.toJson(repositoryFileList);
+        return gson.toJson(repositoryVm);
        
     }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getRepositories(@Context HttpServletRequest request) {
-        RepositoryList repositoryList;
+        RepositoryListVm repositoryList;
         try {
             repositoryList = dao.getRepos(getBaseUrl(request));
         }
@@ -169,5 +171,15 @@ public class RepoService {
         }
         
         return "Repo cache primed!";
+    }
+
+    @POST
+    @Path("/{repoName}/{fileName}")
+    @Consumes("application/octet-stream")
+    public void submitFile(
+            @PathParam("repoName") String repoName, 
+            @PathParam("fileName") String fileName,
+            @Context HttpServletRequest request) {
+        
     }
 }

@@ -2,7 +2,7 @@
 package org.bsdata.viewmodel;
 
 
-public class RepositoryFile {
+public class RepositoryFileVm {
     
     private String name;
     private String gitHubUrl;

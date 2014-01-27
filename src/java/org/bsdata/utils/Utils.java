@@ -244,6 +244,22 @@ public class Utils {
         return readStreamToMemory(zipInputStream);
     }
     
+    public static byte[] decompressData(byte[] data) throws IOException {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        ZipInputStream zipInputStream = getDecompressedInputStream(inputStream);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        IOUtils.copy(zipInputStream, outputStream);
+        
+        return outputStream.toByteArray();
+    }
+    
+    private static ZipInputStream getDecompressedInputStream(ByteArrayInputStream inputStream) throws IOException {
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+        zipInputStream.getNextEntry();
+        return zipInputStream;
+    }
+    
     /**
      * Compress the given data array using the zipEntryName
      * 
@@ -268,11 +284,5 @@ public class Utils {
         ZipEntry zipEntry = new ZipEntry(getUncompressedFileName(zipEntryName));
         zipOutputStream.putNextEntry(zipEntry);
         return zipOutputStream;
-    }
-    
-    private static ZipInputStream getDecompressedInputStream(ByteArrayInputStream inputStream) throws IOException {
-        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
-        zipInputStream.getNextEntry();
-        return zipInputStream;
     }
 }

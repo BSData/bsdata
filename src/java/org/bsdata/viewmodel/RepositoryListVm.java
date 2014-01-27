@@ -5,20 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RepositoryList {
+public class RepositoryListVm {
     
-    private List<Repository> repositories;
+    private List<RepositoryVm> repositories;
     private String errorMessage;
     
-    public RepositoryList() {
+    public RepositoryListVm() {
         repositories = new ArrayList<>();
     }
 
-    public List<Repository> getRepositories() {
+    public List<RepositoryVm> getRepositories() {
         return repositories;
     }
 
-    public void setRepositories(List<Repository> repositories) {
+    public void setRepositories(List<RepositoryVm> repositories) {
         this.repositories = repositories;
     }
 

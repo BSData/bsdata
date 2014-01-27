@@ -4,15 +4,21 @@
                    xsi:schemaLocation='http://kenai.com/projects/nbappengine/downloads/download/schema/appengine-web.xsd appengine-web.xsd'>
     <application>bsdatadev</application>
     <version>1</version>
-    <!--    <ssl-enabled>false</ssl-enabled>
+    <!--    
+    <ssl-enabled>false</ssl-enabled>
     <sessions-enabled>true</sessions-enabled>
     -->
     <threadsafe>false</threadsafe>
     
+    <!-- Mark all HTML/CSS/JS/Image files as static -->
     <static-files>
         <include path="/**.html" />
         <include path="/**.css" />
         <include path="/**.js" />
+        <include path="/**.png" />
+        <include path="/**.jpg" />
+        <include path="/**.jpeg" />
+        <include path="/**.gif" />
     </static-files>
     
     <system-properties>
