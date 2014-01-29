@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" ng-app="bsdataApp">
+<head>
+  <meta charset="utf-8">
+  <title>Battlescibe Data Manager</title>
+  <link rel="stylesheet" href="app/css/app.css"/>
+</head>
+<body>
+  <ul class="menu">
+    <li><a href="#/repos">View All Repos</a></li>
+    <li><a href="#/repo">Individual Repo View</a></li>
+  </ul>
+
+  <div ng-view></div>
+
+  <div>Battlescribe Data Manager app v<span app-version></span></div>
+
+<!--  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-route.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-resource.min.js"></script>-->
+  <script src="app/lib/angular/angular.js"></script>
+  <script src="app/lib/angular/angular-route.js"></script>
+  <script src="app/lib/angular/angular-resource.js"></script>
+  <script src="app/js/app.js"></script>
+  <script src="app/js/services.js"></script>
+  <script src="app/js/controllers.js"></script>
+  <script src="app/js/filters.js"></script>
+  <script src="app/js/directives.js"></script>
+</body>
+</html>
