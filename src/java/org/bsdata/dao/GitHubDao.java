@@ -2,8 +2,10 @@
 package org.bsdata.dao;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +19,23 @@ import org.bsdata.viewmodel.RepositoryListVm;
 import org.bsdata.repository.Indexer;
 import org.bsdata.utils.ApplicationProperties;
 import org.bsdata.utils.Utils;
+import org.eclipse.egit.github.core.Blob;
+import org.eclipse.egit.github.core.Commit;
+import org.eclipse.egit.github.core.PullRequest;
+import org.eclipse.egit.github.core.PullRequestMarker;
+import org.eclipse.egit.github.core.Reference;
 import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryCommit;
 import org.eclipse.egit.github.core.RepositoryContents;
+import org.eclipse.egit.github.core.SearchRepository;
+import org.eclipse.egit.github.core.Tree;
+import org.eclipse.egit.github.core.TreeEntry;
+import org.eclipse.egit.github.core.TypedResource;
 import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.ContentsService;
 import org.eclipse.egit.github.core.service.DataService;
+import org.eclipse.egit.github.core.service.PullRequestService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 
 
@@ -33,6 +47,8 @@ import org.eclipse.egit.github.core.service.RepositoryService;
  * @author Jonskichov
  */
 public class GitHubDao {
+    
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     
     private static HashMap<String, Date> lastCacheRefreshes;
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
@@ -52,14 +68,34 @@ public class GitHubDao {
         Properties properties = ApplicationProperties.getProperties();
         GitHubClient gitHubClient = new GitHubClient();
         gitHubClient.setOAuth2Token(properties.getProperty(PropertiesConstants.GITHUB_TOKEN));
+        gitHubClient.setUserAgent(properties.getProperty(PropertiesConstants.GITHUB_USERNAME));
         return gitHubClient;
     }
     
-    private Repository getRepository(GitHubClient gitHubClient, String repositoryName) throws IOException {
+    private Repository getBsDataRepository(GitHubClient gitHubClient, String repositoryName) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         RepositoryService repositoryService = new RepositoryService(gitHubClient);
         return repositoryService.getRepository(
                 properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION), 
+                repositoryName);
+    }
+    
+    private Repository getRepositoryFork(GitHubClient gitHubClient, String repositoryName) throws IOException {
+        Properties properties = ApplicationProperties.getProperties();
+        RepositoryService repositoryService = new RepositoryService(gitHubClient);
+        
+        List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
+                repositoryName
+                + " user:" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) 
+                + " fork:only");
+        
+        if (searchRepositories.isEmpty()) {
+            Repository repository = getBsDataRepository(gitHubClient, repositoryName);
+            return repositoryService.forkRepository(repository);
+        }
+        
+        return repositoryService.getRepository(
+                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
                 repositoryName);
     }
     
@@ -137,7 +173,7 @@ public class GitHubDao {
         ContentsService contentsService = new ContentsService(gitHubClient);
         DataService dataService = new DataService(gitHubClient);
         
-        Repository repository = getRepository(gitHubClient, repositoryName);
+        Repository repository = getBsDataRepository(gitHubClient, repositoryName);
         List<RepositoryContents> contents = contentsService.getContents(repository);
         HashMap<String, byte[]> repoFiles = new HashMap<>();
         for (RepositoryContents repositoryContents : contents) {
@@ -190,7 +226,7 @@ public class GitHubDao {
         GitHubClient gitHubClient = connectToGitHub();
         ContentsService contentsService = new ContentsService(gitHubClient);
         
-        Repository repository = getRepository(gitHubClient, repositoryName);
+        Repository repository = getBsDataRepository(gitHubClient, repositoryName);
         RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl);
         
         List<RepositoryContents> contents = contentsService.getContents(repository);
@@ -214,6 +250,7 @@ public class GitHubDao {
     }
     
     /**
+     * See http://developer.github.com/v3/git/
      * 
      * @param repositoryName
      * @param fileName
@@ -221,47 +258,74 @@ public class GitHubDao {
      * @throws IOException 
      */
     public void submitFile(String repositoryName, String fileName, byte[] fileData, String commitMessage) throws IOException {
-//        if (Utils.isCompressedPath(fileName)) {
-//            fileName = Utils.getUncompressedFileName(fileName);
-//            fileData = Utils.decompressData(fileData);
-//        }
-//        
-//        Properties properties = ApplicationProperties.getProperties();
-//        GitHub gitHub = connectToGitHub();
-//        
-//        GHRepository ghRepository = gitHub
-//                .getOrganization(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))
-//                .getRepository(repositoryName);
-//        
-//        String text = new String(fileData, "UTF-8");
-//        text = text.replace("Warhammer", "WarhammerX");
-//        
-//        //createContent(text, commitMessage, fileName);//ghRepository.listCommits().iterator().next();
-//        GHRef[] refs = ghRepository.getRefs();
-//        
-//        RepositoryService rs = new RepositoryService(ghc);
-//        org.eclipse.egit.github.core.Repository r = rs.getRepository(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION), repositoryName);
-//        rs.getBranches(r).get(0).
-//        
-//        CommitService cs = new CommitService(ghc);
-//        cs.
-//        ContentsService cs = new ContentsService(ghc);
-//        cs.getContents(r).get(0).
-//        
-//        DataService ds = new DataService(ghc);
-//        ds.getReference(ghRepository, "head")
-//        DownloadService ds2 = new DownloadService(ghc);ds2.getDownloads(r).get(0).
+        if (Utils.isCompressedPath(fileName)) {
+            fileName = Utils.getUncompressedFileName(fileName);
+            fileData = Utils.decompressData(fileData);
+        }
         
+        GitHubClient gitHubClient = connectToGitHub();
+        DataService dataService = new DataService(gitHubClient);
+        CommitService commitService = new CommitService(gitHubClient);
+        PullRequestService pullRequestService = new PullRequestService(gitHubClient);
         
+        Repository repositoryFork = getRepositoryFork(gitHubClient, repositoryName);
         
-        //r.
-        // http://developer.github.com/v3/git/
         // get the current commit object
+        Reference sourceMasterReference = dataService.getReference(repositoryFork, "heads/master");
+        RepositoryCommit latestMasterCommit = commitService.getCommit(repositoryFork, sourceMasterReference.getObject().getSha());
         // retrieve the tree it points to
-        // retrieve the content of the blob object that tree has for that particular file path
-        // change the content somehow and post a new blob object with that new content, getting a blob SHA back
+        Tree latestCommitTree = latestMasterCommit.getCommit().getTree();
+        
+        // post a new blob object with new content, getting a blob SHA back
+        Blob blob = new Blob();
+        blob.setContent(Base64.encodeBase64String(fileData));
+        blob.setEncoding("base64");
+        String blobSha = dataService.createBlob(repositoryFork, blob);
+        
         // post a new tree object with that file path pointer replaced with your new blob SHA getting a tree SHA back
+        TreeEntry treeEntry = new TreeEntry();
+        treeEntry.setPath(fileName);
+        treeEntry.setMode("100644");
+        treeEntry.setType("blob");
+        treeEntry.setSha(blobSha);
+        Collection<TreeEntry> treeEntries = new ArrayList<>();
+        treeEntries.add(treeEntry);
+        Tree tree = dataService.createTree(repositoryFork, treeEntries, latestCommitTree.getSha());
+        
         // create a new commit object with the current commit SHA as the parent and the new tree SHA, getting a commit SHA back
-        // update the reference of your branch to point to the new commit SHA
+        Commit commit = new Commit();
+        commit.setMessage(commitMessage);
+        commit.setTree(tree);
+        List<Commit> parents = new ArrayList<>();
+        Commit parentCommit = latestMasterCommit.getCommit();
+        parentCommit.setSha(latestMasterCommit.getSha()); // For some reason the parentCommit's sha isn't set
+        parents.add(parentCommit);
+        commit.setParents(parents);
+        commit = dataService.createCommit(repositoryFork, commit);
+        
+        Reference newReference = new Reference();
+        TypedResource typedResource = new TypedResource();
+        typedResource.setType(TypedResource.TYPE_COMMIT);
+        typedResource.setSha(commit.getSha());
+        typedResource.setUrl(commit.getUrl());
+        newReference.setObject(typedResource);
+        String sourceReference = fileName.trim().replace(" ", "_").replaceAll("[^A-Za-z0-9]", "") 
+                + "_" + dateFormat.format(new Date());
+        newReference.setRef("refs/heads/" + sourceReference);
+        dataService.createReference(repositoryFork, newReference);
+        
+        PullRequestMarker sourceRequestMarker = new PullRequestMarker();
+        sourceRequestMarker.setLabel("BSDataAnon:" + sourceReference);
+        
+        PullRequestMarker destinationRequestMarker = new PullRequestMarker();
+        destinationRequestMarker.setLabel("BSData:master");
+        
+        PullRequest pullRequest = new PullRequest();
+        pullRequest.setTitle("Anonymous update to " + fileName);
+        pullRequest.setHead(sourceRequestMarker);
+        pullRequest.setBase(destinationRequestMarker);
+        pullRequest.setBody(commitMessage);
+        
+        pullRequestService.createPullRequest(getBsDataRepository(gitHubClient, repositoryName), pullRequest);
     }
 }
