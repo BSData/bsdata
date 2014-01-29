@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.PropertiesConstants;
 import org.bsdata.viewmodel.RepositoryVm;
@@ -252,13 +253,19 @@ public class GitHubDao {
     /**
      * See http://developer.github.com/v3/git/
      * 
+     * 1) Create a fork of the main repository if BSDataAnon doesn't already have one
+     * 2) Commit the file submission to a new branch of the fork
+     * 3) Create a pull request from the new branch back to the original bsdata repo
+     * 
      * @param repositoryName
      * @param fileName
      * @param fileData
      * @throws IOException 
      */
     public void submitFile(String repositoryName, String fileName, byte[] fileData, String commitMessage) throws IOException {
+        fileName = FilenameUtils.getName(fileName); // Ensure we have just the filename
         if (Utils.isCompressedPath(fileName)) {
+            // If compressed, decompress the data and change the fileName to the uncompressed extension
             fileName = Utils.getUncompressedFileName(fileName);
             fileData = Utils.decompressData(fileData);
         }
@@ -268,64 +275,63 @@ public class GitHubDao {
         CommitService commitService = new CommitService(gitHubClient);
         PullRequestService pullRequestService = new PullRequestService(gitHubClient);
         
+        // Get BSDataAnon's fork of the repo (creates one if it doesn't already exist)
         Repository repositoryFork = getRepositoryFork(gitHubClient, repositoryName);
         
-        // get the current commit object
-        Reference sourceMasterReference = dataService.getReference(repositoryFork, "heads/master");
-        RepositoryCommit latestMasterCommit = commitService.getCommit(repositoryFork, sourceMasterReference.getObject().getSha());
-        // retrieve the tree it points to
-        Tree latestCommitTree = latestMasterCommit.getCommit().getTree();
+        // get the current commit on the master branch in the fork and get the tree it points to
+        Reference masterRefFork = dataService.getReference(repositoryFork, "heads/master");
+        RepositoryCommit latestMasterCommit = commitService.getCommit(repositoryFork, masterRefFork.getObject().getSha());
+        Tree masterTreeFork = latestMasterCommit.getCommit().getTree();
         
         // post a new blob object with new content, getting a blob SHA back
-        Blob blob = new Blob();
-        blob.setContent(Base64.encodeBase64String(fileData));
-        blob.setEncoding("base64");
-        String blobSha = dataService.createBlob(repositoryFork, blob);
+        Blob contentBlobFork = new Blob();
+        contentBlobFork.setContent(Base64.encodeBase64String(fileData));
+        contentBlobFork.setEncoding("base64");
+        String blobSha = dataService.createBlob(repositoryFork, contentBlobFork);
         
-        // post a new tree object with that file path pointer replaced with your new blob SHA getting a tree SHA back
-        TreeEntry treeEntry = new TreeEntry();
-        treeEntry.setPath(fileName);
-        treeEntry.setMode("100644");
-        treeEntry.setType("blob");
-        treeEntry.setSha(blobSha);
+        // post a new tree object with file path pointer = your new blob SHA getting a tree SHA back
+        TreeEntry treeEntryFork = new TreeEntry();
+        treeEntryFork.setPath(fileName);
+        treeEntryFork.setMode("100644");
+        treeEntryFork.setType("blob");
+        treeEntryFork.setSha(blobSha);
         Collection<TreeEntry> treeEntries = new ArrayList<>();
-        treeEntries.add(treeEntry);
-        Tree tree = dataService.createTree(repositoryFork, treeEntries, latestCommitTree.getSha());
+        treeEntries.add(treeEntryFork);
+        Tree treeFork = dataService.createTree(repositoryFork, treeEntries, masterTreeFork.getSha());
         
         // create a new commit object with the current commit SHA as the parent and the new tree SHA, getting a commit SHA back
-        Commit commit = new Commit();
-        commit.setMessage(commitMessage);
-        commit.setTree(tree);
-        List<Commit> parents = new ArrayList<>();
+        Commit commitFork = new Commit();
+        commitFork.setMessage(commitMessage);
+        commitFork.setTree(treeFork);
+        List<Commit> commitParentsFork = new ArrayList<>();
         Commit parentCommit = latestMasterCommit.getCommit();
         parentCommit.setSha(latestMasterCommit.getSha()); // For some reason the parentCommit's sha isn't set
-        parents.add(parentCommit);
-        commit.setParents(parents);
-        commit = dataService.createCommit(repositoryFork, commit);
+        commitParentsFork.add(parentCommit);
+        commitFork.setParents(commitParentsFork);
+        commitFork = dataService.createCommit(repositoryFork, commitFork);
         
-        Reference newReference = new Reference();
-        TypedResource typedResource = new TypedResource();
-        typedResource.setType(TypedResource.TYPE_COMMIT);
-        typedResource.setSha(commit.getSha());
-        typedResource.setUrl(commit.getUrl());
-        newReference.setObject(typedResource);
-        String sourceReference = fileName.trim().replace(" ", "_").replaceAll("[^A-Za-z0-9]", "") 
+        // create a new branch reference pointing to the new commit SHA
+        Reference branchRefFork = new Reference();
+        TypedResource resourceFork = new TypedResource();
+        resourceFork.setType(TypedResource.TYPE_COMMIT);
+        resourceFork.setSha(commitFork.getSha());
+        resourceFork.setUrl(commitFork.getUrl());
+        branchRefFork.setObject(resourceFork);
+        String branchNameFork = FilenameUtils.getBaseName(fileName).trim().replace(" ", "_").replaceAll("[^A-Za-z0-9]", "") 
                 + "_" + dateFormat.format(new Date());
-        newReference.setRef("refs/heads/" + sourceReference);
-        dataService.createReference(repositoryFork, newReference);
+        branchRefFork.setRef("refs/heads/" + branchNameFork);
+        dataService.createReference(repositoryFork, branchRefFork);
         
+        // Submit a pull request back to the source repository
         PullRequestMarker sourceRequestMarker = new PullRequestMarker();
-        sourceRequestMarker.setLabel("BSDataAnon:" + sourceReference);
-        
+        sourceRequestMarker.setLabel("BSDataAnon:" + branchNameFork); // Source is our new branch in the fork
         PullRequestMarker destinationRequestMarker = new PullRequestMarker();
-        destinationRequestMarker.setLabel("BSData:master");
-        
+        destinationRequestMarker.setLabel("BSData:master"); // Destination is the master branch of the bsdata repository
         PullRequest pullRequest = new PullRequest();
         pullRequest.setTitle("Anonymous update to " + fileName);
         pullRequest.setHead(sourceRequestMarker);
         pullRequest.setBase(destinationRequestMarker);
         pullRequest.setBody(commitMessage);
-        
         pullRequestService.createPullRequest(getBsDataRepository(gitHubClient, repositoryName), pullRequest);
     }
 }
