@@ -4,7 +4,6 @@ package org.bsdata.dao;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,7 +50,7 @@ public class GitHubDao {
     
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     
-    private static HashMap<String, Date> lastCacheRefreshes;
+    private static HashMap<String, Integer> repoNumReleasesCache;
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
     private Indexer indexer;
     
@@ -60,7 +59,7 @@ public class GitHubDao {
     }
     
     /**
-     * Gets a connection to GitHub using the OAuth token in bsdata.properties
+     * Gets a connection to GitHub for BSDataAnon using the OAuth token in bsdata.properties
      * 
      * @return
      * @throws IOException 
@@ -81,16 +80,28 @@ public class GitHubDao {
                 repositoryName);
     }
     
-    private Repository getRepositoryFork(GitHubClient gitHubClient, String repositoryName) throws IOException {
+    /**
+     * Get BSDataAnon's fork of the main repo.
+     * 1) Search for the fork.
+     * 2) If we can't find it, fork the main repo and return the fork.
+     * 3) Otherwise compare the number of releases in the fork to the number of releases in the main repo.
+     * 4) If the number of releases is different, delete the fork, re-fork the main repo and return the fork.
+     * 5) Otherwise just return the fork we found in the search.
+     * 
+     * @param gitHubClient
+     * @param repositoryName
+     * @return
+     * @throws IOException 
+     */
+    private Repository getRepositoryFork(GitHubClient gitHubClient, Repository masterRepository) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         RepositoryService repositoryService = new RepositoryService(gitHubClient);
+        ReleaseService releaseService = new ReleaseService(gitHubClient);
         
         List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
-                repositoryName
+                masterRepository.getName()
                 + " user:" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) 
                 + " fork:only");
-        
-        Repository masterRepository = getBsDataRepository(gitHubClient, repositoryName);
         
         if (searchRepositories.isEmpty()) {
             return repositoryService.forkRepository(masterRepository);
@@ -98,26 +109,15 @@ public class GitHubDao {
         
         Repository repositoryFork = repositoryService.getRepository(
                 properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
-                repositoryName);
+                masterRepository.getName());
         
-        if (repositoryService.getTags(repositoryFork).size() == repositoryService.getTags(masterRepository).size()) {
+        if (releaseService.getReleases(repositoryFork).size() == releaseService.getReleases(masterRepository).size()) {
             return repositoryFork;
         }
         else {
-            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) + "/" + repositoryName);
+            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) + "/" + repositoryFork.getName());
             return repositoryService.forkRepository(masterRepository);
         }
-    }
-    
-    private RepositoryVm createRepositoryVm(Repository repository, String baseUrl) {
-        RepositoryVm repositoryVm = new RepositoryVm();
-        repositoryVm.setName(repository.getName());
-        repositoryVm.setDescription(repository.getDescription());
-        repositoryVm.setRepoUrl(
-                Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
-        repositoryVm.setGitHubUrl(repository.getHtmlUrl());
-        repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
-        return repositoryVm;
     }
     
     /**
@@ -127,7 +127,9 @@ public class GitHubDao {
      * @throws IOException 
      */
     public synchronized void primeCache(String baseUrl) throws IOException {
-        lastCacheRefreshes = null; // Clear the date map so it forces data to be re-cached.
+        // Clear the cache so it forces data to be re-cached.
+        repoFileCache = null;
+        repoNumReleasesCache = null;
         RepositoryListVm repositoryList = getRepos(baseUrl);
         for (RepositoryVm repository : repositoryList.getRepositories()) {
             getRepoFileData(repository.getName(), baseUrl, null);
@@ -148,45 +150,56 @@ public class GitHubDao {
             String baseUrl, 
             List<String> repositoryUrls) throws IOException {
         
-        if (lastCacheRefreshes == null) {
-            lastCacheRefreshes = new HashMap<>();
-        }
         if (repoFileCache == null) {
             repoFileCache = new HashMap<>();
         }
+        if (repoNumReleasesCache == null) {
+            repoNumReleasesCache = new HashMap<>();
+        }
 
-        Date lastCacheRefresh = lastCacheRefreshes.get(repositoryName);
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
+        GitHubClient gitHubClient = connectToGitHub();
+        ReleaseService releaseService = new ReleaseService(gitHubClient);
+        
+        Repository masterRepository = getBsDataRepository(gitHubClient, repositoryName);
+        List<Release> releases = releaseService.getReleases(masterRepository);
+        
+        // Download the data for the latest release if:
+        // 1) We don't already have data cached for this repo
+        // 2) Or the repo has a different number of releases since the last time we downloaded the data (i.e. there has been a new release)
         if (!repoFileCache.containsKey(repositoryName) 
-                || lastCacheRefresh == null 
-                || lastCacheRefresh.before(calendar.getTime())) {
+                || !repoNumReleasesCache.containsKey(repositoryName)
+                || repoNumReleasesCache.get(repositoryName).intValue() != releases.size()) {
             
-            HashMap<String, byte[]> repositoryData = downloadFromGitHub(repositoryName);
+            Release latestRelease = releaseService.getLatestRelease(releases);
+            HashMap<String, byte[]> repositoryData = downloadFromGitHub(masterRepository, latestRelease);
             repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
+            
+            // Cache the results and the current number of releases
             repoFileCache.put(repositoryName, repositoryData);
-            lastCacheRefreshes.put(repositoryName, new Date());
+            repoNumReleasesCache.put(repositoryName, releases.size());
         }
         
         return repoFileCache.get(repositoryName);
     }
     
     /**
-     * Downloads all the data files from a particular data file repository.
+     * Downloads all the data files from a specific release in a specific repository.
      * 
      * @param repositoryName
      * @return
      * @throws IOException 
      */
-    private HashMap<String, byte[]> downloadFromGitHub(String repositoryName) throws IOException {
+    private HashMap<String, byte[]> downloadFromGitHub(Repository repository, Release release) throws IOException {
         GitHubClient gitHubClient = connectToGitHub();
         ContentsService contentsService = new ContentsService(gitHubClient);
         DataService dataService = new DataService(gitHubClient);
         
-        Repository repository = getBsDataRepository(gitHubClient, repositoryName);
-        List<RepositoryContents> contents = contentsService.getContents(repository);
+        List<RepositoryContents> contents = contentsService.getContents(repository, null, release.getTagName());
         HashMap<String, byte[]> repoFiles = new HashMap<>();
         for (RepositoryContents repositoryContents : contents) {
+            if (!Utils.isDataFilePath(repositoryContents.getName())) {
+                continue; // Skip non-data files
+            }
             String content = dataService.getBlob(repository, repositoryContents.getSha()).getContent();
             byte[] data = Base64.decodeBase64(content);
             repoFiles.put(repositoryContents.getName(), data);
@@ -259,6 +272,17 @@ public class GitHubDao {
         return repositoryVm;
     }
     
+    private RepositoryVm createRepositoryVm(Repository repository, String baseUrl) {
+        RepositoryVm repositoryVm = new RepositoryVm();
+        repositoryVm.setName(repository.getName());
+        repositoryVm.setDescription(repository.getDescription());
+        repositoryVm.setRepoUrl(
+                Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
+        repositoryVm.setGitHubUrl(repository.getHtmlUrl());
+        repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
+        return repositoryVm;
+    }
+    
     /**
      * See http://developer.github.com/v3/git/
      * 
@@ -285,7 +309,8 @@ public class GitHubDao {
         PullRequestService pullRequestService = new PullRequestService(gitHubClient);
         
         // Get BSDataAnon's fork of the repo (creates one if it doesn't already exist)
-        Repository repositoryFork = getRepositoryFork(gitHubClient, repositoryName);
+        Repository repositoryMaster = getBsDataRepository(gitHubClient, repositoryName);
+        Repository repositoryFork = getRepositoryFork(gitHubClient, repositoryMaster);
         
         // get the current commit on the master branch in the fork and get the tree it points to
         Reference masterRefFork = dataService.getReference(repositoryFork, "heads/master");
@@ -341,6 +366,6 @@ public class GitHubDao {
         pullRequest.setHead(sourceRequestMarker);
         pullRequest.setBase(destinationRequestMarker);
         pullRequest.setBody(commitMessage);
-        pullRequestService.createPullRequest(getBsDataRepository(gitHubClient, repositoryName), pullRequest);
+        pullRequestService.createPullRequest(repositoryMaster, pullRequest);
     }
 }
