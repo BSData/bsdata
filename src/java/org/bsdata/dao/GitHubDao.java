@@ -90,14 +90,23 @@ public class GitHubDao {
                 + " user:" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) 
                 + " fork:only");
         
+        Repository masterRepository = getBsDataRepository(gitHubClient, repositoryName);
+        
         if (searchRepositories.isEmpty()) {
-            Repository repository = getBsDataRepository(gitHubClient, repositoryName);
-            return repositoryService.forkRepository(repository);
+            return repositoryService.forkRepository(masterRepository);
         }
         
-        return repositoryService.getRepository(
+        Repository repositoryFork = repositoryService.getRepository(
                 properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
                 repositoryName);
+        
+        if (repositoryService.getTags(repositoryFork).size() == repositoryService.getTags(masterRepository).size()) {
+            return repositoryFork;
+        }
+        else {
+            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) + "/" + repositoryName);
+            return repositoryService.forkRepository(masterRepository);
+        }
     }
     
     private RepositoryVm createRepositoryVm(Repository repository, String baseUrl) {
