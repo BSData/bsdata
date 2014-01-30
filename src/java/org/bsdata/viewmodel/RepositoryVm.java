@@ -12,6 +12,7 @@ public class RepositoryVm {
     private String repoUrl;
     private String gitHubUrl;
     private String bugTrackerUrl;
+    private String lastUpdated;
     private String errorMessage;
     private List<RepositoryFileVm> repositoryFiles;
     
@@ -73,5 +74,13 @@ public class RepositoryVm {
 
     public void setRepositoryFiles(List<RepositoryFileVm> repositoryFiles) {
         this.repositoryFiles = repositoryFiles;
+    }
+
+    public String getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(String lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 }

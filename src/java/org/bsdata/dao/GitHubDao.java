@@ -48,7 +48,8 @@ import org.eclipse.egit.github.core.service.RepositoryService;
  */
 public class GitHubDao {
     
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
+    private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
+    private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ");
     
     private static HashMap<String, Integer> repoNumReleasesCache;
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
@@ -219,6 +220,7 @@ public class GitHubDao {
         Properties properties = ApplicationProperties.getProperties();
         GitHubClient gitHubClient = connectToGitHub();
         RepositoryService repositoryService = new RepositoryService(gitHubClient);
+        ReleaseService releaseService = new ReleaseService(gitHubClient);
         
         List<Repository> orgRepositories = repositoryService.getOrgRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION));
         List<RepositoryVm> repositories = new ArrayList<>();
@@ -227,7 +229,8 @@ public class GitHubDao {
                 continue;
             }
             
-            RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl);
+            Release latestRelease = releaseService.getLatestRelease(repository);
+            RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
             repositories.add(repositoryVm);
         }
         
@@ -248,11 +251,13 @@ public class GitHubDao {
     public RepositoryVm getRepoFiles(String repositoryName, String baseUrl) throws IOException {
         GitHubClient gitHubClient = connectToGitHub();
         ContentsService contentsService = new ContentsService(gitHubClient);
+        ReleaseService releaseService = new ReleaseService(gitHubClient);
         
         Repository repository = getBsDataRepository(gitHubClient, repositoryName);
-        RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl);
+        Release latestRelease = releaseService.getLatestRelease(repository);
+        RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
         
-        List<RepositoryContents> contents = contentsService.getContents(repository);
+        List<RepositoryContents> contents = contentsService.getContents(repository, null, latestRelease.getTagName());
         List<RepositoryFileVm> repositoryFiles = new ArrayList<>();
         for (RepositoryContents repositoryContents : contents) {
             String fileName = Utils.getCompressedFileName(repositoryContents.getName());
@@ -272,10 +277,11 @@ public class GitHubDao {
         return repositoryVm;
     }
     
-    private RepositoryVm createRepositoryVm(Repository repository, String baseUrl) {
+    private RepositoryVm createRepositoryVm(Repository repository, String baseUrl, Release latestRelease) {
         RepositoryVm repositoryVm = new RepositoryVm();
         repositoryVm.setName(repository.getName());
         repositoryVm.setDescription(repository.getDescription());
+        repositoryVm.setLastUpdated(longDateFormat.format(latestRelease.getPublishedAt()));
         repositoryVm.setRepoUrl(
                 Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
         repositoryVm.setGitHubUrl(repository.getHtmlUrl());
@@ -352,7 +358,7 @@ public class GitHubDao {
         resourceFork.setUrl(commitFork.getUrl());
         branchRefFork.setObject(resourceFork);
         String branchNameFork = FilenameUtils.getBaseName(fileName).trim().replace(" ", "_").replaceAll("[^A-Za-z0-9]", "") 
-                + "_" + dateFormat.format(new Date());
+                + "_" + branchDateFormat.format(new Date());
         branchRefFork.setRef("refs/heads/" + branchNameFork);
         dataService.createReference(repositoryFork, branchRefFork);
         
