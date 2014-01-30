@@ -49,7 +49,7 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 public class GitHubDao {
     
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
-    private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ");
+    private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
     private static HashMap<String, Integer> repoNumReleasesCache;
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
@@ -79,6 +79,18 @@ public class GitHubDao {
         return repositoryService.getRepository(
                 properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION), 
                 repositoryName);
+    }
+    
+    private List<RepositoryContents> getRepositoryContents(Repository repository, Release release) throws IOException {
+        GitHubClient gitHubClient = connectToGitHub();
+        ContentsService contentsService = new ContentsService(gitHubClient);
+        
+        if (release == null) {
+            return contentsService.getContents(repository);
+        }
+        else {
+            return contentsService.getContents(repository, null, release.getTagName());
+        }
     }
     
     /**
@@ -192,10 +204,9 @@ public class GitHubDao {
      */
     private HashMap<String, byte[]> downloadFromGitHub(Repository repository, Release release) throws IOException {
         GitHubClient gitHubClient = connectToGitHub();
-        ContentsService contentsService = new ContentsService(gitHubClient);
         DataService dataService = new DataService(gitHubClient);
         
-        List<RepositoryContents> contents = contentsService.getContents(repository, null, release.getTagName());
+        List<RepositoryContents> contents = getRepositoryContents(repository, release);
         HashMap<String, byte[]> repoFiles = new HashMap<>();
         for (RepositoryContents repositoryContents : contents) {
             if (!Utils.isDataFilePath(repositoryContents.getName())) {
@@ -250,14 +261,13 @@ public class GitHubDao {
      */
     public RepositoryVm getRepoFiles(String repositoryName, String baseUrl) throws IOException {
         GitHubClient gitHubClient = connectToGitHub();
-        ContentsService contentsService = new ContentsService(gitHubClient);
         ReleaseService releaseService = new ReleaseService(gitHubClient);
         
         Repository repository = getBsDataRepository(gitHubClient, repositoryName);
         Release latestRelease = releaseService.getLatestRelease(repository);
         RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
         
-        List<RepositoryContents> contents = contentsService.getContents(repository, null, latestRelease.getTagName());
+        List<RepositoryContents> contents = getRepositoryContents(repository, latestRelease);
         List<RepositoryFileVm> repositoryFiles = new ArrayList<>();
         for (RepositoryContents repositoryContents : contents) {
             String fileName = Utils.getCompressedFileName(repositoryContents.getName());
@@ -281,7 +291,9 @@ public class GitHubDao {
         RepositoryVm repositoryVm = new RepositoryVm();
         repositoryVm.setName(repository.getName());
         repositoryVm.setDescription(repository.getDescription());
-        repositoryVm.setLastUpdated(longDateFormat.format(latestRelease.getPublishedAt()));
+        if (latestRelease != null) {
+            repositoryVm.setLastUpdated(longDateFormat.format(latestRelease.getPublishedAt()));
+        }
         repositoryVm.setRepoUrl(
                 Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
         repositoryVm.setGitHubUrl(repository.getHtmlUrl());
