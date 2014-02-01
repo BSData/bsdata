@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.bsdata.constants.DataConstants;
@@ -53,6 +54,8 @@ public class GitHubDao {
     
     private static HashMap<String, Integer> repoNumReleasesCache;
     private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
+    private static HashMap<String, ReentrantLock> repoDownloadLocks;
+    
     private Indexer indexer;
     
     public GitHubDao() {
@@ -86,6 +89,7 @@ public class GitHubDao {
         ContentsService contentsService = new ContentsService(gitHubClient);
         
         if (release == null) {
+            // We didn't find a release for this repo. Just return the HEAD contents.
             return contentsService.getContents(repository);
         }
         else {
@@ -158,7 +162,7 @@ public class GitHubDao {
      * @return
      * @throws IOException 
      */
-    public synchronized HashMap<String, byte[]> getRepoFileData(
+    public HashMap<String, byte[]> getRepoFileData(
             String repositoryName, 
             String baseUrl, 
             List<String> repositoryUrls) throws IOException {
@@ -169,30 +173,74 @@ public class GitHubDao {
         if (repoNumReleasesCache == null) {
             repoNumReleasesCache = new HashMap<>();
         }
+        if (repoDownloadLocks == null) {
+            repoDownloadLocks = new HashMap<>();
+        }
+        
+        if (!repoDownloadLocks.containsKey(repositoryName)) {
+            // Create a lock object for this repo name if we don't already have one
+            repoDownloadLocks.put(repositoryName, new ReentrantLock(true));
+        }
+        
+        // Get the lock object associated with this repo (want to prevent multiple threads downloading from the same repo at the same time)
+        ReentrantLock downloadLock = repoDownloadLocks.get(repositoryName);
+        if (downloadLock.isLocked() && repoFileCache.containsKey(repositoryName)) {
+            // We are currently downloading for this repo, but we already have something cached, so return that
+            return repoFileCache.get(repositoryName);
+        }
 
         GitHubClient gitHubClient = connectToGitHub();
         ReleaseService releaseService = new ReleaseService(gitHubClient);
-        
+
         Repository masterRepository = getBsDataRepository(gitHubClient, repositoryName);
         List<Release> releases = releaseService.getReleases(masterRepository);
-        
-        // Download the data for the latest release if:
-        // 1) We don't already have data cached for this repo
-        // 2) Or the repo has a different number of releases since the last time we downloaded the data (i.e. there has been a new release)
+        if (requiresDownload(repositoryName, releases)) {
+            try {
+                // Lock as we don't want multiple threads downloading from the same repo at once
+                downloadLock.lock();
+                
+                // Check again if we need to do a download.
+                // We may have a case where one thread has locked this code and is doing the download, and another thread is waiting behind the lock (i.e. requiresDownload returned true for the second thread).
+                // This can happen if we are downloading the data for the first time (i.e. repoFileCache is empty while the first thread does the download).
+                // In this case, the waiting thread should not download the data _again_ and should instead return the data from the cache once it's 
+                //   done waiting for the first thread to finish the download.
+                if (!requiresDownload(repositoryName, releases)) {
+                    repoFileCache.get(repositoryName);
+                }
+
+                Release latestRelease = releaseService.getLatestRelease(releases);
+                HashMap<String, byte[]> repositoryData = downloadFromGitHub(masterRepository, latestRelease);
+                repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
+
+                // Cache the results and the current number of releases
+                repoFileCache.put(repositoryName, repositoryData);
+                repoNumReleasesCache.put(repositoryName, releases.size());
+            }
+            finally {
+                // Done! Unlock in a finally block as we don't want to leave anything locked if there's an exception...
+                downloadLock.unlock();
+            }
+        }
+
+        return repoFileCache.get(repositoryName);
+    }
+    
+    /**
+     * Download the data for the latest release if:
+     * 1) We don't already have data cached for this repo
+     * 2) Or the repo has a different number of releases since the last time we downloaded the data (i.e. there has been a new release)
+     * 
+     * @param repositoryName
+     * @param releases
+     * @return 
+     */
+    private boolean requiresDownload(String repositoryName, List<Release> releases) {
         if (!repoFileCache.containsKey(repositoryName) 
                 || !repoNumReleasesCache.containsKey(repositoryName)
                 || repoNumReleasesCache.get(repositoryName).intValue() != releases.size()) {
-            
-            Release latestRelease = releaseService.getLatestRelease(releases);
-            HashMap<String, byte[]> repositoryData = downloadFromGitHub(masterRepository, latestRelease);
-            repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
-            
-            // Cache the results and the current number of releases
-            repoFileCache.put(repositoryName, repositoryData);
-            repoNumReleasesCache.put(repositoryName, releases.size());
+            return true;
         }
-        
-        return repoFileCache.get(repositoryName);
+        return false;
     }
     
     /**
