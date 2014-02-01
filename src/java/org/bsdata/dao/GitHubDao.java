@@ -113,7 +113,6 @@ public class GitHubDao {
     private Repository getRepositoryFork(GitHubClient gitHubClient, Repository masterRepository) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         RepositoryService repositoryService = new RepositoryService(gitHubClient);
-        ReleaseService releaseService = new ReleaseService(gitHubClient);
         
         List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
                 masterRepository.getName()
@@ -128,7 +127,7 @@ public class GitHubDao {
                 properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
                 masterRepository.getName());
         
-        if (releaseService.getReleases(repositoryFork).size() == releaseService.getReleases(masterRepository).size()) {
+        if (repositoryService.getTags(repositoryFork).size() == repositoryService.getTags(masterRepository).size()) {
             return repositoryFork;
         }
         else {
