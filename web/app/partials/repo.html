@@ -1,4 +1,41 @@
-<p>Showing information for repository {{m.repoName}}</p>
+<h1>Information for {{m.repoName}}</h1>
+
+<p>{{m.repo.description}}</p>
+<div class="row">
+    <div class="col-md-2"><a ng-href="m.repo.repoUrl">Download</a></div>
+    <div class="col-md-10">{{m.repo.repoUrl}}</div>
+</div>
+<div class="row">
+    <div class="col-md-2"><a ng-href="m.repo.gitHubUrl">Fork on Git Hub</a></div>
+    <div class="col-md-10">{{m.repo.gitHubUrl}}</div>
+</div>
+<div class="row">
+    <div class="col-md-2"><a ng-href="m.repo.bugTrackerUrl">Report bugs</a></div>
+    <div class="col-md-10">{{m.repo.bugTrackerUrl}}</div>
+</div>
+
+<h1>Data files for {{m.repoName}}</h1>
+<table class="table table-striped" ng-show="m.repo.repositoryFiles.length">
+    <thead>
+    <th>Name</th>
+    <th></th>
+    <th>Data URL</th>
+    <th></th>
+    <th>Git Hub URL</th>
+    </thead>
+            
+    <tbody>
+        <tr ng-repeat="file in m.repo.repositoryFiles">
+            <td class="fileName">{{file.name}}</td>
+            <td class="nobreak"><a ng-href="file.dataFileUrl">Download</a></td>    
+            <td>{{file.dataFileUrl}}</td>
+            <td class="nobreak"><a ng-href="file.gitHubUrl">Fork this repo</a></td>
+            <td>{{file.gitHubUrl}}</td>
+        </tr>
+    </tbody>
+</table>
+
+<!--<h1>Raw information for {{m.repoName}}</h1>
 <pre>
   {{ m.repo | json}}
-</pre>
+</pre>-->
