@@ -5,7 +5,7 @@ body {
     height:100%;
     min-width: 540px;
     font-family: 'Roboto', sans-serif;
-    font-size: 12px;
+    font-size: 1em;
     color: #2e3436;
 }
 
@@ -17,6 +17,7 @@ body {
 #header {
     background:#000;
     padding: 0;
+    height: 100px;
 }
 
 #body {
@@ -31,7 +32,7 @@ body {
     height: 5em;		/* Height of the footer */
     color: #eeeeec;
     background-color: #000;
-    font-size: 11px;
+    font-size: 0.7em;
 }
 
 #body a {
@@ -55,12 +56,14 @@ body {
     padding-bottom: 1em;
 }
 
-#body ul ul ul {
+/* Adds a border underneath the nested unordered list */
+#body ul li ul {
     border-bottom: 1px solid #888a85;
 }
 
-#body ul ul ul li {
-    font-size: 12px;
+/* Sets the text smaller in the nested unordered list */
+#body ul li ul li {
+    font-size: 0.75em;
 }
 
 #body h1,
@@ -106,12 +109,6 @@ body {
     text-decoration: underline;
 }
 
-.banner {
-    margin: 0 1em 0 1em;
-    height: 100px;
-    width: 480px;
-}
-
 .ribbon {
     position: absolute;
     top: 0;
@@ -120,6 +117,65 @@ body {
     width: 100px;
     height: 100px;
 }
+
 .nobreak {
     white-space: nowrap;
+}
+
+/* http://www.w3schools.com/CSS/css_float.asp */
+/* With float, a width should be specified */
+.logo {
+    float: left;
+    margin: 7px 1em 8px 1em;
+    border: none;
+    height: 85px;
+    width: 85px;
+}
+
+/* This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html */
+.items ul {
+    list-style: none;
+    margin: 0;
+    padding:0
+}
+
+.items li
+{
+    float: left;
+    margin: 0;
+}
+
+/* Keep width below 430px to avoid sizing issues */
+.items li .outerContainer
+{
+    display: table;
+    height: 100px;
+    overflow: hidden;
+    width: 400px;
+}
+
+.items li .outerContainer .innerContainer
+{
+    display: table-cell;
+    vertical-align: middle;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.items li .outerContainer .innerContainer .element h1
+{
+    color: #fff;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+    display: block;
+}
+
+.items li .outerContainer .innerContainer .element h4
+{
+    color: #fff;
+    text-decoration: none;
+    padding: 0;
+    margin: 0;
+    display: block;
 }

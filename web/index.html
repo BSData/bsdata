@@ -1,46 +1,118 @@
 <!doctype html>
-<html lang="en" ng-app="bsdataApp">
-<head>
-  <meta charset="utf-8">
-  <title>Battlescibe Data Manager</title> 
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-  <link rel="stylesheet" href="app/css/bsdata.css">
-  <script src="app/lib/angular-file-upload.min.js"></script>
-</head>
-<body>
-    <div id="header">
-        <a href="/#/repos">
-            <img class="banner" src="app/img/banner.jpg" alt="BattleScribe data file hosting platform">
-        </a>
-        <a href="https://github.com/BSData">
-            <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
-                 onmouseover="this.src = 'app/img/ribbons/right-red.png'" 
-                 onmouseout="this.src = 'app/img/ribbons/right-cerulean.png'"
-                 alt="Fork me on GitHub" />
-        </a>       
-    </div>
-    
-<!--  <ul class="menu">
-    <li><a href="#/repos">View All Repos</a></li>
-    <li><a href="#/repo">Individual Repo View</a></li>
-  </ul>-->
 
-    <div class="container" ng-view>
-        
-    </div>
+<!-- Does not validate: "Attribute ng-app not allowed on element html at this point." -->
+<!-- <html lang="en" ng-app="bsdataApp"> -->
+<!-- See: http://stackoverflow.com/questions/16949926/w3c-validation-with-directives-in-angularjs -->
+<html lang="en" data-ng-app="bsdataApp">
 
-  <div style="display:none">Battlescribe Data Manager app v<span app-version></span></div>
+    <head>
+        <meta charset="utf-8">
+        <title>BattleScribe Data Manager</title> 
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="app/css/bsdata.css">
+        <link rel="shortcut icon" href="app/img/favicon.ico" />
+        <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+        <script src="app/lib/angular-file-upload.min.js"></script>
 
-<!--  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-route.min.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-resource.min.js"></script>-->
-  <script src="app/lib/angular/angular.js"></script>
-  <script src="app/lib/angular/angular-route.js"></script>
-  <script src="app/lib/angular/angular-resource.js"></script>
-  <script src="app/js/app.js"></script>
-  <script src="app/js/services.js"></script>
-  <script src="app/js/controllers.js"></script>
-  <script src="app/js/filters.js"></script>
-  <script src="app/js/directives.js"></script>
-</body>
+        <!--[if IE 7]>
+        <link rel="stylesheet" media="screen, projection" href="app/css/ie7.css" />
+        <![endif]-->
+
+        <!--[if IE 6]>
+        <link rel="stylesheet" media="screen, projection" href="app/css/ie6.css" />
+        <![endif]-->
+
+    </head>
+
+    <body>
+
+        <!-- Container -->
+        <div id="container">
+
+            <!-- Header -->
+            <div id="header">
+                <a href="/#/repos">
+                    <img class="logo" src="app/img/bsdata_logo.png" alt="BattleScribe data file hosting platform">
+                </a>
+
+                <!-- This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html -->
+                <div class="items">
+                    <ul>
+                        <li>
+                            <div class="outerContainer">
+                                <div class="innerContainer">
+                                    <div class="element">
+                                        <h1>BSData</h1>
+                                        <h4>BattleScribe data file hosting platform</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <a href="https://github.com/BSData">
+                    <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
+                         onmouseover="this.src = 'app/img/ribbons/right-red.png';"
+                         onmouseout="this.src = 'app/img/ribbons/right-cerulean.png';"
+                         alt="Fork me on GitHub" />
+                </a>       
+            </div>
+
+            <!-- Body -->
+            <div id="body">
+
+                <h2>Welcome to the BattleScribe data file hosting platform</h2>
+
+                <!-- Sample repository listing -->
+                <!-- Note that we have to wrap the nested <ul></ul> within <li></li> to pass validation -->
+                <ul>
+                    <li><h3><a href="http://localhost:8080/repos/wh40k/index.bsi">Warhammer 40k</a></h3></li>
+                    <li>
+                        <ul>
+                            <li><a href="https://github.com/BSData/wh40k/issues">Report a bug</a></li>
+                            <li><a href="https://github.com/BSData/wh40k">Fork this repo on GitHub</a></li>
+                            <li>Last updated: yyyy-MM-ddTHH:mm:ss.SSSZ</li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul>
+                    <li><h3><a href="http://localhost:8080/repos/boltaction/index.bsi">Bolt Action</a></h3></li>
+                    <li>
+                        <ul>
+                            <li><a href="https://github.com/BSData/boltaction/issues">Report a bug</a></li>
+                            <li><a href="https://github.com/BSData/boltaction">Fork this repo on GitHub</a></li>
+                            <li>Last updated: yyyy-MM-ddTHH:mm:ss.SSSZ</li>
+                        </ul>
+                    </li>
+                </ul>
+
+
+                <!-- Does not validate: "Attribute app-version not allowed on element span at this point." -->
+                <!-- <div style="display:none">Battlescribe Data Manager app v<span app-version></span></div> -->
+                <div style="display:none">Battlescribe Data Manager app v</div>
+
+                <!--  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+                <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-route.min.js"></script>
+                <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-resource.min.js"></script>-->
+                <script src="app/lib/angular/angular.js"></script>
+                <script src="app/lib/angular/angular-route.js"></script>
+                <script src="app/lib/angular/angular-resource.js"></script>
+                <script src="app/js/app.js"></script>
+                <script src="app/js/services.js"></script>
+                <script src="app/js/controllers.js"></script>
+                <script src="app/js/filters.js"></script>
+                <script src="app/js/directives.js"></script>
+            </div>
+
+            <!-- Footer -->
+            <div id="footer">
+                <p>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_GB">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
+                <p><a href="http://aralbalkan.com/scribbles/fork-me-on-github-retina-ribbons/">"Fork me on GitHub Retina Ribbon"</a>
+                    by <a href="http://aralbalkan.com/">Aral Balkan</a> is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/uk/">CC BY-NC-SA 2.0 UK</a></p>
+            </div>   	
+
+        </div>
+
+    </body>
 </html>
