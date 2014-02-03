@@ -8,6 +8,6 @@ angular.module('bsdataApp', [
 ]).
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/repos', {templateUrl: 'app/partials/repos.html', controller: 'ReposCtrl'});
-  $routeProvider.when('/repo', {templateUrl: 'app/partials/repo.html', controller: 'RepoCtrl'});
+  $routeProvider.when('/repo/:repoName', {templateUrl: 'app/partials/repo.html', controller: 'RepoCtrl'});
   $routeProvider.otherwise({redirectTo: '/repos'});
 }]);

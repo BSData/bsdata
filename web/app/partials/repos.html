@@ -1,4 +1,22 @@
-<div ng-repeat="repo in m.repos">
-    {{repo.name}}
-    {{repo.url}}
-</div>
+<h1>Repositories</h1>
+<table class="table table-striped">
+    <thead>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Repo URL</th>
+    <th>Github URL</th>
+    <th>Last Updated</th>
+    <th></th>
+    </thead>
+        
+    <tbody>
+        <tr ng-repeat="repo in m.repos">
+            <td>{{repo.name}}</td>
+            <td>{{repo.description}}</td>
+            <td><a ng-href="repo.repoUrl">Download</a></td>
+            <td><a ng-href="repo.gitHubUrl">Fork this repo</a></td>
+            <td>{{repo.lastUpdated}}</td>
+            <td><a ng-href="#repo/{{repo.name}}">More info</a></td>
+        </tr>
+    </tbody>
+</table>

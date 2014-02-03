@@ -4,10 +4,11 @@
 
 angular.module('bsdataApp.controllers', ["ngResource"])
   .service("repoRestApi", function($resource) {
-    return $resource("/bsdata/repos/:id", 
+    return $resource("/repos/:id", 
       {}, 
       {
-          list : {method: 'GET', params:{}, isArray: true}
+          list : {method: 'GET', params:{}},
+          get: {method: 'GET', params:{}}
       });
   })
   .controller('ReposCtrl', function($scope, repoRestApi) {
@@ -17,11 +18,16 @@ angular.module('bsdataApp.controllers', ["ngResource"])
     
     repoRestApi.list({}, function(data) {
         $scope.m.repos = [];
-        angular.forEach(data.repos, function(repo) {
+        angular.forEach(data.repositories, function(repo) {
             $scope.m.repos.push(repo);
         });
     });
   })
-  .controller('RepoCtrl', [function() {
-
-  }]);
+  .controller('RepoCtrl', function($scope, $routeParams, repoRestApi) {
+    $scope.m = {
+        repoName : $routeParams.repoName
+    };
+    repoRestApi.get({id: $routeParams.repoName}, function(data) {
+        $scope.m.repo = data;
+    });
+  });
