@@ -18,19 +18,19 @@
 <table class="table table-striped" ng-show="m.repo.repositoryFiles.length">
     <thead>
     <th>Name</th>
-    <th></th>
     <th>Data URL</th>
-    <th></th>
     <th>Git Hub URL</th>
+    <th>Action</th>
     </thead>
             
     <tbody>
         <tr ng-repeat="file in m.repo.repositoryFiles">
             <td class="fileName">{{file.name}}</td>
             <td class="nobreak"><a ng-href="file.dataFileUrl">Download</a></td>    
-            <td>{{file.dataFileUrl}}</td>
+<!--            <td>{{file.dataFileUrl}}</td>-->
             <td class="nobreak"><a ng-href="file.gitHubUrl">Fork this repo</a></td>
-            <td>{{file.gitHubUrl}}</td>
+            <td>Upload new version</td>
+<!--            <td>{{file.gitHubUrl}}</td>-->
         </tr>
     </tbody>
 </table>
