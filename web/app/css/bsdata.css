@@ -122,6 +122,11 @@ body {
     white-space: nowrap;
 }
 
+/* Not sure if we need this, but data-ng-view specifies this as its class*/
+.container {
+    
+}
+
 /* http://www.w3schools.com/CSS/css_float.asp */
 /* With float, a width should be specified */
 .logo {

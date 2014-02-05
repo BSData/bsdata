@@ -1,18 +1,27 @@
-<!doctype html>
-
-<!-- Does not validate: "Attribute ng-app not allowed on element html at this point." -->
-<!-- <html lang="en" ng-app="bsdataApp"> -->
-<!-- See: http://stackoverflow.com/questions/16949926/w3c-validation-with-directives-in-angularjs -->
-<html lang="en" data-ng-app="bsdataApp">
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!-- The following line from HTML5Boilerplate does not validate; it is used by Modernizr: the "no-js" class acts as a fallback if JavaScript is disabled -->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" data-ng-app="bsdataApp"> <!--<![endif]-->
 
     <head>
         <meta charset="utf-8">
-        <title>BattleScribe Data Manager</title> 
-        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="app/css/bsdata.css">
+        <!-- The following line from HTML5Boilerplate does not validate; discussion on it here: https://groups.google.com/forum/#!topic/html5boilerplate/bRtrFSrKjtI -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>BattleScribe Data Manager</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
         <link rel="shortcut icon" href="app/img/favicon.ico" />
+
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="app/css/normalize.css">
+        <link rel="stylesheet" href="app/css/main.css">
+        <link rel="stylesheet" href="app/css/bsdata.css">
         <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
         <script src="app/lib/angular-file-upload.min.js"></script>
+        <script src="app/js/vendor/modernizr-2.6.2.min.js"></script>
 
         <!--[if IE 7]>
         <link rel="stylesheet" media="screen, projection" href="app/css/ie7.css" />
@@ -62,6 +71,10 @@
             <!-- Body -->
             <div id="body">
 
+            <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+            <![endif]-->
+                
                 <!-- DEMO DATA REMOVED -->
                 <!--                 Sample repository listing 
                                  Note that we have to wrap the nested <ul></ul> within <li></li> to pass validation -->
@@ -109,6 +122,30 @@
                 <script src="app/js/controllers.js"></script>
                 <script src="app/js/filters.js"></script>
                 <script src="app/js/directives.js"></script>
+                
+                <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+                <script>window.jQuery || document.write('<script src="app/js/vendor/jquery-1.10.2.min.js"><\/script>');</script>
+                <script src="app/js/plugins.js"></script>
+                <script src="app/js/main.js"></script>
+
+                <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+                <script>
+                    (function(b, o, i, l, e, r) {
+                        b.GoogleAnalyticsObject = l;
+                        b[l] || (b[l] =
+                                function() {
+                                    (b[l].q = b[l].q || []).push(arguments);
+                                });
+                        b[l].l = +new Date;
+                        e = o.createElement(i);
+                        r = o.getElementsByTagName(i)[0];
+                        e.src = '//www.google-analytics.com/analytics.js';
+                        r.parentNode.insertBefore(e, r);
+                    }(window, document, 'script', 'ga'));
+                    ga('create', 'UA-XXXXX-X');
+                    ga('send', 'pageview');
+                </script>
+                
             </div>
 
             <!-- Footer -->
