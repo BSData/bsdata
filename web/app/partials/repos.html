@@ -13,9 +13,9 @@
         <tr ng-repeat="repo in m.repos">
             <td>{{repo.name}}</td>
             <td>{{repo.description}}</td>
-            <td><a ng-href="repo.repoUrl">Download</a></td>
-            <td><a ng-href="repo.gitHubUrl">Fork this repo</a></td>
-            <td>{{repo.lastUpdated}}</td>
+            <td><a ng-href="{{repo.repoUrl}}">Download</a></td>
+            <td><a ng-href="{{repo.gitHubUrl}}">Fork this repo</a></td>
+            <td>{{repo.lastUpdated | date:'medium'}}</td>
             <td><a ng-href="#repo/{{repo.name}}">More info</a></td>
         </tr>
     </tbody>

@@ -2,15 +2,15 @@
 
 <p>{{m.repo.description}}</p>
 <div class="row">
-    <div class="col-md-2"><a ng-href="m.repo.repoUrl">Download</a></div>
+    <div class="col-md-2"><a ng-href="{{m.repo.repoUrl}}">Download</a></div>
     <div class="col-md-10">{{m.repo.repoUrl}}</div>
 </div>
 <div class="row">
-    <div class="col-md-2"><a ng-href="m.repo.gitHubUrl">Fork on Git Hub</a></div>
+    <div class="col-md-2"><a ng-href="{{m.repo.gitHubUrl}}">Fork on Git Hub</a></div>
     <div class="col-md-10">{{m.repo.gitHubUrl}}</div>
 </div>
 <div class="row">
-    <div class="col-md-2"><a ng-href="m.repo.bugTrackerUrl">Report bugs</a></div>
+    <div class="col-md-2"><a ng-href="{{m.repo.bugTrackerUrl}}">Report bugs</a></div>
     <div class="col-md-10">{{m.repo.bugTrackerUrl}}</div>
 </div>
 
@@ -26,9 +26,9 @@
     <tbody>
         <tr ng-repeat="file in m.repo.repositoryFiles">
             <td class="fileName">{{file.name}}</td>
-            <td class="nobreak"><a ng-href="file.dataFileUrl">Download</a></td>    
+            <td class="nobreak"><a ng-href="{{file.dataFileUrl}}">Download</a></td>    
 <!--            <td>{{file.dataFileUrl}}</td>-->
-            <td class="nobreak"><a ng-href="file.gitHubUrl">Fork this repo</a></td>
+            <td class="nobreak"><a ng-href="{{file.gitHubUrl}}">Fork this repo</a></td>
             <td>Upload new version</td>
 <!--            <td>{{file.gitHubUrl}}</td>-->
         </tr>
