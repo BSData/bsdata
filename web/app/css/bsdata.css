@@ -184,3 +184,17 @@ body {
     margin: 0;
     display: block;
 }
+
+.repoImg {
+    display : block;
+    float: left;
+    margin: 5px 10px;
+}
+.repoName {
+    color: #333;
+    font-size: 40px;
+}
+.repoDescription {
+    color: #777;
+    font-size: 15px;
+}

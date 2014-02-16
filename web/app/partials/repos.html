@@ -1,22 +1,19 @@
 <h1>Repositories</h1>
-<table class="table table-striped">
-    <thead>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Repo URL</th>
-    <th>Github URL</th>
-    <th>Last Updated</th>
-    <th></th>
-    </thead>
-        
-    <tbody>
-        <tr ng-repeat="repo in m.repos">
-            <td>{{repo.name}}</td>
-            <td>{{repo.description}}</td>
-            <td><a ng-href="{{repo.repoUrl}}">Download</a></td>
-            <td><a ng-href="{{repo.gitHubUrl}}">Fork this repo</a></td>
-            <td>{{repo.lastUpdated | date:'medium'}}</td>
-            <td><a ng-href="#repo/{{repo.name}}">More info</a></td>
-        </tr>
-    </tbody>
-</table>
+<div ng-repeat="repo in m.repos" class="repoRow">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>
+            <img class="repoImg" width="80" height="80" ng-src="{{repo.imgSrc}}" />
+            <a ng-href="#repo/{{repo.name}}" class="repoName">{{repo.name}}</a> 
+            <span class="repoDescription">{{repo.description}}</span>    
+            </h2>
+
+            <div class="repoInfo">
+            <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}} | </span> 
+            <a ng-href="{{repo.repoUrl}}">Download</a> | 
+            <a ng-href="{{repo.gitHubUrl}}">Fork this repo</a> |
+            <a ng-href="#repo/{{repo.name}}">Repo files</a>
+            </div>
+        </div>    
+    </div>
+</div>
