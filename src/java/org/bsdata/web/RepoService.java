@@ -1,25 +1,27 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.bsdata.web;
 
 import com.google.gson.Gson;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.WebConstants;
@@ -28,9 +30,13 @@ import org.bsdata.viewmodel.RepositoryListVm;
 import org.bsdata.utils.Utils;
 import org.bsdata.viewmodel.RepositoryVm;
 
+
 /**
- * REST Web Service
- *
+ * Web service class that handles 
+ * - Calls from the browser for the front end (list repos etc)
+ * - File submissions
+ * - Serving the data files themselves
+ * 
  * @author Jonskichov
  */
 @Path(WebConstants.REPO_SERVICE_PATH)
@@ -54,7 +60,7 @@ public class RepoService {
     
     /**
      * Returns the URL of this service request without the path info/conext.
-     * So... http://something.com/service/some/thing becomes http://something.com/service
+     * So... http://something.com/REPO_SERVICE_PATH/some/thing becomes http://something.com/REPO_SERVICE_PATH
      * 
      * @param request
      * @return 
@@ -73,10 +79,10 @@ public class RepoService {
             @Context HttpServletRequest request) {
         
         if (StringUtils.isEmpty(repoName)) {
-            // No repo name
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         if (StringUtils.isEmpty(fileName)) {
-            // No filename
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         
         String mimeType;
@@ -124,8 +130,16 @@ public class RepoService {
     public String getRepositoryFiles(
             @PathParam("repoName") String repoName,
             @Context HttpServletRequest request) {
-    
+        
         RepositoryVm repositoryVm;
+        Gson gson = new Gson();
+        
+        if (StringUtils.isEmpty(repoName)) {
+            repositoryVm = new RepositoryVm();
+            repositoryVm.setErrorMessage("You must provide a repository name.");
+            return gson.toJson(repositoryVm);
+        }
+    
         try {
             repositoryVm = dao.getRepoFiles(repoName,getBaseUrl(request));
         }
@@ -135,9 +149,7 @@ public class RepoService {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
-        Gson gson = new Gson();
         return gson.toJson(repositoryVm);
-       
     }
     
     @GET
@@ -179,7 +191,50 @@ public class RepoService {
     public void submitFile(
             @PathParam("repoName") String repoName, 
             @PathParam("fileName") String fileName,
+            @HeaderParam("commitMessage") String commitMessage,
+            InputStream inputStream,
             @Context HttpServletRequest request) {
         
+        if (StringUtils.isEmpty(repoName)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        if (StringUtils.isEmpty(fileName)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        if (StringUtils.isEmpty(commitMessage)) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        if (inputStream == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        
+        try {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024 * 80);
+            IOUtils.copy(inputStream, outputStream);
+            dao.submitFile(repoName, fileName, outputStream.toByteArray(), commitMessage);
+        }
+        catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to submit file: {0}", e.getMessage());
+            e.printStackTrace();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
+    
+//    @Context ServletContext context;
+//    @GET
+//    @Path("/submit")
+//    @Produces(MediaType.TEXT_PLAIN)
+//    public String submit(@Context HttpServletRequest request) {
+//        
+//        try {
+//            dao.createIssue("wh40k", "Issue Title Test", "Issue body test");
+//        }
+//        catch (Exception e) {
+//            logger.log(Level.SEVERE, "Failed to submit file: {0}", e.getMessage());
+//            e.printStackTrace();
+//            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+//        }
+//        
+//        return "Submitted!";
+//    }
 }

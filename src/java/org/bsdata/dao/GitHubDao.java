@@ -22,6 +22,7 @@ import org.bsdata.utils.ApplicationProperties;
 import org.bsdata.utils.Utils;
 import org.eclipse.egit.github.core.Blob;
 import org.eclipse.egit.github.core.Commit;
+import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.Reference;
@@ -36,6 +37,7 @@ import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.CommitService;
 import org.eclipse.egit.github.core.service.ContentsService;
 import org.eclipse.egit.github.core.service.DataService;
+import org.eclipse.egit.github.core.service.IssueService;
 import org.eclipse.egit.github.core.service.PullRequestService;
 import org.eclipse.egit.github.core.service.RepositoryService;
 
@@ -432,5 +434,18 @@ public class GitHubDao {
         pullRequest.setBase(destinationRequestMarker);
         pullRequest.setBody(commitMessage);
         pullRequestService.createPullRequest(repositoryMaster, pullRequest);
+    }
+    
+    public void createIssue(String repositoryName, String title, String body) throws IOException {
+        GitHubClient gitHubClient = connectToGitHub();
+        IssueService issueService = new IssueService(gitHubClient);
+        
+        Repository repository = getBsDataRepository(gitHubClient, repositoryName);
+        
+        Issue issue = new Issue();
+        issue.setTitle(title);
+        issue.setBody(body);
+        
+        issueService.createIssue(repository, issue);
     }
 }

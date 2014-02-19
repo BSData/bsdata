@@ -7,6 +7,7 @@ public class RepositoryFileVm {
     private String name;
     private String gitHubUrl;
     private String dataFileUrl;
+    private String errorMessage;
 
     public String getName() {
         return name;
@@ -30,6 +31,14 @@ public class RepositoryFileVm {
 
     public void setDataFileUrl(String dataFileUrl) {
         this.dataFileUrl = dataFileUrl;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
     
 }
