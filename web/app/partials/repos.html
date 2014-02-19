@@ -3,16 +3,15 @@
     <div class="row">
         <div class="col-md-12">
             <h2>
-            <img class="repoImg" width="80" height="80" ng-src="{{repo.imgSrc}}" />
-            <a ng-href="#repo/{{repo.name}}" class="repoName">{{repo.name}}</a> 
-            <span class="repoDescription">{{repo.description}}</span>    
+                <img class="repoImg" width="80" height="80" ng-src="{{repo.imgSrc}}" />
+                <a href="{{repo.repoUrl}}" class="repoName">{{repo.description}}</a>
             </h2>
 
             <div class="repoInfo">
-            <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}} | </span> 
-            <a ng-href="{{repo.repoUrl}}">Download</a> | 
-            <a ng-href="{{repo.gitHubUrl}}">Fork this repo</a> |
-            <a ng-href="#repo/{{repo.name}}">Repo files</a>
+                <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}} | </span>
+                <a href="{{repo.gitHubUrl}}">Fork this repo</a> |
+                <a href="{{repo.bugTrackerUrl}}">Report a bug</a> |
+                <a ng-href="#repo/{{repo.name}}">Details</a>
             </div>
         </div>    
     </div>
