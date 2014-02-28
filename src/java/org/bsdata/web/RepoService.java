@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.Context;
@@ -108,7 +107,6 @@ public class RepoService {
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo data: {0}", e.getMessage());
-            e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
@@ -145,7 +143,6 @@ public class RepoService {
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo file list: {0}", e.getMessage());
-            e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
@@ -161,7 +158,6 @@ public class RepoService {
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo list: {0}", e.getMessage());
-            e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
@@ -178,7 +174,6 @@ public class RepoService {
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to prime repo cache: {0}", e.getMessage());
-            e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
@@ -215,7 +210,39 @@ public class RepoService {
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to submit file: {0}", e.getMessage());
-            e.printStackTrace();
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/{repoName}/issue/{fileName}")
+    @Consumes("application/octet-stream")
+    public void submitIssue(
+            @PathParam("repoName") String repoName, 
+            @PathParam("fileName") String fileName,
+            @HeaderParam("issueTitle") String issueTitle,
+            @HeaderParam("issueBody") String issueBody,
+            @Context HttpServletRequest request) {
+        
+        
+        if (StringUtils.isEmpty(repoName)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        if (StringUtils.isEmpty(fileName)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+        if (StringUtils.isEmpty(issueTitle)) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        if (StringUtils.isEmpty(issueBody)) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+        
+        try {
+            dao.createIssue(repoName, fileName + ": " + issueTitle, issueBody);
+        }
+        catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to submit issue: {0}", e.getMessage());
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -231,7 +258,6 @@ public class RepoService {
 //        }
 //        catch (Exception e) {
 //            logger.log(Level.SEVERE, "Failed to submit file: {0}", e.getMessage());
-//            e.printStackTrace();
 //            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
 //        }
 //        
