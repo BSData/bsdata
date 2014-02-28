@@ -117,8 +117,8 @@ public class RepoService {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         
-        return Response.ok()
-                .header("Content-Disposition", "attachment;filename=\"" + fileName + "\"")
+        return Response
+                .ok()
                 .entity(fileData)
                 .type(mimeType)
                 .build();
