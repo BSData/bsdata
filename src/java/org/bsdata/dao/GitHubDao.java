@@ -206,7 +206,7 @@ public class GitHubDao {
                 // In this case, the waiting thread should not download the data _again_ and should instead return the data from the cache once it's 
                 //   done waiting for the first thread to finish the download.
                 if (!requiresDownload(repositoryName, releases)) {
-                    repoFileCache.get(repositoryName);
+                    return repoFileCache.get(repositoryName);
                 }
 
                 Release latestRelease = releaseService.getLatestRelease(releases);
