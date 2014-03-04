@@ -9,7 +9,7 @@
         <meta charset="utf-8">
         <!-- The following line from HTML5Boilerplate does not validate; discussion on it here: https://groups.google.com/forum/#!topic/html5boilerplate/bRtrFSrKjtI -->
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>BattleScribe Data Manager</title>
+        <title>BattleScribe Data Files</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -20,6 +20,7 @@
         <link rel="stylesheet" href="app/css/main.css">
         <link rel="stylesheet" href="app/css/bsdata.css">
         <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+        <link href="http://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet" type="text/css">
         <script src="app/lib/angular-file-upload.min.js"></script>
         <script src="app/js/vendor/modernizr-2.6.2.min.js"></script>
 
@@ -40,72 +41,57 @@
 
             <!-- Header -->
             <div id="header">
-                <a href="/#/repos">
-                    <img class="logo" src="app/img/bsdata_logo.png" alt="BattleScribe data file hosting platform">
-                </a>
+                <div class="container">
+                    <a href="/#/repos">
+                        <img class="logo" src="app/img/bsdata_logo.png" alt="BattleScribe data file hosting platform">
+                    </a>
 
-                <!-- This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html -->
-                <div class="items">
-                    <ul>
-                        <li>
-                            <div class="outerContainer">
-                                <div class="innerContainer">
-                                    <div class="element">
-                                        <h1>BSData</h1>
-                                        <h4>BattleScribe data file hosting platform</h4>
+                    <!-- This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html -->
+                    <div class="items">
+                        <ul>
+                            <li>
+                                <div class="outerContainer">
+                                    <div class="innerContainer">
+                                        <div class="element">
+                                            <h1>BattleScribe Data Files</h1>
+                                            <h2>Crowd-sourced data repositories for BattleScribe</h2>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                            </li>
+                        </ul>
+                    </div>
 
-                <a href="https://github.com/BSData">
-                    <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
-                         onmouseover="this.src = 'app/img/ribbons/right-red.png';"
-                         onmouseout="this.src = 'app/img/ribbons/right-cerulean.png';"
-                         alt="Fork me on GitHub" />
-                </a>       
+                    <a href="https://github.com/BSData">
+                        <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
+                             onmouseover="this.src = 'app/img/ribbons/right-red.png';"
+                             onmouseout="this.src = 'app/img/ribbons/right-cerulean.png';"
+                             alt="Fork me on GitHub" />
+                    </a>
+                </div>
             </div>
 
             <!-- Body -->
             <div id="body">
 
-            <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-            <![endif]-->
+                <!--[if lt IE 7]>
+                <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+                <![endif]-->
                 
-                <!-- DEMO DATA REMOVED -->
-                <!--                 Sample repository listing 
-                                 Note that we have to wrap the nested <ul></ul> within <li></li> to pass validation -->
-                <!--                <h2>Welcome to the BattleScribe data file hosting platform</h2>
-                
-                
-                                <ul>
-                                    <li><h3><a href="http://localhost:8080/repos/wh40k/index.bsi">Warhammer 40k</a></h3></li>
-                                    <li>
-                                        <ul>
-                                            <li><a href="https://github.com/BSData/wh40k/issues">Report a bug</a></li>
-                                            <li><a href="https://github.com/BSData/wh40k">Fork this repo on GitHub</a></li>
-                                            <li>Last updated: yyyy-MM-ddTHH:mm:ss.SSSZ</li>
-                                        </ul>
-                                    </li>
-                                </ul>
-                                <ul>
-                                    <li><h3><a href="http://localhost:8080/repos/boltaction/index.bsi">Bolt Action</a></h3></li>
-                                    <li>
-                                        <ul>
-                                            <li><a href="https://github.com/BSData/boltaction/issues">Report a bug</a></li>
-                                            <li><a href="https://github.com/BSData/boltaction">Fork this repo on GitHub</a></li>
-                                            <li>Last updated: yyyy-MM-ddTHH:mm:ss.SSSZ</li>
-                                        </ul>
-                                    </li>
-                                </ul>-->
-
-
-                <!-- Does not validate: "Attribute app-version not allowed on element span at this point." -->
-                <!-- <div style="display:none">Battlescribe Data Manager app v<span app-version></span></div> -->
-                <div style="display:none">BattleScribe Data Manager App V</div>
+                <div class="container">
+                    <ul class="top-text">
+                        <li>
+                            All our data files (and this website!) are available on <a href="https://github.com/BSData">GitHub</a> - feel
+                            free to fork us and get involved!
+                        </li>
+                        <li>
+                            Found a bug or problem? Click "report a bug" below the relevant repository link.
+                        </li>
+                        <li>
+                            We'd love you to host your data with us! <a href="https://github.com/BSData/bsdata/issues">Contact us</a> if you want to join in.
+                        </li>
+                    </ul>
+                </div>
 
                 <div class="container" data-ng-view>
 
@@ -129,7 +115,7 @@
                 <script src="app/js/main.js"></script>
 
                 <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-                <script>
+<!--                <script>
                     (function(b, o, i, l, e, r) {
                         b.GoogleAnalyticsObject = l;
                         b[l] || (b[l] =
@@ -144,7 +130,7 @@
                     }(window, document, 'script', 'ga'));
                     ga('create', 'UA-XXXXX-X');
                     ga('send', 'pageview');
-                </script>
+                </script>-->
                 
             </div>
 

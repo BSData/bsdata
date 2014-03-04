@@ -131,23 +131,32 @@ body {
 /* With float, a width should be specified */
 .logo {
     float: left;
-    margin: 7px 1em 8px 1em;
+    margin: 7px 1em 8px 0px;
     border: none;
     height: 85px;
     width: 85px;
+}
+
+.top-text {
+    list-style: disc inside none !important;
+    margin: 24px 0px 24px 0px !important;
+}
+
+.top-text li {
+    margin: 8px 0px 8px 0px !important;
 }
 
 /* This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html */
 .items ul {
     list-style: none;
     margin: 0;
-    padding:0
+    padding: 0;
 }
 
 .items li
 {
     float: left;
-    margin: 0;
+    margin: 0px;
 }
 
 /* Keep width below 430px to avoid sizing issues */
@@ -156,7 +165,6 @@ body {
     display: table;
     height: 100px;
     overflow: hidden;
-    width: 400px;
 }
 
 .items li .outerContainer .innerContainer
@@ -169,6 +177,7 @@ body {
 
 .items li .outerContainer .innerContainer .element h1
 {
+    font-family: 'Roboto Slab', serif;
     color: #fff;
     text-decoration: none;
     padding: 0;
@@ -176,7 +185,7 @@ body {
     display: block;
 }
 
-.items li .outerContainer .innerContainer .element h4
+.items li .outerContainer .innerContainer .element h2
 {
     color: #fff;
     text-decoration: none;
@@ -192,9 +201,13 @@ body {
 }
 .repoName {
     color: #333;
-    font-size: 40px;
+    font-size: 30px;
 }
 .repoDescription {
     color: #777;
     font-size: 15px;
+}
+
+.repoRow {
+    margin: 0px 0px 16px 0px;
 }

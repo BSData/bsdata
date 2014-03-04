@@ -3,10 +3,10 @@
 <div ng-repeat="repo in m.repos" class="repoRow">
     <div class="row">
         <div class="col-md-12">
-            <h2>
+            <h3>
                 <!--<img class="repoImg" width="80" height="80" ng-src="{{repo.imgSrc}}" />-->
                 <a href="{{repo.repoUrl}}" class="repoName">{{repo.description}}</a>
-            </h2>
+            </h3>
             <div class="repoInfo">
                 <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}} | </span>
                 <a href="{{repo.gitHubUrl}}">Fork this repo</a> |
