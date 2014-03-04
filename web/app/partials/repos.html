@@ -1,18 +1,23 @@
 <h1>Repositories</h1>
-<br>
-<div ng-repeat="repo in m.repos" class="repoRow">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>
-                <!--<img class="repoImg" width="80" height="80" ng-src="{{repo.imgSrc}}" />-->
-                <a href="{{repo.repoUrl}}" class="repoName">{{repo.description}}</a>
-            </h2>
-            <div class="repoInfo">
-                <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}} | </span>
-                <a href="{{repo.gitHubUrl}}">Fork this repo</a> |
-                <a href="{{repo.bugTrackerUrl}}">Report a bug</a> |
-                <a ng-href="#repo/{{repo.name}}">Details</a>
-            </div>
-        </div>    
-    </div>
+<div id="repoListWrapper">
+    <table>
+        <thead>
+            <tr>
+                <th class="name">Game System</th>
+                <th class="modified">Last Updated</th>
+                <th colspan="3" class="actions">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="repo in m.repos" class="repoRow">
+                <td class="name"><a href="#repo/{{repo.name}}" class="repoName">{{repo.description}}</a></td>
+                <td class="modified"><span ng-if="repo.lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}}</span></td>
+                <td class="action"><a ng-href="#repo/{{repo.name}}" class="details" title="Details">Details</a></td>
+                <td class="action"><a href="{{repo.bugTrackerUrl}}"class="report" title="Report a bug">Report a bug</a></td>
+                <td class="action"><a href="{{repo.gitHubUrl}}" class="fork" title="Fork this Repo">Fork this Repo</a></td>    
+            </tr>
+        </tbody>
+    </table>
+    
+   
 </div>

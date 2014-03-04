@@ -19,7 +19,7 @@
         <link rel="stylesheet" href="app/css/normalize.css">
         <link rel="stylesheet" href="app/css/main.css">
         <link rel="stylesheet" href="app/css/bsdata.css">
-        <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,900,700italic,700,300,400italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
         <script src="app/lib/angular-file-upload.min.js"></script>
         <script src="app/js/vendor/modernizr-2.6.2.min.js"></script>
 
@@ -40,32 +40,18 @@
 
             <!-- Header -->
             <div id="header">
-                <a href="/#/repos">
-                    <img class="logo" src="app/img/bsdata_logo.png" alt="BattleScribe data file hosting platform">
-                </a>
-
-                <!-- This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html -->
-                <div class="items">
-                    <ul>
-                        <li>
-                            <div class="outerContainer">
-                                <div class="innerContainer">
-                                    <div class="element">
-                                        <h1>BSData</h1>
-                                        <h4>BattleScribe data file hosting platform</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                <div id="logo">
+                    <a href="/#/repos">
+                        <img src="app/img/bsdata_logo.png" alt="BattleScribe data file hosting platform">
+                        <h1>BSData</h1>
+                        <h4>BattleScribe data file<br> hosting platform</h4>
+                    </a>/
                 </div>
+                <ul id="headerLinks">
+                    <li id="forkOnGitHub"><a href="https://github.com/BSData">Fork on GitHub</a></li>
+                </ul>
 
-                <a href="https://github.com/BSData">
-                    <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
-                         onmouseover="this.src = 'app/img/ribbons/right-red.png';"
-                         onmouseout="this.src = 'app/img/ribbons/right-cerulean.png';"
-                         alt="Fork me on GitHub" />
-                </a>       
+                 
             </div>
 
             <!-- Body -->
@@ -107,7 +93,7 @@
                 <!-- <div style="display:none">Battlescribe Data Manager app v<span app-version></span></div> -->
                 <div style="display:none">BattleScribe Data Manager App V</div>
 
-                <div class="container" data-ng-view>
+                <div id="repoList" class="container" data-ng-view>
 
                 </div>
 
@@ -149,11 +135,11 @@
             </div>
 
             <!-- Footer -->
-            <div id="footer">
+            <!--<div id="footer">
                 <p>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_GB">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
                 <p><a href="http://aralbalkan.com/scribbles/fork-me-on-github-retina-ribbons/">"Fork me on GitHub Retina Ribbon"</a>
                     by <a href="http://aralbalkan.com/">Aral Balkan</a> is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/uk/">CC BY-NC-SA 2.0 UK</a></p>
-            </div>   	
+            </div>  
 
         </div>
 

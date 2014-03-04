@@ -1,32 +1,27 @@
-<h1>{{m.repo.description}}</h1>
+<h1><a href="/#/repos">Repositories</a> <em>></em> {{m.repo.description}}</h1>
 
-<br>
+<div id="repoListWrapper">
 
-<div class="row">
-    <div class="col-md-2"><a href="{{m.repo.repoUrl}}">Download</a></div>
-    <div class="col-md-10">{{m.repo.repoUrl}}</div>
-</div>
-<div class="row">
-    <div class="col-md-2"><a href="{{m.repo.gitHubUrl}}">Fork on GitHub</a></div>
-    <div class="col-md-10">{{m.repo.gitHubUrl}}</div>
-</div>
-<div class="row">
-    <div class="col-md-2"><a href="{{m.repo.bugTrackerUrl}}">Report a bug</a></div>
-    <div class="col-md-10">{{m.repo.bugTrackerUrl}}</div>
-</div>
+    <ul class="links">
+        <li><label><a href="{{m.repo.repoUrl}}">Download</a></label><input id="repoUrl" type="text" value="{{m.repo.repoUrl}}" readonly /></li>
+        <li><label><a href="{{m.repo.gitHubUrl}}">Fork on GitHub</a></label><input id="repoUrl" type="text" readonly value="{{m.repo.gitHubUrl}}" readonly /></li>
+        <li><label><a href="{{m.repo.bugTrackerUrl}}">Report a bug</a></label><input id="repoUrl" type="text" value="{{m.repo.bugTrackerUrl}}" readonly /></li>
+    </ul>
 
-<br>
-
-<h2>Data files for {{m.repoName}}</h2>
-<table class="table table-striped" ng-show="m.repo.repositoryFiles.length">
+<table class="table table-striped" >
     <thead>
-    <th>Name</th>
-    <th>File URL</th>
-    <th>GitHub URL</th>
-    <th>Action</th>
+        <tr>
+            <th colspan="4">Data files for {{m.repoName}}</th>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <th>File URL</th>
+            <th>GitHub URL</th>
+            <th>Action</th>
+        </tr>
     </thead>
             
-    <tbody>
+    <tbody ng-show="m.repo.repositoryFiles.length">
         <tr ng-repeat="file in m.repo.repositoryFiles">
             <td class="fileName">{{file.name}}</td>
             <td class="nobreak"><a ng-href="{{file.dataFileUrl}}">Download</a></td>    
@@ -42,3 +37,4 @@
 <pre>
   {{ m.repo | json}}
 </pre>-->
+</div>
