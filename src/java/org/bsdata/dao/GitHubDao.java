@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -294,6 +296,13 @@ public class GitHubDao {
             repositories.add(repositoryVm);
         }
         
+        Collections.sort(repositories, new Comparator<RepositoryVm>() {
+            @Override
+            public int compare(RepositoryVm o1, RepositoryVm o2) {
+                return o1.getDescription().compareTo(o2.getDescription());
+            }
+        });
+        
         // TODO: this should probably be cached...
         RepositoryListVm repositoryList = new RepositoryListVm();
         repositoryList.setRepositories(repositories);
@@ -330,6 +339,13 @@ public class GitHubDao {
             repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
             repositoryFiles.add(repositoryFile);
         }
+        
+        Collections.sort(repositoryFiles, new Comparator<RepositoryFileVm>() {
+            @Override
+            public int compare(RepositoryFileVm o1, RepositoryFileVm o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         
         // TODO: this should probably be cached...
         repositoryVm.setRepositoryFiles(repositoryFiles);
