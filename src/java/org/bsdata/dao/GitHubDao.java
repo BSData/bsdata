@@ -1,6 +1,12 @@
 
 package org.bsdata.dao;
 
+import com.sun.syndication.feed.synd.SyndContent;
+import com.sun.syndication.feed.synd.SyndContentImpl;
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndEntryImpl;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.synd.SyndFeedImpl;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +22,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.PropertiesConstants;
+import org.bsdata.constants.WebConstants;
 import org.bsdata.viewmodel.RepositoryVm;
 import org.bsdata.viewmodel.RepositoryFileVm;
 import org.bsdata.viewmodel.RepositoryListVm;
@@ -463,5 +470,57 @@ public class GitHubDao {
         issue.setBody(body);
         
         issueService.createIssue(repository, issue);
+    }
+    
+    public SyndFeed getReleaseFeed(String repositoryName, String baseUrl) throws IOException {
+        GitHubClient gitHubClient = connectToGitHub();
+        ReleaseService releaseService = new ReleaseService(gitHubClient);
+        
+        SyndFeed feed = new SyndFeedImpl();
+        feed.setFeedType("atom_1.0");
+        
+        List<SyndEntry> entries;
+        if (repositoryName.toLowerCase().equals(WebConstants.ALL_REPO_FEEDS)) {
+            feed.setTitle("All Repository Releases");
+            feed.setDescription("Data file releases for all repositories");
+            feed.setLink(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS);
+            
+            Properties properties = ApplicationProperties.getProperties();
+            RepositoryService repositoryService = new RepositoryService(gitHubClient);
+            
+            entries = new ArrayList<>();
+            for (Repository repository : repositoryService.getRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))) {
+                entries.addAll(getReleaseFeedEntries(releaseService.getReleases(repository)));
+            }
+        }
+        else {
+            Repository repository = getBsDataRepository(gitHubClient, repositoryName);
+            feed.setTitle(repository.getDescription() + " Releases");
+            feed.setDescription("Data file releases for " + repository.getDescription());
+            feed.setLink(baseUrl + "/feeds/" + repositoryName);
+            entries = getReleaseFeedEntries(releaseService.getReleases(repository));
+        }
+        
+        feed.setEntries(entries);
+        return feed;
+    }
+    
+    public List<SyndEntry> getReleaseFeedEntries(List<Release> releases) throws IOException {
+        List<SyndEntry> entries = new ArrayList<>();
+        for (Release release : releases) {
+            SyndEntry entry = new SyndEntryImpl();
+            entry.setTitle(release.getName());
+            entry.setLink(release.getHtmlUrl());
+            entry.setPublishedDate(release.getPublishedAt());
+            
+            SyndContent description = new SyndContentImpl();
+            description.setType(DataConstants.TEXT_MIME_TYPE);
+            description.setValue(release.getBody());
+            
+            entry.setDescription(description);
+            
+            entries.add(entry);
+        }
+        return entries;
     }
 }

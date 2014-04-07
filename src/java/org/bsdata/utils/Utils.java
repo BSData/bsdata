@@ -274,6 +274,7 @@ public class Utils {
         ZipOutputStream zipOutputStream = getCompressedOutputStream(zipEntryName, outputStream);
 
         IOUtils.copy(inputStream, zipOutputStream);
+        zipOutputStream.flush();
         zipOutputStream.finish();
 
         return outputStream.toByteArray();

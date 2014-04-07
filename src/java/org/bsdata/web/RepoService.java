@@ -2,9 +2,13 @@
 package org.bsdata.web;
 
 import com.google.gson.Gson;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -139,7 +143,7 @@ public class RepoService {
         }
     
         try {
-            repositoryVm = dao.getRepoFiles(repoName,getBaseUrl(request));
+            repositoryVm = dao.getRepoFiles(repoName, getBaseUrl(request));
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo file list: {0}", e.getMessage());
@@ -147,6 +151,35 @@ public class RepoService {
         }
         
         return gson.toJson(repositoryVm);
+    }
+
+    @GET
+    @Path("/feeds/{repoName}")
+    @Produces(MediaType.APPLICATION_ATOM_XML)
+    public String getRepositoryFeed(
+            @PathParam("repoName") String repoName,
+            @Context HttpServletRequest request) {
+        
+        if (StringUtils.isEmpty(repoName)) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+    
+        StringWriter writer = new StringWriter();
+        try {
+            SyndFeed feed = dao.getReleaseFeed(repoName, getBaseUrl(request));
+            SyndFeedOutput feedOutput = new SyndFeedOutput();
+            feedOutput.output(feed, writer);
+        }
+        catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to load repo list: {0}", e.getMessage());
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        catch (FeedException e) {
+            logger.log(Level.SEVERE, "Failed to create feed: {0}", e.getMessage());
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        
+        return writer.toString();
     }
     
     @GET

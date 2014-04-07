@@ -16,6 +16,8 @@ public class Release implements Serializable {
     private String name;
     private String tagName;
     private Date publishedAt;
+    private String body;
+    private String htmlUrl;
 
     public String getName() {
         return name;
@@ -39,6 +41,22 @@ public class Release implements Serializable {
 
     public void setPublishedAt(Date publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public String getHtmlUrl() {
+        return htmlUrl;
+    }
+
+    public void setHtmlUrl(String htmlUrl) {
+        this.htmlUrl = htmlUrl;
     }
     
 }
