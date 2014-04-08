@@ -313,6 +313,7 @@ public class GitHubDao {
         // TODO: this should probably be cached...
         RepositoryListVm repositoryList = new RepositoryListVm();
         repositoryList.setRepositories(repositories);
+        repositoryList.setFeedUrl(baseUrl + "/feeds/all");
         return repositoryList;
     }
     
@@ -370,6 +371,7 @@ public class GitHubDao {
                 Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
         repositoryVm.setGitHubUrl(repository.getHtmlUrl());
         repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
+        repositoryVm.setFeedUrl(baseUrl + "/feeds/" + repository.getName());
         return repositoryVm;
     }
     
@@ -500,6 +502,13 @@ public class GitHubDao {
             feed.setLink(baseUrl + "/feeds/" + repositoryName);
             entries = getReleaseFeedEntries(releaseService.getReleases(repository));
         }
+        
+        Collections.sort(entries, new Comparator<SyndEntry>() {
+            @Override
+            public int compare(SyndEntry o1, SyndEntry o2) {
+                return o2.getPublishedDate().compareTo(o1.getPublishedDate());
+            }
+        });
         
         feed.setEntries(entries);
         return feed;

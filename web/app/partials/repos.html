@@ -1,4 +1,4 @@
-<h1>Repositories</h1>
+<h1>Repositories <a href="{{m.feedUrl}}"><img src="app/img/rss_icon_24.png"/></a></h1>
 <br>
 <div ng-repeat="repo in m.repos" class="repoRow">
     <div class="row">
@@ -11,7 +11,8 @@
                 <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}} | </span>
                 <a href="{{repo.gitHubUrl}}">Fork this repo</a> |
                 <a href="{{repo.bugTrackerUrl}}">Report a bug</a> |
-                <a ng-href="#repo/{{repo.name}}">Details</a>
+                <a ng-href="#repo/{{repo.name}}">Details</a> |
+                <a href="{{repo.feedUrl}}"><img src="app/img/rss_icon_16.png"/></a>
             </div>
         </div>    
     </div>

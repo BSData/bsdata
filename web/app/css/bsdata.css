@@ -201,7 +201,7 @@ body {
 }
 .repoName {
     color: #333;
-    font-size: 30px;
+    font-size: 24px;
 }
 .repoDescription {
     color: #777;
@@ -210,4 +210,9 @@ body {
 
 .repoRow {
     margin: 0px 0px 16px 0px;
+}
+
+.repoDetailsLink {
+    color: #333;
+    font-size: 18px;
 }

@@ -12,6 +12,7 @@ public class RepositoryVm {
     private String repoUrl;
     private String gitHubUrl;
     private String bugTrackerUrl;
+    private String feedUrl;
     private String lastUpdated;
     private String errorMessage;
     private List<RepositoryFileVm> repositoryFiles;
@@ -82,5 +83,13 @@ public class RepositoryVm {
 
     public void setLastUpdated(String lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public String getFeedUrl() {
+        return feedUrl;
+    }
+
+    public void setFeedUrl(String feedUrl) {
+        this.feedUrl = feedUrl;
     }
 }

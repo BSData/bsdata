@@ -2,28 +2,22 @@
 
 <br>
 
-<div class="row">
-    <div class="col-md-2"><a href="{{m.repo.repoUrl}}">Download</a></div>
-    <div class="col-md-10">{{m.repo.repoUrl}}</div>
-</div>
-<div class="row">
-    <div class="col-md-2"><a href="{{m.repo.gitHubUrl}}">Fork on GitHub</a></div>
-    <div class="col-md-10">{{m.repo.gitHubUrl}}</div>
-</div>
-<div class="row">
-    <div class="col-md-2"><a href="{{m.repo.bugTrackerUrl}}">Report a bug</a></div>
-    <div class="col-md-10">{{m.repo.bugTrackerUrl}}</div>
+<div>
+    <a href="{{m.repo.repoUrl}}" class="repoDetailsLink">Repository Link</a> |
+    <a href="{{m.repo.bugTrackerUrl}}" class="repoDetailsLink">Report a bug</a> |
+    <a href="{{m.repo.gitHubUrl}}" class="repoDetailsLink">Fork on GitHub</a> |
+    <a href="{{m.repo.feedUrl}}" class="repoDetailsLink"><img src="app/img/rss_icon_24.png"/></a>
 </div>
 
 <br>
 
-<h2>Data files for {{m.repoName}}</h2>
+<h2>Data files</h2>
 <table class="table table-striped" ng-show="m.repo.repositoryFiles.length">
     <thead>
-    <th>Name</th>
-    <th>File URL</th>
-    <th>GitHub URL</th>
-    <th>Action</th>
+        <th>Name</th>
+        <th>File URL</th>
+        <th>GitHub URL</th>
+        <th>Action</th>
     </thead>
             
     <tbody>

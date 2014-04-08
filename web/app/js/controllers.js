@@ -13,10 +13,12 @@ angular.module('bsdataApp.controllers', ["ngResource"])
   })
   .controller('ReposCtrl', function($scope, repoRestApi) {
     $scope.m = {
+        feedUrl : "",
         repos : []
     };
     
     repoRestApi.list({}, function(data) {
+        $scope.m.feedUrl = data.feedUrl;
         $scope.m.repos = [];
         angular.forEach(data.repositories, function(repo) {
             $scope.m.repos.push(repo);

@@ -8,6 +8,7 @@ import java.util.List;
 public class RepositoryListVm {
     
     private List<RepositoryVm> repositories;
+    private String feedUrl;
     private String errorMessage;
     
     public RepositoryListVm() {
@@ -20,6 +21,14 @@ public class RepositoryListVm {
 
     public void setRepositories(List<RepositoryVm> repositories) {
         this.repositories = repositories;
+    }
+
+    public String getFeedUrl() {
+        return feedUrl;
+    }
+
+    public void setFeedUrl(String feedUrl) {
+        this.feedUrl = feedUrl;
     }
 
     public String getErrorMessage() {
