@@ -3,6 +3,7 @@ body {
     margin:0px;
     padding:0px;
     height:100%;
+    min-width: 620px;
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     color: #2e3436;
@@ -26,6 +27,7 @@ ul {
 
 #wrapper {
     height: 100%;
+    width:100%;
     min-height: 100%;
     height: auto !important;
     margin: 0px 0px -32px 0px; /* Bottom = height of the footer */
@@ -35,16 +37,16 @@ ul {
 .center {
     margin-left: auto;
     margin-right: auto;
-    width: 600px;
-    min-width: 600px;
-    max-width: 90%;
-    padding: 0px;
+    width: 620px;
+    padding:0px 8px 0px 8px;
 }
 
 #header {
     background:#000;
     padding: 0px;
+    margin: 0px;
     height: 100px;
+    width: 100%;
 }
 .logo {
     float: left;
@@ -60,11 +62,11 @@ ul {
     list-style: none;
     margin: 0px;
     padding: 0px;
+    float: left;
 }
 
 .pageTitle li
 {
-    float: left;
     margin: 0px;
     padding: 0px;
 }
@@ -107,15 +109,19 @@ ul {
 }
 
 .ribbon {
-    position: absolute;
+/*    position: absolute;
     top: 0px;
-    right: 0px;
+    right: 0px;*/
+    float: right;
+    margin: 0px;
+    padding: 0px;
     border: 0px;
     width: 100px;
     height: 100px;
 }
 
 #body {
+    width:100%;
     margin: 0px;
     padding: 0px;
 }
