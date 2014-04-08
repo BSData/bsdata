@@ -1,4 +1,8 @@
 <h1>{{m.repo.description}}</h1>
+    <p style="font-weight: bold; margin: 4px;">
+        <span ng-if="m.repo.lastUpdated" class="lastUpdated">Last updated {{m.repo.lastUpdated | date:'medium'}}</span>:
+        {{m.repo.lastUpdateDescription}}
+    </p>
 
 <br>
 

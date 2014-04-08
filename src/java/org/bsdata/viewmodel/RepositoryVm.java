@@ -14,6 +14,7 @@ public class RepositoryVm {
     private String bugTrackerUrl;
     private String feedUrl;
     private String lastUpdated;
+    private String lastUpdateDescription;
     private String errorMessage;
     private List<RepositoryFileVm> repositoryFiles;
     
@@ -91,5 +92,13 @@ public class RepositoryVm {
 
     public void setFeedUrl(String feedUrl) {
         this.feedUrl = feedUrl;
+    }
+
+    public String getLastUpdateDescription() {
+        return lastUpdateDescription;
+    }
+
+    public void setLastUpdateDescription(String lastUpdateDescription) {
+        this.lastUpdateDescription = lastUpdateDescription;
     }
 }

@@ -8,7 +8,7 @@
                 <a href="{{repo.repoUrl}}" class="repoName">{{repo.description}}</a>
             </h3>
             <div class="repoInfo">
-                <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}} | </span>
+                <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}}</span> |
                 <a href="{{repo.gitHubUrl}}">Fork this repo</a> |
                 <a href="{{repo.bugTrackerUrl}}">Report a bug</a> |
                 <a ng-href="#repo/{{repo.name}}">Details</a> |

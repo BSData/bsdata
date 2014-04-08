@@ -366,12 +366,12 @@ public class GitHubDao {
         repositoryVm.setDescription(repository.getDescription());
         if (latestRelease != null) {
             repositoryVm.setLastUpdated(longDateFormat.format(latestRelease.getPublishedAt()));
+            repositoryVm.setLastUpdateDescription(latestRelease.getName());
         }
-        repositoryVm.setRepoUrl(
-                Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
+        repositoryVm.setRepoUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
         repositoryVm.setGitHubUrl(repository.getHtmlUrl());
         repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
-        repositoryVm.setFeedUrl(baseUrl + "/feeds/" + repository.getName() + ".atom");
+        repositoryVm.setFeedUrl(Utils.checkUrl(baseUrl + "/feeds/" + repository.getName() + ".atom"));
         return repositoryVm;
     }
     
@@ -485,22 +485,22 @@ public class GitHubDao {
         if (repositoryName.toLowerCase().equals(WebConstants.ALL_REPO_FEEDS)) {
             feed.setTitle("All Repository Releases");
             feed.setDescription("Data file releases for all repositories");
-            feed.setLink(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS);
+            feed.setLink(Utils.checkUrl(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS));
             
             Properties properties = ApplicationProperties.getProperties();
             RepositoryService repositoryService = new RepositoryService(gitHubClient);
             
             entries = new ArrayList<>();
             for (Repository repository : repositoryService.getRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))) {
-                entries.addAll(getReleaseFeedEntries(repository, releaseService.getReleases(repository)));
+                entries.addAll(getReleaseFeedEntries(baseUrl, repository, releaseService.getReleases(repository)));
             }
         }
         else {
             Repository repository = getBsDataRepository(gitHubClient, repositoryName);
             feed.setTitle(repository.getDescription() + " Releases");
             feed.setDescription("Data file releases for " + repository.getDescription());
-            feed.setLink(baseUrl + "/feeds/" + repositoryName);
-            entries = getReleaseFeedEntries(repository, releaseService.getReleases(repository));
+            feed.setLink(Utils.checkUrl(baseUrl + "/feeds/" + repositoryName));
+            entries = getReleaseFeedEntries(baseUrl, repository, releaseService.getReleases(repository));
         }
         
         Collections.sort(entries, new Comparator<SyndEntry>() {
@@ -514,12 +514,12 @@ public class GitHubDao {
         return feed;
     }
     
-    public List<SyndEntry> getReleaseFeedEntries(Repository repository, List<Release> releases) throws IOException {
+    public List<SyndEntry> getReleaseFeedEntries(String baseUrl, Repository repository, List<Release> releases) throws IOException {
         List<SyndEntry> entries = new ArrayList<>();
         for (Release release : releases) {
             SyndEntry entry = new SyndEntryImpl();
             entry.setTitle(repository.getDescription() + ": " + release.getName());
-            entry.setLink(release.getHtmlUrl());
+            entry.setLink(Utils.checkUrl(baseUrl.replace(WebConstants.REPO_SERVICE_PATH, "#repo/" + repository.getName())));
             entry.setPublishedDate(release.getPublishedAt());
             
             SyndContent description = new SyndContentImpl();
