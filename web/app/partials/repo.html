@@ -1,42 +1,22 @@
-<h1>{{m.repo.description}}</h1>
-    <p style="font-weight: bold; margin: 4px;">
-        <span ng-if="m.repo.lastUpdated" class="lastUpdated">Last updated {{m.repo.lastUpdated | date:'medium'}}</span>:
-        {{m.repo.lastUpdateDescription}}
-    </p>
 
-<br>
-
-<div>
-    <a href="{{m.repo.repoUrl}}" class="repoDetailsLink">Repository Link</a> |
-    <a href="{{m.repo.bugTrackerUrl}}" class="repoDetailsLink">Report a bug</a> |
-    <a href="{{m.repo.gitHubUrl}}" class="repoDetailsLink">Fork on GitHub</a> |
-    <a href="{{m.repo.feedUrl}}" class="repoDetailsLink" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a>
+<div class="subTitle">
+    <a href="{{m.repo.repoUrl}}"><h3>{{m.repo.description}}</h3></a>
+    <a href="{{m.repo.gitHubUrl}}"><img src="app/img/github_icon_24.png"/></a>
+    <a href="{{m.repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a>
+    
+    <div class="details">
+        <span ng-if="m.repo.lastUpdated" class="lastUpdated">Updated {{m.repo.lastUpdated | date:'medium'}}: {{m.repo.lastUpdateDescription}}</span> |
+        <a href="{{m.repo.bugTrackerUrl}}" class="repoDetailsLink">Report a bug</a>
+    </div>
 </div>
 
-<br>
-
-<h2>Data files</h2>
-<table class="table table-striped" ng-show="m.repo.repositoryFiles.length">
-    <thead>
-        <th>Name</th>
-        <th>File URL</th>
-        <th>GitHub URL</th>
-        <th>Action</th>
-    </thead>
-            
-    <tbody>
-        <tr ng-repeat="file in m.repo.repositoryFiles">
-            <td class="fileName">{{file.name}}</td>
-            <td class="nobreak"><a ng-href="{{file.dataFileUrl}}">Download</a></td>    
-<!--            <td>{{file.dataFileUrl}}</td>-->
-            <td class="nobreak"><a ng-href="{{file.gitHubUrl}}">Github</a></td>
-            <td>Upload new version</td>
-<!--            <td>{{file.gitHubUrl}}</td>-->
-        </tr>
-    </tbody>
-</table>
-
-<!--<h1>Raw information for {{m.repoName}}</h1>
-<pre>
-  {{ m.repo | json}}
-</pre>-->
+<ul class="detailsList">
+    <li ng-repeat="file in m.repo.repositoryFiles" class="detailsRow">
+        <a href="{{file.dataFileUrl}}" class="detailsTitle">{{file.name}}</a>
+        <div class="details">
+            Actions:
+            <a href="#">Upload new version</a> |
+            <a href="{{file.gitHubUrl}}"><img src="app/img/github_icon_16.png"/></a>
+        </div>
+    </li>
+</ul>

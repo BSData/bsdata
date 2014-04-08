@@ -3,7 +3,9 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!-- The following line from HTML5Boilerplate does not validate; it is used by Modernizr: the "no-js" class acts as a fallback if JavaScript is disabled -->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" data-ng-app="bsdataApp"> <!--<![endif]-->
+<!--[if gt IE 8]><!--> 
+
+<html class="no-js" lang="en" data-ng-app="bsdataApp"> <!--<![endif]-->
 
     <head>
         <meta charset="utf-8">
@@ -21,7 +23,6 @@
         <link rel="stylesheet" href="app/css/bsdata.css">
         <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
         <link href="http://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet" type="text/css">
-        <script src="app/lib/angular-file-upload.min.js"></script>
         <script src="app/js/vendor/modernizr-2.6.2.min.js"></script>
         
         <meta name="google-site-verification" content="oJjuSS9A3-M6rX6MH5bJoBvcUAxVh07KV80uOKchP-g" />
@@ -37,19 +38,20 @@
     </head>
 
     <body>
-
-        <!-- Container -->
-        <div id="container">
-
+        <div id="wrapper">
+            <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+            <![endif]-->
+        
             <!-- Header -->
             <div id="header">
-                <div class="container">
+                <div class="center">
                     <a href="/#/repos">
                         <img class="logo" src="app/img/bsdata_logo.png" alt="BattleScribe data file hosting platform">
                     </a>
 
                     <!-- This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html -->
-                    <div class="items">
+                    <div class="pageTitle">
                         <ul>
                             <li>
                                 <div class="outerContainer">
@@ -63,28 +65,21 @@
                             </li>
                         </ul>
                     </div>
-
-                    <a href="https://github.com/BSData">
-                        <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
-                             onmouseover="this.src = 'app/img/ribbons/right-red.png';"
-                             onmouseout="this.src = 'app/img/ribbons/right-cerulean.png';"
-                             alt="Fork me on GitHub" />
-                    </a>
                 </div>
+
+                <a href="https://github.com/BSData">
+                    <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
+                         onmouseover="this.src = 'app/img/ribbons/right-red.png';"
+                         onmouseout="this.src = 'app/img/ribbons/right-cerulean.png';"
+                         alt="Fork me on GitHub" />
+                </a>
             </div>
 
-            <!-- Body -->
             <div id="body">
-
-                <!--[if lt IE 7]>
-                <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-                <![endif]-->
-                
-                <div class="container">
-                    <ul class="top-text">
+                <div class="center">
+                    <ul class="bodyText">
                         <li>
-                            All our data files (and this website!) are available on <a href="https://github.com/BSData">GitHub</a> - feel
-                            free to fork us and get involved!
+                            All our data files (and this website!) are available on <a href="https://github.com/BSData">GitHub</a> - fork us and get involved!
                         </li>
                         <li>
                             Found a bug or problem? Click "report a bug" below the relevant repository link.
@@ -93,57 +88,60 @@
                             We'd love you to host your data with us! <a href="https://github.com/BSData/bsdata/issues">Contact us</a> if you want to join in.
                         </li>
                     </ul>
+
+                    <div id="container" data-ng-view>
+                        <!-- Angular app gets inserted here -->
+                    </div>
                 </div>
-
-                <div class="container" data-ng-view>
-
-                </div>
-
-                <!--  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
-                <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-route.min.js"></script>
-                <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-resource.min.js"></script>-->
-                <script src="app/lib/angular/angular.js"></script>
-                <script src="app/lib/angular/angular-route.js"></script>
-                <script src="app/lib/angular/angular-resource.js"></script>
-                <script src="app/js/app.js"></script>
-                <script src="app/js/services.js"></script>
-                <script src="app/js/controllers.js"></script>
-                <script src="app/js/filters.js"></script>
-                <script src="app/js/directives.js"></script>
-                
-                <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-                <script>window.jQuery || document.write('<script src="app/js/vendor/jquery-1.10.2.min.js"><\/script>');</script>
-                <script src="app/js/plugins.js"></script>
-                <script src="app/js/main.js"></script>
-
-                <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-<!--                <script>
-                    (function(b, o, i, l, e, r) {
-                        b.GoogleAnalyticsObject = l;
-                        b[l] || (b[l] =
-                                function() {
-                                    (b[l].q = b[l].q || []).push(arguments);
-                                });
-                        b[l].l = +new Date;
-                        e = o.createElement(i);
-                        r = o.getElementsByTagName(i)[0];
-                        e.src = '//www.google-analytics.com/analytics.js';
-                        r.parentNode.insertBefore(e, r);
-                    }(window, document, 'script', 'ga'));
-                    ga('create', 'UA-XXXXX-X');
-                    ga('send', 'pageview');
-                </script>-->
-                
             </div>
-
-            <!-- Footer -->
-            <div id="footer">
-                <p>This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_GB">Creative Commons Attribution-ShareAlike 4.0 International License</a>.</p>
-                <p><a href="http://aralbalkan.com/scribbles/fork-me-on-github-retina-ribbons/">"Fork me on GitHub Retina Ribbon"</a>
-                    by <a href="http://aralbalkan.com/">Aral Balkan</a> is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/uk/">CC BY-NC-SA 2.0 UK</a></p>
-            </div>   	
-
+            
+            <div style="height: 32px; clear: both;"><!-- padding div to make sure footer remains at bottom of screen --></div>
         </div>
 
+        <!-- Footer -->
+        <div id="footer">
+            <p>
+                <a href="http://aralbalkan.com/scribbles/fork-me-on-github-retina-ribbons/">"Fork me on GitHub Retina Ribbon"</a>
+                by <a href="http://aralbalkan.com/">Aral Balkan</a> is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/uk/">CC BY-NC-SA 2.0 UK</a>
+            </p>
+        </div>
+
+        <!--  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-route.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-resource.min.js"></script>-->
+        <script src="app/lib/angular/angular.js"></script>
+        <script src="app/lib/angular/angular-route.js"></script>
+        <script src="app/lib/angular/angular-resource.js"></script>
+        <script src="app/js/app.js"></script>
+        <script src="app/js/services.js"></script>
+        <script src="app/js/controllers.js"></script>
+        <script src="app/js/filters.js"></script>
+        <script src="app/js/directives.js"></script>
+        <script src="app/lib/angular-file-upload.min.js"></script>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="app/js/vendor/jquery-1.10.2.min.js"><\/script>');</script>
+        <script src="app/js/plugins.js"></script>
+        <script src="app/js/main.js"></script>
+
+        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+        <!--                
+        <script>
+            (function(b, o, i, l, e, r) {
+                b.GoogleAnalyticsObject = l;
+                b[l] || (b[l] =
+                        function() {
+                            (b[l].q = b[l].q || []).push(arguments);
+                        });
+                b[l].l = +new Date;
+                e = o.createElement(i);
+                r = o.getElementsByTagName(i)[0];
+                e.src = '//www.google-analytics.com/analytics.js';
+                r.parentNode.insertBefore(e, r);
+            }(window, document, 'script', 'ga'));
+            ga('create', 'UA-XXXXX-X');
+            ga('send', 'pageview');
+        </script>
+        -->
     </body>
 </html>

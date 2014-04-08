@@ -1,19 +1,19 @@
-<h1>Repositories <a href="{{m.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a></h1>
-<br>
-<div ng-repeat="repo in m.repos" class="repoRow">
-    <div class="row">
-        <div class="col-md-12">
-            <h3>
-                <!--<img class="repoImg" width="80" height="80" ng-src="{{repo.imgSrc}}" />-->
-                <a href="{{repo.repoUrl}}" class="repoName">{{repo.description}}</a>
-            </h3>
-            <div class="repoInfo">
-                <span ng-if="repo.lastUpdated" class="lastUpdated">Last updated {{repo.lastUpdated | date:'medium'}}</span> |
-                <a href="{{repo.gitHubUrl}}">Fork this repo</a> |
-                <a href="{{repo.bugTrackerUrl}}">Report a bug</a> |
-                <a ng-href="#repo/{{repo.name}}">Details</a> |
-                <a href="{{repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_16.png"/></a>
-            </div>
-        </div>    
-    </div>
+
+<div class="subTitle">
+    <h3>Repositories</h3>
+    <a href="https://github.com/BSData"><img src="app/img/github_icon_24.png"/></a>
+    <a href="{{m.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a>
 </div>
+
+<ul class="detailsList">
+    <li ng-repeat="repo in m.repos" class="detailsRow">
+        <a href="{{repo.repoUrl}}" class="detailsTitle">{{repo.description}}</a>
+        <div class="details">
+            <span ng-if="repo.lastUpdated" class="repoLastUpdated">Updated {{repo.lastUpdated | date:'medium'}}</span> |
+            <a href="{{repo.bugTrackerUrl}}">Report a bug</a> |
+            <a ng-href="#repo/{{repo.name}}">Details</a> |
+            <a href="{{repo.gitHubUrl}}"><img src="app/img/github_icon_16.png"/></a>
+            <a href="{{repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_16.png"/></a>
+        </div>
+    </li>
+</ul>
