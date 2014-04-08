@@ -492,7 +492,7 @@ public class GitHubDao {
             
             entries = new ArrayList<>();
             for (Repository repository : repositoryService.getRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))) {
-                entries.addAll(getReleaseFeedEntries(releaseService.getReleases(repository)));
+                entries.addAll(getReleaseFeedEntries(repository, releaseService.getReleases(repository)));
             }
         }
         else {
@@ -500,7 +500,7 @@ public class GitHubDao {
             feed.setTitle(repository.getDescription() + " Releases");
             feed.setDescription("Data file releases for " + repository.getDescription());
             feed.setLink(baseUrl + "/feeds/" + repositoryName);
-            entries = getReleaseFeedEntries(releaseService.getReleases(repository));
+            entries = getReleaseFeedEntries(repository, releaseService.getReleases(repository));
         }
         
         Collections.sort(entries, new Comparator<SyndEntry>() {
@@ -514,11 +514,11 @@ public class GitHubDao {
         return feed;
     }
     
-    public List<SyndEntry> getReleaseFeedEntries(List<Release> releases) throws IOException {
+    public List<SyndEntry> getReleaseFeedEntries(Repository repository, List<Release> releases) throws IOException {
         List<SyndEntry> entries = new ArrayList<>();
         for (Release release : releases) {
             SyndEntry entry = new SyndEntryImpl();
-            entry.setTitle(release.getName());
+            entry.setTitle(repository.getDescription() + ": " + release.getName());
             entry.setLink(release.getHtmlUrl());
             entry.setPublishedDate(release.getPublishedAt());
             
