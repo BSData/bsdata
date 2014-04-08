@@ -154,7 +154,7 @@ public class RepoService {
     }
 
     @GET
-    @Path("/feeds/{repoName}")
+    @Path("/feeds/{repoName}.atom")
     @Produces(MediaType.APPLICATION_ATOM_XML)
     public String getRepositoryFeed(
             @PathParam("repoName") String repoName,

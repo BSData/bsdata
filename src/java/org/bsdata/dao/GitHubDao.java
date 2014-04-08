@@ -313,7 +313,7 @@ public class GitHubDao {
         // TODO: this should probably be cached...
         RepositoryListVm repositoryList = new RepositoryListVm();
         repositoryList.setRepositories(repositories);
-        repositoryList.setFeedUrl(baseUrl + "/feeds/all");
+        repositoryList.setFeedUrl(baseUrl + "/feeds/all.atom");
         return repositoryList;
     }
     
@@ -371,7 +371,7 @@ public class GitHubDao {
                 Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
         repositoryVm.setGitHubUrl(repository.getHtmlUrl());
         repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
-        repositoryVm.setFeedUrl(baseUrl + "/feeds/" + repository.getName());
+        repositoryVm.setFeedUrl(baseUrl + "/feeds/" + repository.getName() + ".atom");
         return repositoryVm;
     }
     
