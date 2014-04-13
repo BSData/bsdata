@@ -9,23 +9,20 @@
 
     <head>
         <meta charset="utf-8">
-        <!-- The following line from HTML5Boilerplate does not validate; discussion on it here: https://groups.google.com/forum/#!topic/html5boilerplate/bRtrFSrKjtI -->
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <title>BattleScribe Data Files</title>
-        <meta name="description" content="">
+        <link rel="icon" href="app/img/bsdata_logo.png" />
+        <meta name="description" content="Crowd-sourced data repositories for BattleScribe">
+        
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <link rel="shortcut icon" href="app/img/favicon.ico" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="google-site-verification" content="oJjuSS9A3-M6rX6MH5bJoBvcUAxVh07KV80uOKchP-g" />
 
         <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
         <link rel="stylesheet" href="app/css/normalize.css">
         <link rel="stylesheet" href="app/css/main.css">
-        <link rel="stylesheet" href="app/css/bsdata.css">
         <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
         <link href="http://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet" type="text/css">
         <script src="app/js/vendor/modernizr-2.6.2.min.js"></script>
-        
-        <meta name="google-site-verification" content="oJjuSS9A3-M6rX6MH5bJoBvcUAxVh07KV80uOKchP-g" />
 
         <!--[if IE 7]>
         <link rel="stylesheet" media="screen, projection" href="app/css/ie7.css" />
@@ -88,6 +85,12 @@
                             We'd love you to host your data with us! <a href="https://github.com/BSData/bsdata/issues">Contact us</a> if you want to join in.
                         </li>
                     </ul>
+                    
+                    <p style="font-weight: bold; color: red;">
+                        You will need BattleScribe v1.14.00 or newer to use these data files!
+                        <br>
+                        <a href="http://www.battlescribe.net/">Get the latest version of BattleScribe</a>
+                    </p>
 
                     <div id="container" data-ng-view>
                         <!-- Angular app gets inserted here -->
@@ -106,23 +109,26 @@
             </p>
         </div>
 
+        <!-- Javascript libraries -->
         <!--  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-route.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.10/angular-resource.min.js"></script>-->
         <script src="app/lib/angular/angular.js"></script>
         <script src="app/lib/angular/angular-route.js"></script>
         <script src="app/lib/angular/angular-resource.js"></script>
+        <script src="app/lib/angular-file-upload.min.js"></script>
+        
+        <!-- Application Javascript -->
         <script src="app/js/app.js"></script>
         <script src="app/js/services.js"></script>
         <script src="app/js/controllers.js"></script>
         <script src="app/js/filters.js"></script>
         <script src="app/js/directives.js"></script>
-        <script src="app/lib/angular-file-upload.min.js"></script>
 
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<!--        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="app/js/vendor/jquery-1.10.2.min.js"><\/script>');</script>
         <script src="app/js/plugins.js"></script>
-        <script src="app/js/main.js"></script>
+        <script src="app/js/main.js"></script>-->
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <!--                
