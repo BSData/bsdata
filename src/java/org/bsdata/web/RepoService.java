@@ -2,9 +2,10 @@
 package org.bsdata.web;
 
 import com.google.gson.Gson;
-import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.atom.Feed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedOutput;
+import com.sun.syndication.io.WireFeedOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -166,8 +167,8 @@ public class RepoService {
     
         StringWriter writer = new StringWriter();
         try {
-            SyndFeed feed = dao.getReleaseFeed(repoName, getBaseUrl(request));
-            SyndFeedOutput feedOutput = new SyndFeedOutput();
+            Feed feed = dao.getReleaseFeed(repoName, getBaseUrl(request));
+            WireFeedOutput feedOutput = new WireFeedOutput();
             feedOutput.output(feed, writer);
         }
         catch (IOException e) {

@@ -3,12 +3,11 @@ package org.bsdata.dao;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.sun.syndication.feed.synd.SyndContent;
-import com.sun.syndication.feed.synd.SyndContentImpl;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndEntryImpl;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.feed.synd.SyndFeedImpl;
+import com.sun.syndication.feed.atom.Content;
+import com.sun.syndication.feed.atom.Entry;
+import com.sun.syndication.feed.atom.Feed;
+import com.sun.syndication.feed.atom.Link;
+import com.sun.syndication.feed.atom.Person;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -192,7 +191,7 @@ public class GitHubDao {
         repoFileCache.invalidateAll();
         repoFileCache.cleanUp();
         
-        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);        
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
         for (Repository repository : getRepositories(organizationName)) {
             getRepoFileData(repository.getName(), baseUrl, null);
         }
@@ -611,57 +610,99 @@ public class GitHubDao {
         issueService.createIssue(repository, issue);
     }
     
-    public SyndFeed getReleaseFeed(String repositoryName, String baseUrl) throws IOException {
-        SyndFeed feed = new SyndFeedImpl();
+    public Feed getReleaseFeed(String repositoryName, String baseUrl) throws IOException {
+        Feed feed = new Feed();
         feed.setFeedType("atom_1.0");
         
+        Person author = new Person();
+        author.setName("BattleScribe Data");
+        author.setUrl(baseUrl.replace("/" + WebConstants.REPO_SERVICE_PATH, ""));
+        feed.setAuthors(Collections.singletonList(author));
+        
         String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
-        List<SyndEntry> entries;
+        List<Entry> entries;
         if (repositoryName.toLowerCase().equals(WebConstants.ALL_REPO_FEEDS)) {
+            feed.setId(Utils.checkUrl(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS + ".atom"));
             feed.setTitle("All Repository Releases");
-            feed.setDescription("Data file releases for all repositories");
-            feed.setLink(Utils.checkUrl(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS));
+            
+            Link link = new Link();
+            link.setType(DataConstants.HTML_MIME_TYPE);
+            link.setHref(getHtmlLink(baseUrl, WebConstants.ALL_REPO_FEEDS));
+            feed.setAlternateLinks(Collections.singletonList(link));
+            
+//            Content description = new Content();
+//            description.setType(DataConstants.TEXT_MIME_TYPE);
+//            description.setValue("Data file releases for all repositories");
+//            feed.setSubtitle(description);
             
             entries = new ArrayList<>();
             for (Repository repository : getRepositories(organizationName)) {
-                entries.addAll(getReleaseFeedEntries(baseUrl, repository, getReleases(repository)));
+                entries.addAll(getReleaseFeedEntries(repository));
             }
         }
         else {
             Repository repository = getRepository(organizationName, repositoryName);
+            feed.setId(Utils.checkUrl(baseUrl + "/feeds/" + repositoryName + ".atom"));
             feed.setTitle(repository.getDescription() + " Releases");
-            feed.setDescription("Data file releases for " + repository.getDescription());
-            feed.setLink(Utils.checkUrl(baseUrl + "/feeds/" + repositoryName));
-            entries = getReleaseFeedEntries(baseUrl, repository, getReleases(repository));
+            
+            Link link = new Link();
+            link.setType(DataConstants.HTML_MIME_TYPE);
+            link.setHref(getHtmlLink(baseUrl, repositoryName));
+            feed.setAlternateLinks(Collections.singletonList(link));
+            
+//            Content description = new Content();
+//            description.setType(DataConstants.TEXT_MIME_TYPE);
+//            description.setValue("Data file releases for " + repository.getDescription());
+//            feed.setSubtitle(description);
+            
+            entries = getReleaseFeedEntries(repository);
         }
         
-        Collections.sort(entries, new Comparator<SyndEntry>() {
+        Collections.sort(entries, new Comparator<Entry>() {
             @Override
-            public int compare(SyndEntry o1, SyndEntry o2) {
-                return o2.getPublishedDate().compareTo(o1.getPublishedDate());
+            public int compare(Entry o1, Entry o2) {
+                return o2.getPublished().compareTo(o1.getPublished());
             }
         });
         
+        if (!entries.isEmpty()) {
+            feed.setUpdated(entries.get(0).getPublished());
+        }
         feed.setEntries(entries);
         return feed;
     }
     
-    private List<SyndEntry> getReleaseFeedEntries(String baseUrl, Repository repository, List<Release> releases) throws IOException {
-        List<SyndEntry> entries = new ArrayList<>();
-        for (Release release : releases) {
-            SyndEntry entry = new SyndEntryImpl();
-            entry.setTitle(repository.getDescription() + ": " + release.getName());
-            entry.setLink(Utils.checkUrl(baseUrl.replace(WebConstants.REPO_SERVICE_PATH, "#repo/" + repository.getName())));
-            entry.setPublishedDate(release.getPublishedAt());
+    private List<Entry> getReleaseFeedEntries(Repository repository) throws IOException {
+        List<Entry> entries = new ArrayList<>();
+        for (Release release : getReleases(repository)) {
+            Entry entry = new Entry();
             
-            SyndContent description = new SyndContentImpl();
+            entry.setId(release.getTagName());
+            entry.setTitle(repository.getDescription() + ": " + release.getName());
+            entry.setPublished(release.getPublishedAt());
+            
+            Link link = new Link();
+            link.setType(DataConstants.HTML_MIME_TYPE);
+            link.setHref(release.getHtmlUrl());
+            entry.setAlternateLinks(Collections.singletonList(link));
+            
+            Content description = new Content();
             description.setType(DataConstants.TEXT_MIME_TYPE);
             description.setValue(release.getBody());
             
-            entry.setDescription(description);
+            entry.setSummary(description);
             
             entries.add(entry);
         }
         return entries;
+    }
+    
+    private String getHtmlLink(String baseUrl, String repositoryName) {
+        if (repositoryName == null || repositoryName.equals(WebConstants.ALL_REPO_FEEDS)) {
+            return Utils.checkUrl(baseUrl.replace(WebConstants.REPO_SERVICE_PATH, "#/repos"));
+        }
+        else {
+            return Utils.checkUrl(baseUrl.replace(WebConstants.REPO_SERVICE_PATH, "#/repo/" + repositoryName));
+        }
     }
 }
