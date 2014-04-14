@@ -623,13 +623,20 @@ public class GitHubDao {
         String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
         List<Entry> entries;
         if (repositoryName.toLowerCase().equals(WebConstants.ALL_REPO_FEEDS)) {
-            feed.setId(Utils.checkUrl(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS + ".atom"));
+            String feedUrl = Utils.checkUrl(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS + ".atom");
+            
+            feed.setId(feedUrl);
             feed.setTitle("All Repository Releases");
             
             Link link = new Link();
             link.setType(DataConstants.HTML_MIME_TYPE);
             link.setHref(getHtmlLink(baseUrl, WebConstants.ALL_REPO_FEEDS));
             feed.setAlternateLinks(Collections.singletonList(link));
+            
+            Link selfLink = new Link();
+            selfLink.setRel("self");
+            selfLink.setHref(feedUrl);
+            feed.setOtherLinks(Collections.singletonList(selfLink));
             
             Content description = new Content();
             description.setType(DataConstants.TEXT_MIME_TYPE);
@@ -643,13 +650,20 @@ public class GitHubDao {
         }
         else {
             Repository repository = getRepository(organizationName, repositoryName);
-            feed.setId(Utils.checkUrl(baseUrl + "/feeds/" + repositoryName + ".atom"));
+            String feedUrl = Utils.checkUrl(baseUrl + "/feeds/" + repositoryName + ".atom");
+            
+            feed.setId(feedUrl);
             feed.setTitle(repository.getDescription() + " Releases");
             
             Link link = new Link();
             link.setType(DataConstants.HTML_MIME_TYPE);
             link.setHref(getHtmlLink(baseUrl, repositoryName));
             feed.setAlternateLinks(Collections.singletonList(link));
+            
+            Link selfLink = new Link();
+            selfLink.setRel("self");
+            selfLink.setHref(feedUrl);
+            feed.setOtherLinks(Collections.singletonList(selfLink));
             
             Content description = new Content();
             description.setType(DataConstants.TEXT_MIME_TYPE);
