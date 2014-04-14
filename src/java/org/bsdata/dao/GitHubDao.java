@@ -23,6 +23,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.bsdata.constants.DataConstants;
@@ -64,6 +66,8 @@ import org.eclipse.egit.github.core.service.RepositoryService;
  * @author Jonskichov
  */
 public class GitHubDao {
+  
+    private static final Logger logger = Logger.getLogger("org.bsdata");
     
     private static final long CACHE_EXPIRY_TIME_MINS = 1;
     
@@ -208,10 +212,10 @@ public class GitHubDao {
             return fileData;
         }
 
-        Repository masterRepository = getBsDataRepository(connectToGitHub(), repositoryName);
-        Release latestRelease = getLatestRelease(masterRepository);
+        Repository repository = getBsDataRepository(connectToGitHub(), repositoryName);
+        Release latestRelease = getLatestRelease(repository);
         
-        if (requiresDownload(masterRepository, latestRelease)) {
+        if (requiresDownload(repository, latestRelease)) {
             try {
                 // Lock as we don't want multiple threads downloading from the same repo at once
                 downloadLock.lock();
@@ -221,7 +225,7 @@ public class GitHubDao {
                 // This can happen if we are downloading the data for the first time (i.e. repoFileCache is empty while the first thread does the download).
                 // In this case, the waiting thread should not download the data _again_ and should instead return the data from the cache once it's 
                 //   done waiting for the first thread to finish the download.
-                if (!requiresDownload(masterRepository, latestRelease)) {
+                if (!requiresDownload(repository, latestRelease)) {
                     fileData = repoFileCache.getIfPresent(repositoryName);
                     if (fileData == null) {
                         // We should have this cached now. If not, something weird has happened
@@ -231,7 +235,8 @@ public class GitHubDao {
                 }
 
                 // Download and cache the repository data files
-                HashMap<String, byte[]> repositoryData = downloadFromGitHub(masterRepository, latestRelease);
+                logger.log(Level.INFO, "Downloading and caching data for repository {0}.", repository.getName());
+                HashMap<String, byte[]> repositoryData = downloadFromGitHub(repository, latestRelease);
                 repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
                 repoFileCache.put(repositoryName, repositoryData);
             }
@@ -262,17 +267,20 @@ public class GitHubDao {
         HashMap<String, byte[]> fileData = repoFileCache.getIfPresent(repository.getName());
         if (fileData == null) {
             // We have no cached data for this repo.
+            logger.log(Level.INFO, "File data for {0} not yet cached.", repository.getName());
             return true;
         }
         
         if (!repoReleaseDates.containsKey(repository.getName())) {
             // We haven't seen a release for this repo yet.
+            logger.log(Level.INFO, "Last release date for {0} not yet cached.", repository.getName());
             repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
             return true;
         }
         
         else if (latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
             // Latest release is newer than the one we last downloaded
+            logger.log(Level.INFO, "Latest release date for {0} is after cached last release date.", repository.getName());
             repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
             return true;
         }
@@ -292,6 +300,8 @@ public class GitHubDao {
             return repoReleasesCache.get(repository.getName(), new Callable<List<Release>>() {
                 @Override
                 public List<Release> call() throws IOException {
+                    logger.log(Level.INFO, "Getting and caching releases for {0}.", repository.getName());
+                    
                     ReleaseService releaseService = new ReleaseService(connectToGitHub());
                     List<Release> releases = releaseService.getReleases(repository, 1, 1);
                     if (releases == null) {
