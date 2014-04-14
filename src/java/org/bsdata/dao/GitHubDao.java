@@ -69,16 +69,15 @@ public class GitHubDao {
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
     
-    private static final long CACHE_EXPIRY_TIME_MINS = 1;
-    
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
-    private static Cache<String, List<Release>> repoReleasesCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(CACHE_EXPIRY_TIME_MINS, TimeUnit.MINUTES)
-            .build();
+    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 1;
+    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 1;
     
-    private static Cache<String, HashMap<String, byte[]>> repoFileCache = CacheBuilder.newBuilder().build();
+    private static Cache<String, List<Repository>> repoListCache;
+    private static Cache<String, List<Release>> repoReleasesCache;
+    private static Cache<String, HashMap<String, byte[]>> repoFileCache;
     
     private static HashMap<String, ReentrantLock> repoDownloadLocks = new HashMap<>();
     private static HashMap<String, Date> repoReleaseDates = new HashMap<>();
@@ -87,6 +86,27 @@ public class GitHubDao {
     
     public GitHubDao() {
         indexer = new Indexer();
+        setupCaches();
+    }
+    
+    /**
+     * Create the caches if we need to
+     */
+    private static synchronized void setupCaches() {
+        if (repoListCache != null && repoReleasesCache != null && repoFileCache != null) {
+            // Caches already created
+            return;
+        }
+        
+        repoListCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(REPO_LIST_CACHE_EXPIRY_TIME_MINS, TimeUnit.MINUTES)
+            .build();
+        
+        repoReleasesCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(RELEASE_CACHE_EXPIRY_TIME_MINS, TimeUnit.MINUTES)
+            .build();
+        
+        repoFileCache = CacheBuilder.newBuilder().build();
     }
     
     /**
@@ -103,12 +123,42 @@ public class GitHubDao {
         return gitHubClient;
     }
     
-    private Repository getBsDataRepository(GitHubClient gitHubClient, String repositoryName) throws IOException {
-        Properties properties = ApplicationProperties.getProperties();
-        RepositoryService repositoryService = new RepositoryService(gitHubClient);
-        return repositoryService.getRepository(
-                properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION), 
-                repositoryName);
+    private List<Repository> getRepositories(final String organizationName) throws IOException {
+        try {
+            return repoListCache.get(organizationName, new Callable<List<Repository>>() {
+
+                @Override
+                public List<Repository> call() throws IOException {
+                    logger.log(Level.INFO, "Getting and caching list of repositories for {0}.", organizationName);
+                    
+                    RepositoryService repositoryService = new RepositoryService(connectToGitHub());
+                    List<Repository> repositories = repositoryService.getOrgRepositories(organizationName);
+                    if (repositories == null) {
+                        // Callable must return a value or throw an exception - can't return null
+                        throw new IllegalArgumentException();
+                    }
+                    return repositories;
+                }
+            });
+        }
+        catch (ExecutionException e) {
+            if (e.getCause() instanceof IOException) {
+                throw (IOException)e.getCause();
+            }
+            // Callable should only throw an IOException. If we get here, something fishy is going on...
+            throw new IllegalStateException(e.getCause());
+        }
+    }
+    
+    private Repository getRepository(String organizationName, String repositoryName) throws IOException {
+        for (Repository repository : getRepositories(organizationName)) {
+            if (repository.getName().equals(repositoryName)) {
+                return repository;
+            }
+        }
+        
+        // We shouldn't get here
+        throw new IllegalArgumentException("Could not find repository " + repositoryName + " in organization " + organizationName);
     }
     
     private List<RepositoryContents> getRepositoryContents(Repository repository, Release release) throws IOException {
@@ -125,61 +175,25 @@ public class GitHubDao {
     }
     
     /**
-     * Get BSDataAnon's fork of the main repo.
-     * 1) Search for the fork.
-     * 2) If we can't find it, fork the main repo and return the fork.
-     * 3) Otherwise compare the number of releases in the fork to the number of releases in the main repo.
-     * 4) If the number of releases is different, delete the fork, re-fork the main repo and return the fork.
-     * 5) Otherwise just return the fork we found in the search.
-     * 
-     * @param gitHubClient
-     * @param repositoryName
-     * @return
-     * @throws IOException 
-     */
-    private Repository getRepositoryFork(GitHubClient gitHubClient, Repository masterRepository) throws IOException {
-        Properties properties = ApplicationProperties.getProperties();
-        RepositoryService repositoryService = new RepositoryService(gitHubClient);
-        
-        List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
-                masterRepository.getName()
-                + " user:" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) 
-                + " fork:only");
-        
-        if (searchRepositories.isEmpty()) {
-            return repositoryService.forkRepository(masterRepository);
-        }
-        
-        Repository repositoryFork = repositoryService.getRepository(
-                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
-                masterRepository.getName());
-        
-        if (repositoryService.getTags(repositoryFork).size() == repositoryService.getTags(masterRepository).size()) {
-            return repositoryFork;
-        }
-        else {
-            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) + "/" + repositoryFork.getName());
-            return repositoryService.forkRepository(masterRepository);
-        }
-    }
-    
-    /**
      * Ensures data files are cached for all data file repositories.
      * 
      * @param baseUrl
      * @throws IOException 
      */
     public synchronized void primeCache(String baseUrl) throws IOException {
-        // Clear the cache so it forces data to be re-cached.
-        repoFileCache.invalidateAll();
-        repoFileCache.cleanUp();
+        // Clear the caches so it forces data to be re-cached.
+        repoListCache.invalidateAll();
+        repoListCache.cleanUp();
         
         repoReleaseDates = new HashMap<>();
         repoReleasesCache.invalidateAll();
         repoReleasesCache.cleanUp();
         
-        RepositoryListVm repositoryList = getRepos(baseUrl);
-        for (RepositoryVm repository : repositoryList.getRepositories()) {
+        repoFileCache.invalidateAll();
+        repoFileCache.cleanUp();
+        
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);        
+        for (Repository repository : getRepositories(organizationName)) {
             getRepoFileData(repository.getName(), baseUrl, null);
         }
     }
@@ -212,7 +226,8 @@ public class GitHubDao {
             return fileData;
         }
 
-        Repository repository = getBsDataRepository(connectToGitHub(), repositoryName);
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
+        Repository repository = getRepository(organizationName, repositoryName);
         Release latestRelease = getLatestRelease(repository);
         
         if (requiresDownload(repository, latestRelease)) {
@@ -298,6 +313,7 @@ public class GitHubDao {
     private List<Release> getReleases(final Repository repository) throws IOException {
         try {
             return repoReleasesCache.get(repository.getName(), new Callable<List<Release>>() {
+                
                 @Override
                 public List<Release> call() throws IOException {
                     logger.log(Level.INFO, "Getting and caching releases for {0}.", repository.getName());
@@ -310,6 +326,7 @@ public class GitHubDao {
                     }
                     
                     Collections.sort(releases, new Comparator<Release>() {
+                        
                         @Override
                         public int compare(Release o1, Release o2) {
                             return o1.getPublishedAt().compareTo(o2.getPublishedAt());
@@ -371,10 +388,9 @@ public class GitHubDao {
      * @throws IOException 
      */
     public RepositoryListVm getRepos(String baseUrl) throws IOException {
-        Properties properties = ApplicationProperties.getProperties();
-        RepositoryService repositoryService = new RepositoryService(connectToGitHub());
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
+        List<Repository> orgRepositories = getRepositories(organizationName);
         
-        List<Repository> orgRepositories = repositoryService.getOrgRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION));
         List<RepositoryVm> repositories = new ArrayList<>();
         for (Repository repository : orgRepositories) {
             if (repository.getName().equals(DataConstants.GITHUB_BSDATA_REPO_NAME)) {
@@ -393,7 +409,6 @@ public class GitHubDao {
             }
         });
         
-        // TODO: this should probably be cached...
         RepositoryListVm repositoryList = new RepositoryListVm();
         repositoryList.setRepositories(repositories);
         repositoryList.setFeedUrl(baseUrl + "/feeds/all.atom");
@@ -409,7 +424,8 @@ public class GitHubDao {
      * @throws IOException 
      */
     public RepositoryVm getRepoFiles(String repositoryName, String baseUrl) throws IOException {
-        Repository repository = getBsDataRepository(connectToGitHub(), repositoryName);
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
+        Repository repository = getRepository(organizationName, repositoryName);
         Release latestRelease = getLatestRelease(repository);
         RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
         
@@ -481,7 +497,8 @@ public class GitHubDao {
         PullRequestService pullRequestService = new PullRequestService(gitHubClient);
         
         // Get BSDataAnon's fork of the repo (creates one if it doesn't already exist)
-        Repository repositoryMaster = getBsDataRepository(gitHubClient, repositoryName);
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
+        Repository repositoryMaster = getRepository(organizationName, repositoryName);
         Repository repositoryFork = getRepositoryFork(gitHubClient, repositoryMaster);
         
         // get the current commit on the master branch in the fork and get the tree it points to
@@ -541,11 +558,51 @@ public class GitHubDao {
         pullRequestService.createPullRequest(repositoryMaster, pullRequest);
     }
     
+    /**
+     * Get BSDataAnon's fork of the main repo.
+     * 1) Search for the fork.
+     * 2) If we can't find it, fork the main repo and return the fork.
+     * 3) Otherwise compare the number of releases in the fork to the number of releases in the main repo.
+     * 4) If the number of releases is different, delete the fork, re-fork the main repo and return the fork.
+     * 5) Otherwise just return the fork we found in the search.
+     * 
+     * @param gitHubClient
+     * @param repositoryName
+     * @return
+     * @throws IOException 
+     */
+    private Repository getRepositoryFork(GitHubClient gitHubClient, Repository masterRepository) throws IOException {
+        Properties properties = ApplicationProperties.getProperties();
+        RepositoryService repositoryService = new RepositoryService(gitHubClient);
+        
+        List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
+                masterRepository.getName()
+                + " user:" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) 
+                + " fork:only");
+        
+        if (searchRepositories.isEmpty()) {
+            return repositoryService.forkRepository(masterRepository);
+        }
+        
+        Repository repositoryFork = repositoryService.getRepository(
+                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
+                masterRepository.getName());
+        
+        if (repositoryService.getTags(repositoryFork).size() == repositoryService.getTags(masterRepository).size()) {
+            return repositoryFork;
+        }
+        else {
+            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) + "/" + repositoryFork.getName());
+            return repositoryService.forkRepository(masterRepository);
+        }
+    }
+    
     public void createIssue(String repositoryName, String title, String body) throws IOException {
         GitHubClient gitHubClient = connectToGitHub();
         IssueService issueService = new IssueService(gitHubClient);
         
-        Repository repository = getBsDataRepository(gitHubClient, repositoryName);
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
+        Repository repository = getRepository(organizationName, repositoryName);
         
         Issue issue = new Issue();
         issue.setTitle(title);
@@ -555,26 +612,23 @@ public class GitHubDao {
     }
     
     public SyndFeed getReleaseFeed(String repositoryName, String baseUrl) throws IOException {
-        GitHubClient gitHubClient = connectToGitHub();
         SyndFeed feed = new SyndFeedImpl();
         feed.setFeedType("atom_1.0");
         
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
         List<SyndEntry> entries;
         if (repositoryName.toLowerCase().equals(WebConstants.ALL_REPO_FEEDS)) {
             feed.setTitle("All Repository Releases");
             feed.setDescription("Data file releases for all repositories");
             feed.setLink(Utils.checkUrl(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS));
             
-            Properties properties = ApplicationProperties.getProperties();
-            RepositoryService repositoryService = new RepositoryService(gitHubClient);
-            
             entries = new ArrayList<>();
-            for (Repository repository : repositoryService.getRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))) {
+            for (Repository repository : getRepositories(organizationName)) {
                 entries.addAll(getReleaseFeedEntries(baseUrl, repository, getReleases(repository)));
             }
         }
         else {
-            Repository repository = getBsDataRepository(gitHubClient, repositoryName);
+            Repository repository = getRepository(organizationName, repositoryName);
             feed.setTitle(repository.getDescription() + " Releases");
             feed.setDescription("Data file releases for " + repository.getDescription());
             feed.setLink(Utils.checkUrl(baseUrl + "/feeds/" + repositoryName));
