@@ -1,6 +1,8 @@
 
 package org.bsdata.dao;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -17,6 +19,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
@@ -60,12 +65,19 @@ import org.eclipse.egit.github.core.service.RepositoryService;
  */
 public class GitHubDao {
     
+    private static final long CACHE_EXPIRY_TIME_MINS = 1;
+    
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
-    private static HashMap<String, Integer> repoNumReleasesCache;
-    private static HashMap<String, HashMap<String, byte[]>> repoFileCache;
-    private static HashMap<String, ReentrantLock> repoDownloadLocks;
+    private static Cache<String, List<Release>> repoReleasesCache = CacheBuilder.newBuilder()
+            .expireAfterWrite(CACHE_EXPIRY_TIME_MINS, TimeUnit.MINUTES)
+            .build();
+    
+    private static Cache<String, HashMap<String, byte[]>> repoFileCache = CacheBuilder.newBuilder().build();
+    
+    private static HashMap<String, ReentrantLock> repoDownloadLocks = new HashMap<>();
+    private static HashMap<String, Date> repoReleaseDates = new HashMap<>();
     
     private Indexer indexer;
     
@@ -155,8 +167,13 @@ public class GitHubDao {
      */
     public synchronized void primeCache(String baseUrl) throws IOException {
         // Clear the cache so it forces data to be re-cached.
-        repoFileCache = null;
-        repoNumReleasesCache = null;
+        repoFileCache.invalidateAll();
+        repoFileCache.cleanUp();
+        
+        repoReleaseDates = new HashMap<>();
+        repoReleasesCache.invalidateAll();
+        repoReleasesCache.cleanUp();
+        
         RepositoryListVm repositoryList = getRepos(baseUrl);
         for (RepositoryVm repository : repositoryList.getRepositories()) {
             getRepoFileData(repository.getName(), baseUrl, null);
@@ -177,16 +194,6 @@ public class GitHubDao {
             String baseUrl, 
             List<String> repositoryUrls) throws IOException {
         
-        if (repoFileCache == null) {
-            repoFileCache = new HashMap<>();
-        }
-        if (repoNumReleasesCache == null) {
-            repoNumReleasesCache = new HashMap<>();
-        }
-        if (repoDownloadLocks == null) {
-            repoDownloadLocks = new HashMap<>();
-        }
-        
         if (!repoDownloadLocks.containsKey(repositoryName)) {
             // Create a lock object for this repo name if we don't already have one
             repoDownloadLocks.put(repositoryName, new ReentrantLock(true));
@@ -194,17 +201,17 @@ public class GitHubDao {
         
         // Get the lock object associated with this repo (want to prevent multiple threads downloading from the same repo at the same time)
         ReentrantLock downloadLock = repoDownloadLocks.get(repositoryName);
-        if (downloadLock.isLocked() && repoFileCache.containsKey(repositoryName)) {
+        HashMap<String, byte[]> fileData = repoFileCache.getIfPresent(repositoryName);
+        
+        if (downloadLock.isLocked() && fileData != null) {
             // We are currently downloading for this repo, but we already have something cached, so return that
-            return repoFileCache.get(repositoryName);
+            return fileData;
         }
 
-        GitHubClient gitHubClient = connectToGitHub();
-        ReleaseService releaseService = new ReleaseService(gitHubClient);
-
-        Repository masterRepository = getBsDataRepository(gitHubClient, repositoryName);
-        List<Release> releases = releaseService.getReleases(masterRepository);
-        if (requiresDownload(repositoryName, releases)) {
+        Repository masterRepository = getBsDataRepository(connectToGitHub(), repositoryName);
+        Release latestRelease = getLatestRelease(masterRepository);
+        
+        if (requiresDownload(masterRepository, latestRelease)) {
             try {
                 // Lock as we don't want multiple threads downloading from the same repo at once
                 downloadLock.lock();
@@ -214,17 +221,19 @@ public class GitHubDao {
                 // This can happen if we are downloading the data for the first time (i.e. repoFileCache is empty while the first thread does the download).
                 // In this case, the waiting thread should not download the data _again_ and should instead return the data from the cache once it's 
                 //   done waiting for the first thread to finish the download.
-                if (!requiresDownload(repositoryName, releases)) {
-                    return repoFileCache.get(repositoryName);
+                if (!requiresDownload(masterRepository, latestRelease)) {
+                    fileData = repoFileCache.getIfPresent(repositoryName);
+                    if (fileData == null) {
+                        // We should have this cached now. If not, something weird has happened
+                        throw new IllegalStateException();
+                    }
+                    return fileData;
                 }
 
-                Release latestRelease = releaseService.getLatestRelease(releases);
+                // Download and cache the repository data files
                 HashMap<String, byte[]> repositoryData = downloadFromGitHub(masterRepository, latestRelease);
                 repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, repositoryData);
-
-                // Cache the results and the current number of releases
                 repoFileCache.put(repositoryName, repositoryData);
-                repoNumReleasesCache.put(repositoryName, releases.size());
             }
             finally {
                 // Done! Unlock in a finally block as we don't want to leave anything locked if there's an exception...
@@ -232,7 +241,12 @@ public class GitHubDao {
             }
         }
 
-        return repoFileCache.get(repositoryName);
+        fileData = repoFileCache.getIfPresent(repositoryName);
+        if (fileData == null) {
+            // We should have this cached now. If not, something weird has happened
+            throw new IllegalStateException();
+        }
+        return fileData;
     }
     
     /**
@@ -244,13 +258,74 @@ public class GitHubDao {
      * @param releases
      * @return 
      */
-    private boolean requiresDownload(String repositoryName, List<Release> releases) {
-        if (!repoFileCache.containsKey(repositoryName) 
-                || !repoNumReleasesCache.containsKey(repositoryName)
-                || repoNumReleasesCache.get(repositoryName).intValue() != releases.size()) {
+    private boolean requiresDownload(Repository repository, Release latestRelease) {
+        HashMap<String, byte[]> fileData = repoFileCache.getIfPresent(repository.getName());
+        if (fileData == null) {
+            // We have no cached data for this repo.
             return true;
         }
+        
+        if (!repoReleaseDates.containsKey(repository.getName())) {
+            // We haven't seen a release for this repo yet.
+            repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
+            return true;
+        }
+        
+        else if (latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
+            // Latest release is newer than the one we last downloaded
+            repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
+            return true;
+        }
+        
         return false;
+    }
+    
+    /**
+     * Get the first page of releases from GitHub for the given repository
+     * 
+     * @param repository
+     * @return
+     * @throws ExecutionException 
+     */
+    private List<Release> getReleases(final Repository repository) throws IOException {
+        try {
+            return repoReleasesCache.get(repository.getName(), new Callable<List<Release>>() {
+                @Override
+                public List<Release> call() throws IOException {
+                    ReleaseService releaseService = new ReleaseService(connectToGitHub());
+                    List<Release> releases = releaseService.getReleases(repository, 1, 1);
+                    if (releases == null) {
+                        // Callable must return a value or throw an exception - can't return null
+                        throw new IllegalArgumentException();
+                    }
+                    
+                    Collections.sort(releases, new Comparator<Release>() {
+                        @Override
+                        public int compare(Release o1, Release o2) {
+                            return o1.getPublishedAt().compareTo(o2.getPublishedAt());
+                        }
+                    });
+                    return releases;
+                }
+            });
+        }
+        catch (ExecutionException e) {
+            if (e.getCause() instanceof IOException) {
+                throw (IOException)e.getCause();
+            }
+            // Callable should only throw an IOException. If we get here, something fishy is going on...
+            throw new IllegalStateException(e.getCause());
+        }
+    }
+    
+    private Release getLatestRelease(Repository repository) throws IOException {
+        Release latestRelease = null;
+        for (Release release : getReleases(repository)) {
+            if (latestRelease == null || release.getPublishedAt().after(latestRelease.getPublishedAt())) {
+                latestRelease = release;
+            }
+        }
+        return latestRelease;
     }
     
     /**
@@ -287,9 +362,7 @@ public class GitHubDao {
      */
     public RepositoryListVm getRepos(String baseUrl) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
-        GitHubClient gitHubClient = connectToGitHub();
-        RepositoryService repositoryService = new RepositoryService(gitHubClient);
-        ReleaseService releaseService = new ReleaseService(gitHubClient);
+        RepositoryService repositoryService = new RepositoryService(connectToGitHub());
         
         List<Repository> orgRepositories = repositoryService.getOrgRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION));
         List<RepositoryVm> repositories = new ArrayList<>();
@@ -298,7 +371,7 @@ public class GitHubDao {
                 continue;
             }
             
-            Release latestRelease = releaseService.getLatestRelease(repository);
+            Release latestRelease = getLatestRelease(repository);
             RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
             repositories.add(repositoryVm);
         }
@@ -326,11 +399,8 @@ public class GitHubDao {
      * @throws IOException 
      */
     public RepositoryVm getRepoFiles(String repositoryName, String baseUrl) throws IOException {
-        GitHubClient gitHubClient = connectToGitHub();
-        ReleaseService releaseService = new ReleaseService(gitHubClient);
-        
-        Repository repository = getBsDataRepository(gitHubClient, repositoryName);
-        Release latestRelease = releaseService.getLatestRelease(repository);
+        Repository repository = getBsDataRepository(connectToGitHub(), repositoryName);
+        Release latestRelease = getLatestRelease(repository);
         RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
         
         List<RepositoryContents> contents = getRepositoryContents(repository, latestRelease);
@@ -476,8 +546,6 @@ public class GitHubDao {
     
     public SyndFeed getReleaseFeed(String repositoryName, String baseUrl) throws IOException {
         GitHubClient gitHubClient = connectToGitHub();
-        ReleaseService releaseService = new ReleaseService(gitHubClient);
-        
         SyndFeed feed = new SyndFeedImpl();
         feed.setFeedType("atom_1.0");
         
@@ -492,7 +560,7 @@ public class GitHubDao {
             
             entries = new ArrayList<>();
             for (Repository repository : repositoryService.getRepositories(properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION))) {
-                entries.addAll(getReleaseFeedEntries(baseUrl, repository, releaseService.getReleases(repository)));
+                entries.addAll(getReleaseFeedEntries(baseUrl, repository, getReleases(repository)));
             }
         }
         else {
@@ -500,7 +568,7 @@ public class GitHubDao {
             feed.setTitle(repository.getDescription() + " Releases");
             feed.setDescription("Data file releases for " + repository.getDescription());
             feed.setLink(Utils.checkUrl(baseUrl + "/feeds/" + repositoryName));
-            entries = getReleaseFeedEntries(baseUrl, repository, releaseService.getReleases(repository));
+            entries = getReleaseFeedEntries(baseUrl, repository, getReleases(repository));
         }
         
         Collections.sort(entries, new Comparator<SyndEntry>() {
@@ -514,7 +582,7 @@ public class GitHubDao {
         return feed;
     }
     
-    public List<SyndEntry> getReleaseFeedEntries(String baseUrl, Repository repository, List<Release> releases) throws IOException {
+    private List<SyndEntry> getReleaseFeedEntries(String baseUrl, Repository repository, List<Release> releases) throws IOException {
         List<SyndEntry> entries = new ArrayList<>();
         for (Release release : releases) {
             SyndEntry entry = new SyndEntryImpl();
