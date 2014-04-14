@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.PropertiesConstants;
 import org.bsdata.constants.WebConstants;
@@ -637,7 +638,7 @@ public class GitHubDao {
             
             entries = new ArrayList<>();
             for (Repository repository : getRepositories(organizationName)) {
-                entries.addAll(getReleaseFeedEntries(repository));
+                entries.addAll(getReleaseFeedEntries(baseUrl, repository));
             }
         }
         else {
@@ -655,7 +656,7 @@ public class GitHubDao {
             description.setValue("Data file releases for " + repository.getDescription());
             feed.setSubtitle(description);
             
-            entries = getReleaseFeedEntries(repository);
+            entries = getReleaseFeedEntries(baseUrl, repository);
         }
         
         Collections.sort(entries, new Comparator<Entry>() {
@@ -675,25 +676,34 @@ public class GitHubDao {
         return feed;
     }
     
-    private List<Entry> getReleaseFeedEntries(Repository repository) throws IOException {
+    private List<Entry> getReleaseFeedEntries(String baseUrl, Repository repository) throws IOException {
         List<Entry> entries = new ArrayList<>();
         for (Release release : getReleases(repository)) {
             Entry entry = new Entry();
             
-            entry.setId(release.getTagName());
+            entry.setId(release.getHtmlUrl());
             entry.setTitle(repository.getDescription() + ": " + release.getName());
             entry.setPublished(release.getPublishedAt());
             entry.setUpdated(release.getPublishedAt());
             
             Link link = new Link();
             link.setType(DataConstants.HTML_MIME_TYPE);
-            link.setHref(release.getHtmlUrl());
+            link.setHref(getHtmlLink(baseUrl, repository.getName()));
             entry.setAlternateLinks(Collections.singletonList(link));
             
-            Content description = new Content();
-            description.setType(DataConstants.TEXT_MIME_TYPE);
-            description.setValue(release.getBody());
+            StringBuilder contentBuffer = new StringBuilder();
+            if (StringUtils.isEmpty(release.getBody())) {
+                contentBuffer.append("<p>(No details)</p>");
+            }
+            else {
+                contentBuffer.append("<p>").append(release.getBody()).append("</p>");
+            }
+            contentBuffer.append("<p><a href=\"").append(link.getHref()).append("\">Source repository details</a>");
+            contentBuffer.append("<br><a href=\"").append(release.getHtmlUrl()).append("\">GitHub release details</a></p>");
             
+            Content description = new Content();
+            description.setType(DataConstants.HTML_MIME_TYPE);
+            description.setValue(contentBuffer.toString());
             entry.setSummary(description);
             
             entries.add(entry);
