@@ -4,7 +4,6 @@ package org.bsdata.web;
 import com.google.gson.Gson;
 import com.sun.syndication.feed.atom.Feed;
 import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedOutput;
 import com.sun.syndication.io.WireFeedOutput;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
