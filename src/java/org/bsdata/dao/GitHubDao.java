@@ -630,10 +630,10 @@ public class GitHubDao {
             link.setHref(getHtmlLink(baseUrl, WebConstants.ALL_REPO_FEEDS));
             feed.setAlternateLinks(Collections.singletonList(link));
             
-//            Content description = new Content();
-//            description.setType(DataConstants.TEXT_MIME_TYPE);
-//            description.setValue("Data file releases for all repositories");
-//            feed.setSubtitle(description);
+            Content description = new Content();
+            description.setType(DataConstants.TEXT_MIME_TYPE);
+            description.setValue("Data file releases for all repositories");
+            feed.setSubtitle(description);
             
             entries = new ArrayList<>();
             for (Repository repository : getRepositories(organizationName)) {
@@ -650,10 +650,10 @@ public class GitHubDao {
             link.setHref(getHtmlLink(baseUrl, repositoryName));
             feed.setAlternateLinks(Collections.singletonList(link));
             
-//            Content description = new Content();
-//            description.setType(DataConstants.TEXT_MIME_TYPE);
-//            description.setValue("Data file releases for " + repository.getDescription());
-//            feed.setSubtitle(description);
+            Content description = new Content();
+            description.setType(DataConstants.TEXT_MIME_TYPE);
+            description.setValue("Data file releases for " + repository.getDescription());
+            feed.setSubtitle(description);
             
             entries = getReleaseFeedEntries(repository);
         }
@@ -668,6 +668,9 @@ public class GitHubDao {
         if (!entries.isEmpty()) {
             feed.setUpdated(entries.get(0).getPublished());
         }
+        else {
+            feed.setUpdated(new Date());
+        }
         feed.setEntries(entries);
         return feed;
     }
@@ -680,6 +683,7 @@ public class GitHubDao {
             entry.setId(release.getTagName());
             entry.setTitle(repository.getDescription() + ": " + release.getName());
             entry.setPublished(release.getPublishedAt());
+            entry.setUpdated(release.getPublishedAt());
             
             Link link = new Link();
             link.setType(DataConstants.HTML_MIME_TYPE);
