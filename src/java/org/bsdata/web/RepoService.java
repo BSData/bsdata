@@ -301,6 +301,20 @@ public class RepoService {
         }
     }
     
+    @GET
+    @Path("/ping")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String submit(@Context HttpServletRequest request) {
+        try {
+            // Do something...
+            dao.getRepos(getBaseUrl(request));
+        }
+        catch (IOException e) {
+            logger.log(Level.SEVERE, "Failed to load repo list: {0}", e.getMessage());
+        }
+        return "Pong!";
+    }
+    
 //    @Context ServletContext context;
 //    @GET
 //    @Path("/submit")

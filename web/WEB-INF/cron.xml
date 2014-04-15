@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries
+    xmlns="http://appengine.google.com/ns/cron/1.0"
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:schemaLocation='http://kenai.com/projects/nbappengine/downloads/download/schema/cron.xsd cron.xsd'>
+    <cron>
+        <url>/repos/ping</url>
+        <description>Repopulate the cache every 3 minutes</description>
+        <schedule>every 3 minutes</schedule>
+    </cron>
+    <cron>
+        <url>/repos/ping</url>
+        <description>Repopulate the cache every 7 minutes</description>
+        <schedule>every 7 minutes</schedule>
+    </cron>
+    <cron>
+        <url>/repos/ping</url>
+        <description>Repopulate the cache every 11 minutes</description>
+        <schedule>every 11 minutes</schedule>
+    </cron>
+</cronentries>
