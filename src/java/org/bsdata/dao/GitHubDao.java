@@ -3,6 +3,7 @@ package org.bsdata.dao;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.sun.jersey.api.NotFoundException;
 import com.sun.syndication.feed.atom.Content;
 import com.sun.syndication.feed.atom.Entry;
 import com.sun.syndication.feed.atom.Feed;
@@ -157,8 +158,8 @@ public class GitHubDao {
             }
         }
         
-        // We shouldn't get here
-        throw new IllegalArgumentException("Could not find repository " + repositoryName + " in organization " + organizationName);
+        // We don't know about that repo.
+        throw new NotFoundException("Could not find repository " + repositoryName + " in organization " + organizationName);
     }
     
     private List<RepositoryContents> getRepositoryContents(Repository repository, Release release) throws IOException {
@@ -706,10 +707,7 @@ public class GitHubDao {
             entry.setAlternateLinks(Collections.singletonList(link));
             
             StringBuilder contentBuffer = new StringBuilder();
-            if (StringUtils.isEmpty(release.getBody())) {
-                contentBuffer.append("<p>(No details)</p>");
-            }
-            else {
+            if (!StringUtils.isEmpty(release.getBody())) {
                 contentBuffer.append("<p>").append(release.getBody()).append("</p>");
             }
             contentBuffer.append("<p><a href=\"").append(link.getHref()).append("\">Source repository details</a>");

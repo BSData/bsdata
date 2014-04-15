@@ -2,6 +2,7 @@
 package org.bsdata.web;
 
 import com.google.gson.Gson;
+import com.sun.jersey.api.NotFoundException;
 import com.sun.syndication.feed.atom.Feed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.WireFeedOutput;
@@ -109,6 +110,10 @@ public class RepoService {
         try {
             repoData = dao.getRepoFileData(repoName, getBaseUrl(request), null);
         }
+        catch (NotFoundException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo data: {0}", e.getMessage());
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
@@ -145,6 +150,10 @@ public class RepoService {
         try {
             repositoryVm = dao.getRepoFiles(repoName, getBaseUrl(request));
         }
+        catch (NotFoundException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo file list: {0}", e.getMessage());
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
@@ -169,6 +178,10 @@ public class RepoService {
             Feed feed = dao.getReleaseFeed(repoName, getBaseUrl(request));
             WireFeedOutput feedOutput = new WireFeedOutput();
             feedOutput.output(feed, writer);
+        }
+        catch (NotFoundException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo list: {0}", e.getMessage());
@@ -241,6 +254,10 @@ public class RepoService {
             IOUtils.copy(inputStream, outputStream);
             dao.submitFile(repoName, fileName, outputStream.toByteArray(), commitMessage);
         }
+        catch (NotFoundException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to submit file: {0}", e.getMessage());
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
@@ -273,6 +290,10 @@ public class RepoService {
         
         try {
             dao.createIssue(repoName, fileName + ": " + issueTitle, issueBody);
+        }
+        catch (NotFoundException e) {
+            logger.log(Level.WARNING, e.getMessage(), e);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to submit issue: {0}", e.getMessage());
