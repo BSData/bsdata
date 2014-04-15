@@ -8,7 +8,7 @@
     <ssl-enabled>false</ssl-enabled>
     <sessions-enabled>true</sessions-enabled>
     -->
-    <threadsafe>false</threadsafe>
+    <threadsafe>true</threadsafe>
     
     <!-- Mark all HTML/CSS/JS/Image files as static -->
     <static-files>
