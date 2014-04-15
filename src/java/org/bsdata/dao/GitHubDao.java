@@ -280,28 +280,37 @@ public class GitHubDao {
      * @return 
      */
     private boolean requiresDownload(Repository repository, Release latestRelease) {
+        boolean requiresDownload = false;
+        
         HashMap<String, byte[]> fileData = repoFileCache.getIfPresent(repository.getName());
         if (fileData == null) {
             // We have no cached data for this repo.
             logger.log(Level.INFO, "File data for {0} not yet cached.", repository.getName());
-            return true;
+            requiresDownload = true;
         }
         
         if (!repoReleaseDates.containsKey(repository.getName())) {
             // We haven't seen a release for this repo yet.
             logger.log(Level.INFO, "Last release date for {0} not yet cached.", repository.getName());
-            repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
-            return true;
+            requiresDownload = true;
         }
         
-        else if (latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
+        else if (latestRelease != null && latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
             // Latest release is newer than the one we last downloaded
             logger.log(Level.INFO, "Latest release date for {0} is after cached last release date.", repository.getName());
-            repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
-            return true;
+            requiresDownload = true;
         }
         
-        return false;
+        if (requiresDownload) {
+            if (latestRelease != null) {
+                repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
+            }
+            else {
+                repoReleaseDates.put(repository.getName(), new Date());
+            }
+        }
+        
+        return requiresDownload;
     }
     
     /**
