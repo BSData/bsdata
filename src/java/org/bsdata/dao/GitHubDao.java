@@ -559,7 +559,7 @@ public class GitHubDao {
         PullRequestMarker sourceRequestMarker = new PullRequestMarker();
         sourceRequestMarker.setLabel("BSDataAnon:" + branchNameFork); // Source is our new branch in the fork
         PullRequestMarker destinationRequestMarker = new PullRequestMarker();
-        destinationRequestMarker.setLabel("BSData:master"); // Destination is the master branch of the bsdata repository
+        destinationRequestMarker.setLabel("master"); // Destination is the master branch of the bsdata repository
         PullRequest pullRequest = new PullRequest();
         pullRequest.setTitle("Anonymous update to " + fileName);
         pullRequest.setHead(sourceRequestMarker);

@@ -18,5 +18,10 @@
             <a href="#">Upload new version</a> |
             <a href="{{file.gitHubUrl}}"><img src="app/img/github_icon_16.png"/></a>
         </div>
+        <form enctype="multipart/form-data" method="post" action="{{file.dataFileUrl}}" style="clear: both; width: 90%;">
+            <textarea name="commitMessage" style="width: 90%; height: 100px;"></textarea>
+            <input name="file" type="file" style="float: left; width: 75%;"/>
+            <input value="Upload!" type="submit" style="float: right; width: 15%;"/>
+        </form>
     </li>
 </ul>

@@ -3,6 +3,7 @@ package org.bsdata.web;
 
 import com.google.gson.Gson;
 import com.sun.jersey.api.NotFoundException;
+import com.sun.jersey.multipart.FormDataParam;
 import com.sun.syndication.feed.atom.Feed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.WireFeedOutput;
@@ -76,7 +77,7 @@ public class RepoService {
 
     @GET
     @Path("/{repoName}/{fileName}")
-    @Produces("application/octet-stream")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response getFile(
             @PathParam("repoName") String repoName, 
             @PathParam("fileName") String fileName,
@@ -228,12 +229,12 @@ public class RepoService {
 
     @POST
     @Path("/{repoName}/{fileName}")
-    @Consumes("application/octet-stream")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public void submitFile(
             @PathParam("repoName") String repoName, 
             @PathParam("fileName") String fileName,
-            @HeaderParam("commitMessage") String commitMessage,
-            InputStream inputStream,
+            @FormDataParam("commitMessage") String commitMessage,
+            @FormDataParam("file")InputStream file,
             @Context HttpServletRequest request) {
         
         if (StringUtils.isEmpty(repoName)) {
@@ -245,13 +246,13 @@ public class RepoService {
         if (StringUtils.isEmpty(commitMessage)) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
-        if (inputStream == null) {
+        if (file == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024 * 80);
-            IOUtils.copy(inputStream, outputStream);
+            IOUtils.copy(file, outputStream);
             dao.submitFile(repoName, fileName, outputStream.toByteArray(), commitMessage);
         }
         catch (NotFoundException e) {
@@ -266,7 +267,7 @@ public class RepoService {
 
     @POST
     @Path("/{repoName}/issue/{fileName}")
-    @Consumes("application/octet-stream")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public void submitIssue(
             @PathParam("repoName") String repoName, 
             @PathParam("fileName") String fileName,
