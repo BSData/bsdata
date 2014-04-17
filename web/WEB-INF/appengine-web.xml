@@ -3,7 +3,7 @@
                    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                    xsi:schemaLocation='http://kenai.com/projects/nbappengine/downloads/download/schema/appengine-web.xsd appengine-web.xsd'>
     
-    <application>battlescribedata</application>
+    <application>bsdatadev</application>
     <version>3</version>
     <!--    
     <ssl-enabled>false</ssl-enabled>

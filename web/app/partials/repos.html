@@ -9,7 +9,7 @@
 
 <ul class="detailsList">
     <li ng-repeat="repo in m.repos" class="detailsRow">
-        <a href="{{repo.repoUrl}}" class="detailsTitle">{{repo.description}}</a>
+        <a href="{{repo.repoUrl}}" class="detailsTitle"><img src="app/img/blank.png">{{repo.description}}</a>
         <div class="details">
             <span ng-if="repo.lastUpdated" class="repoLastUpdated">Updated {{repo.lastUpdated | date:'medium'}}</span> |
             <a href="{{repo.bugTrackerUrl}}">Report a bug</a> |

@@ -3,6 +3,7 @@ package org.bsdata.web;
 
 import com.google.gson.Gson;
 import com.sun.jersey.api.NotFoundException;
+import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import com.sun.syndication.feed.atom.Feed;
 import com.sun.syndication.io.FeedException;
@@ -20,7 +21,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -34,6 +34,7 @@ import org.bsdata.dao.GitHubDao;
 import org.bsdata.viewmodel.RepositoryListVm;
 import org.bsdata.utils.Utils;
 import org.bsdata.viewmodel.RepositoryVm;
+import org.bsdata.viewmodel.ResponseVm;
 
 
 /**
@@ -153,7 +154,8 @@ public class RepoService {
         }
         catch (NotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            repositoryVm = new RepositoryVm();
+            repositoryVm.setErrorMessage("Could not find repository " + repoName + ".");
         }
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo file list: {0}", e.getMessage());
@@ -230,12 +232,17 @@ public class RepoService {
     @POST
     @Path("/{repoName}/{fileName}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public void submitFile(
+    @Produces(MediaType.APPLICATION_JSON)
+    public String submitFile(
             @PathParam("repoName") String repoName, 
             @PathParam("fileName") String fileName,
             @FormDataParam("commitMessage") String commitMessage,
-            @FormDataParam("file")InputStream file,
+            @FormDataParam("file") InputStream file,
+            @FormDataParam("file") FormDataContentDisposition contentDisposition,
             @Context HttpServletRequest request) {
+        
+        ResponseVm response = null;
+        Gson gson = new Gson();
         
         if (StringUtils.isEmpty(repoName)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -244,37 +251,49 @@ public class RepoService {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
         if (StringUtils.isEmpty(commitMessage)) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            response = new ResponseVm();
+            response.setErrorMessage("You must enter a change description.");
         }
         if (file == null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            response = new ResponseVm();
+            response.setErrorMessage("You must select a file.");
+        }
+        
+        if (response != null) {
+            return gson.toJson(response);
         }
         
         try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024 * 80);
             IOUtils.copy(file, outputStream);
-            dao.submitFile(repoName, fileName, outputStream.toByteArray(), commitMessage);
+            response = dao.submitFile(repoName, fileName, contentDisposition.getFileName(), outputStream.toByteArray(), commitMessage);
         }
         catch (NotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            response = new ResponseVm();
+            response.setErrorMessage("Could not find repository " + repoName + ".");
         }
-        catch (Exception e) {
+        catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to submit file: {0}", e.getMessage());
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            response = new ResponseVm();
+            response.setErrorMessage("There was an error submitting your file. Please try again later.");
         }
+        
+        return gson.toJson(response);
     }
 
     @POST
-    @Path("/{repoName}/issue/{fileName}")
+    @Path("/{repoName}/{fileName}/issue")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public void submitIssue(
+    @Produces(MediaType.APPLICATION_JSON)
+    public String submitIssue(
             @PathParam("repoName") String repoName, 
             @PathParam("fileName") String fileName,
-            @HeaderParam("issueTitle") String issueTitle,
-            @HeaderParam("issueBody") String issueBody,
+            @FormDataParam("issueBody") String issueBody,
             @Context HttpServletRequest request) {
         
+        ResponseVm response;
+        Gson gson = new Gson();
         
         if (StringUtils.isEmpty(repoName)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -282,24 +301,27 @@ public class RepoService {
         if (StringUtils.isEmpty(fileName)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
-        if (StringUtils.isEmpty(issueTitle)) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
         if (StringUtils.isEmpty(issueBody)) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            response = new ResponseVm();
+            response.setErrorMessage("You must enter a bug description.");
+            return gson.toJson(response);
         }
         
         try {
-            dao.createIssue(repoName, fileName + ": " + issueTitle, issueBody);
+            response = dao.createIssue(repoName, fileName, issueBody);
         }
         catch (NotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            response = new ResponseVm();
+            response.setErrorMessage("Could not find repository " + repoName + ".");
         }
-        catch (Exception e) {
+        catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to submit issue: {0}", e.getMessage());
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            response = new ResponseVm();
+            response.setErrorMessage("There was an error submitting your bug report. Please try again later.");
         }
+        
+        return gson.toJson(response);
     }
     
     @GET

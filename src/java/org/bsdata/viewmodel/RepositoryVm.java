@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RepositoryVm {
+public class RepositoryVm extends ResponseVm {
     
     private String name;
     private String description;
@@ -15,19 +15,10 @@ public class RepositoryVm {
     private String feedUrl;
     private String lastUpdated;
     private String lastUpdateDescription;
-    private String errorMessage;
     private List<RepositoryFileVm> repositoryFiles;
     
     public RepositoryVm() {
         repositoryFiles = new ArrayList<>();
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 
     public String getName() {

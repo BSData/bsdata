@@ -2,12 +2,12 @@
 package org.bsdata.viewmodel;
 
 
-public class RepositoryFileVm {
+public class RepositoryFileVm extends ResponseVm {
     
     private String name;
     private String gitHubUrl;
     private String dataFileUrl;
-    private String errorMessage;
+    private String issueUrl;
 
     public String getName() {
         return name;
@@ -33,12 +33,12 @@ public class RepositoryFileVm {
         this.dataFileUrl = dataFileUrl;
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
+    public String getIssueUrl() {
+        return issueUrl;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+    public void setIssueUrl(String issueUrl) {
+        this.issueUrl = issueUrl;
     }
     
 }

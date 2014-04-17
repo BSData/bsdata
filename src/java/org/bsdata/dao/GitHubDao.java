@@ -37,6 +37,7 @@ import org.bsdata.viewmodel.RepositoryListVm;
 import org.bsdata.repository.Indexer;
 import org.bsdata.utils.ApplicationProperties;
 import org.bsdata.utils.Utils;
+import org.bsdata.viewmodel.ResponseVm;
 import org.eclipse.egit.github.core.Blob;
 import org.eclipse.egit.github.core.Commit;
 import org.eclipse.egit.github.core.Issue;
@@ -119,8 +120,8 @@ public class GitHubDao {
     private GitHubClient connectToGitHub() throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         GitHubClient gitHubClient = new GitHubClient();
-        gitHubClient.setOAuth2Token(properties.getProperty(PropertiesConstants.GITHUB_TOKEN));
-        gitHubClient.setUserAgent(properties.getProperty(PropertiesConstants.GITHUB_USERNAME));
+        gitHubClient.setOAuth2Token(properties.getProperty(PropertiesConstants.GITHUB_ANON_TOKEN));
+        gitHubClient.setUserAgent(properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME));
         return gitHubClient;
     }
     
@@ -451,6 +452,7 @@ public class GitHubDao {
             repositoryFile.setName(fileName);
             repositoryFile.setGitHubUrl(Utils.checkUrl(repositoryVm.getGitHubUrl() + "/blob/master/" + repositoryContents.getPath()));
             repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
+            repositoryFile.setIssueUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
             repositoryFiles.add(repositoryFile);
         }
         
@@ -493,11 +495,12 @@ public class GitHubDao {
      * @param fileData
      * @throws IOException 
      */
-    public void submitFile(String repositoryName, String fileName, byte[] fileData, String commitMessage) throws IOException {
-        fileName = FilenameUtils.getName(fileName); // Ensure we have just the filename
-        if (Utils.isCompressedPath(fileName)) {
-            // If compressed, decompress the data and change the fileName to the uncompressed extension
-            fileName = Utils.getUncompressedFileName(fileName);
+    public ResponseVm submitFile(String repositoryName, String fileName, String sourceFileName, byte[] fileData, String commitMessage) throws IOException {
+        // Ensure we have the decompressed filename for the destination
+        fileName = Utils.getUncompressedFileName(FilenameUtils.getName(fileName));
+        
+        if (Utils.isCompressedPath(sourceFileName)) {
+            // If source file name is compressed, decompress the data
             fileData = Utils.decompressData(fileData);
         }
         
@@ -565,7 +568,12 @@ public class GitHubDao {
         pullRequest.setHead(sourceRequestMarker);
         pullRequest.setBase(destinationRequestMarker);
         pullRequest.setBody(commitMessage);
-        pullRequestService.createPullRequest(repositoryMaster, pullRequest);
+        pullRequest = pullRequestService.createPullRequest(repositoryMaster, pullRequest);
+        
+        ResponseVm responseVm = new ResponseVm();
+        responseVm.setSuccessMessage("Successfully submitted " + fileName);
+        responseVm.setResponseUrl(pullRequest.getHtmlUrl());
+        return responseVm;
     }
     
     /**
@@ -587,27 +595,29 @@ public class GitHubDao {
         
         List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
                 masterRepository.getName()
-                + " user:" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) 
+                + " user:" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) 
                 + " fork:only");
         
         if (searchRepositories.isEmpty()) {
             return repositoryService.forkRepository(masterRepository);
         }
         
+        Release latestRelease = getLatestRelease(masterRepository);
         Repository repositoryFork = repositoryService.getRepository(
-                properties.getProperty(PropertiesConstants.GITHUB_USERNAME), 
+                properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME), 
                 masterRepository.getName());
         
-        if (repositoryService.getTags(repositoryFork).size() == repositoryService.getTags(masterRepository).size()) {
-            return repositoryFork;
+        if (latestRelease.getPublishedAt().after(repositoryFork.getCreatedAt())) {
+            // There's been a release on the master since we last forked, so delete and re-create
+            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) + "/" + repositoryFork.getName());
+            return repositoryService.forkRepository(masterRepository);
         }
         else {
-            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_USERNAME) + "/" + repositoryFork.getName());
-            return repositoryService.forkRepository(masterRepository);
+            return repositoryFork;
         }
     }
     
-    public void createIssue(String repositoryName, String title, String body) throws IOException {
+    public ResponseVm createIssue(String repositoryName, String fileName, String body) throws IOException {
         GitHubClient gitHubClient = connectToGitHub();
         IssueService issueService = new IssueService(gitHubClient);
         
@@ -615,10 +625,15 @@ public class GitHubDao {
         Repository repository = getRepository(organizationName, repositoryName);
         
         Issue issue = new Issue();
-        issue.setTitle(title);
+        issue.setTitle("Anonymous bug report for " + fileName);
         issue.setBody(body);
         
-        issueService.createIssue(repository, issue);
+        issue = issueService.createIssue(repository, issue);
+        
+        ResponseVm responseVm = new ResponseVm();
+        responseVm.setSuccessMessage("Successfully submitted issue for " + fileName);
+        responseVm.setResponseUrl(issue.getHtmlUrl());
+        return responseVm;
     }
     
     public Feed getReleaseFeed(String repositoryName, String baseUrl) throws IOException {

@@ -5,11 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class RepositoryListVm {
+public class RepositoryListVm extends ResponseVm {
     
     private List<RepositoryVm> repositories;
     private String feedUrl;
-    private String errorMessage;
     
     public RepositoryListVm() {
         repositories = new ArrayList<>();
@@ -29,13 +28,5 @@ public class RepositoryListVm {
 
     public void setFeedUrl(String feedUrl) {
         this.feedUrl = feedUrl;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 }

@@ -115,7 +115,7 @@ a {
 
 a:hover {
     color: #51A2FF;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 ul {
@@ -286,7 +286,23 @@ ul {
 
 .subTitle img {
     margin: 0px;
-    padding: 14px 8px 12px 8px;
+    padding: 14px 0px 12px 8px;
+}
+
+.subTitle a h3 img {
+    width: 32px;
+    height: 32x;
+    padding: 0px;
+    margin: 0px 8px 4px 0px;
+    background-image: url("../img/download_dark_32.png");
+}
+
+.subTitle a:hover h3 img {
+    width: 32px;
+    height: 32px;
+    padding: 0px;
+    margin: 0px 8px 4px 0px;
+    background-image: url("../img/download_light_32.png");
 }
 
 .subTitle .details {
@@ -325,6 +341,22 @@ ul {
 
 .detailsList .detailsTitle {
     font-size: 1.4em;
+}
+
+.detailsList .detailsTitle img {
+    width: 24px;
+    height: 24px;
+    padding: 0px;
+    margin: 0px 4px 4px 0px;
+    background-image: url("../img/download_dark_24.png");
+}
+
+.detailsList .detailsTitle:hover img {
+    width: 24px;
+    height: 24px;
+    padding: 0px;
+    margin: 0px 4px 4px 0px;
+    background-image: url("../img/download_light_24.png");
 }
 
 .detailsList .details {
