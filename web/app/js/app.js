@@ -1,6 +1,7 @@
 'use strict';
 angular.module('bsdataApp', [
   'ngRoute',
+  'angularFileUpload',
   'bsdataApp.filters',
   'bsdataApp.services',
   'bsdataApp.directives',

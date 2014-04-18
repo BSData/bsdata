@@ -1,7 +1,7 @@
 
 <div class="subTitle">
     <a href="{{m.repo.repoUrl}}"><h3><img src="app/img/blank.png">{{m.repo.description}}</h3></a>
-    <span class="repoDetailsLink">| <a href="{{m.repo.bugTrackerUrl}}">Report a bug</a> |</span>
+<!--    <span class="repoDetailsLink">| <a href="{{m.repo.bugTrackerUrl}}">Report a bug</a> |</span>-->
     <a href="{{m.repo.gitHubUrl}}"><img src="app/img/github_icon_24.png"/></a>
     <a href="{{m.repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a>
     
@@ -11,34 +11,37 @@
 </div>
 
 <ul class="detailsList">
-    <li ng-repeat="file in m.repo.repositoryFiles" class="detailsRow">
+    <li class="detailsRow" ng-repeat="file in m.repo.repositoryFiles" ng-controller="FileFormCtrl">
         <a href="{{file.dataFileUrl}}" class="detailsTitle">{{file.name}}</a>
         <div class="details">
             Actions:
-            <a ng-click="showIssueForm(file)" href="">Report a bug</a> |
-            <a ng-click="showUploadForm(file)" href="">Upload new version</a> |
+            <a ng-click="showIssueForm(file);" href="">Report a bug</a> |
+            <a ng-click="showUploadForm(file);" href="">Upload new version</a> |
             <a href="{{file.gitHubUrl}}"><img src="app/img/github_icon_16.png"/></a>
         </div>
         
-        <form ng-show="currentFile === file && formData.isUpload" name="uploadForm" enctype="multipart/form-data" style="clear: both; width: 100%;">
-            <textarea ng-model="formData.commitMessage" ng-required="true" name="commitMessage" style="width: 100%; height: 100px;"></textarea>
-            <input type="file" ng-file-select ng-required="true" value="formData.fileName" style="width: 100%;">
-            <input ng-click="doUpload();" ng-disabled="uploadForm.$invalid" value="Upload!" type="button" style="width: 100%;">
-            <input ng-click="cancelForm();" value="Cancel" type="button" style="width: 100%;">
-        </form>
-        
-        <form ng-show="currentFile === file && formData.isIssue" name="issueForm" enctype="multipart/form-data" style="clear: both; width: 100%;">
-            <textarea ng-model="formData.issueBody" ng-required="true" name="issueBody" style="width: 100%; height: 100px;"></textarea>
-            <input ng-click="postBug();" ng-disabled="issueForm.$invalid" value="Submit!" type="button" style="width: 100%;">
-            <input ng-click="cancelForm();" value="Cancel" type="button" style="width: 100%;">
-        </form>
-        
-        <span style="color: red;" ng-show="currentFile === file && formData.formResponse && formData.formResponse.errorMessage">
+        <div class="formContainer" ng-show="formData.isUpload || formData.isIssue">
+            <form ng-show="formData.isUpload" name="uploadForm" enctype="multipart/form-data">
+                <textarea ng-model="formData.commitMessage" ng-required="true" name="commitMessage"></textarea>
+                <input name="selectFile" type="file" ng-file-select ng-model="document" valid-file>
+                <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
+                <input class="accept" ng-click="doUpload();" ng-disabled="uploadForm.$invalid" value="Upload!" type="button"">
+            </form>
+
+            <form ng-show="formData.isIssue" name="issueForm" enctype="multipart/form-data">
+                <textarea ng-model="formData.issueBody" ng-required="true" name="issueBody"></textarea>
+                <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
+                <input class="accept" ng-click="postBug();" ng-disabled="issueForm.$invalid" value="Submit!" type="button">
+            </form>
+            
+            <div class="clearfix"></div>
+        </div>
+
+        <span class="errorMessage" ng-show="formData.formResponse && formData.formResponse.errorMessage">
             {{formData.formResponse.errorMessage}}
         </span>
-        <span style="color: green;" ng-show="currentFile === file && formData.formResponse && formData.formResponse.successMessage">
-            {{formData.formResponse.successMessage}}
-            <br ng-show="formData.formResponse.responseUrl">
+        <span class="successMessage" ng-show="formData.formResponse && formData.formResponse.successMessage">
+            {{formData.formResponse.successMessage}} 
             <a ng-show="formData.formResponse.responseUrl" href="{{formData.formResponse.responseUrl}}">Track on GitHub</a>
         </span>
     </li>
