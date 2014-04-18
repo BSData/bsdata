@@ -20,7 +20,7 @@ textarea {
 
 html {
     font-size: 1em;
-    line-height: 1.4;
+    line-height: 1.4em;
 }
 
 /*
@@ -136,8 +136,8 @@ ul {
 .center {
     margin-left: auto;
     margin-right: auto;
-    width: 620px;
-    padding:0px 8px 0px 8px;
+    width: 668px;
+    padding:0px 24px 0px 24px;
 }
 
 #header {
@@ -255,12 +255,15 @@ ul {
 }
 
 .bodyText {
-    list-style: disc inside none !important;
-    margin: 24px 0px 0px 0px !important;
     font-size: 0.9em;
 }
 
-.bodyText li {
+.bodyText ul {
+    list-style: disc outside none !important;
+    margin: 24px 0px 0px 20px !important;
+}
+
+.bodyText ul li {
     margin: 8px 0px 8px 0px !important;
 }
 
@@ -474,6 +477,22 @@ ul {
 /* ==========================================================================
    Helper classes
    ========================================================================== */
+
+.bold {
+    font-weight: bold;
+}
+
+.big {
+    font-size: 1.2em;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: limegreen;
+}
 
 /*
  * Image replacement

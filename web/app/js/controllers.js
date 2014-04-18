@@ -99,6 +99,13 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
             $scope.formData.formResponse = response;
         });
     };
+    
+    $scope.isFileSelected = function() {
+        if (!$scope.uploader || !$scope.uploader.queue) {
+            return false;
+        }
+        return $scope.uploader.queue.length === 1;
+    };
 
     $scope.doUpload = function() {
         if ($scope.formData.isUpload && $scope.uploader.queue && $scope.uploader.queue.length === 1) {
@@ -152,5 +159,5 @@ bsDataApp.directive('validFile', function() {
                 });
             });
         }
-    }
+    };
 });
