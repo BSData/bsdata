@@ -22,6 +22,7 @@
         
         <div class="formContainer" ng-show="formData.isUpload || formData.isIssue">
             <form ng-show="formData.isUpload" name="uploadForm" enctype="multipart/form-data">
+                <h4>Submit a file</h4>
                 <textarea ng-model="formData.commitMessage" ng-required="true" name="commitMessage"></textarea>
                 <input name="selectFile" type="file" ng-file-select ng-click="uploader.clearQueue();">
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
@@ -29,6 +30,7 @@
             </form>
 
             <form ng-show="formData.isIssue" name="issueForm" enctype="multipart/form-data">
+                <h4>Report a bug</h4>
                 <textarea ng-model="formData.issueBody" ng-required="true" name="issueBody"></textarea>
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
                 <input class="accept" ng-click="postBug();" ng-disabled="issueForm.$invalid" value="Submit!" type="button">
