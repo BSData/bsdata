@@ -244,6 +244,11 @@ public class RepoService {
         ResponseVm response = null;
         Gson gson = new Gson();
         
+//        response = new ResponseVm();
+//        response.setSuccessMessage("Successfully submitted file update for " + fileName + ".");
+//        response.setResponseUrl("http://github.com");
+//        return gson.toJson(response);
+        
         if (StringUtils.isEmpty(repoName)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -294,6 +299,10 @@ public class RepoService {
         
         ResponseVm response;
         Gson gson = new Gson();
+        
+//        response = new ResponseVm();
+//        response.setErrorMessage("There was an error submitting your bug report. Please try again later.");
+//        return gson.toJson(response);
         
         if (StringUtils.isEmpty(repoName)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);

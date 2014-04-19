@@ -14,37 +14,42 @@
     <li class="detailsRow" ng-repeat="file in m.repo.repositoryFiles" ng-controller="FileFormCtrl">
         <a href="{{file.dataFileUrl}}" class="detailsTitle">{{file.name}}</a>
         <div class="details">
-            Actions:
-            <a ng-click="showIssueForm(file);" href="">Report a bug</a> |
-            <a ng-click="showUploadForm(file);" href="">Upload new version</a> |
+            <span class="detailsText">{{file.type}}</span> | 
+            <span ng-show="isHtml5()">
+                <a ng-click="showIssueForm(file);" href="">Report a bug</a> |
+                <a ng-click="showUploadForm(file);" href="">Submit new version</a> |
+            </span>
+            <span ng-show="!isHtml5()">
+                <span class="detailsText" style="padding-left: 4px; color: #999;">Uploads / bug reports unavailable</span> | 
+            </span>
             <a href="{{file.gitHubUrl}}"><img src="app/img/github_icon_16.png"/></a>
         </div>
         
         <div class="formContainer" ng-show="formData.isUpload || formData.isIssue">
             <form ng-show="formData.isUpload" name="uploadForm" enctype="multipart/form-data">
-                <h4>Submit a file</h4>
-                <textarea ng-model="formData.commitMessage" ng-required="true" name="commitMessage"></textarea>
+                <h4>Submit new version of {{file.name}}</h4>
+                <textarea ng-model="formData.commitMessage" ng-required="true" name="commitMessage" placeholder="Describe what was broken and how you fixed it"></textarea>
                 <input name="selectFile" type="file" ng-file-select ng-click="uploader.clearQueue();">
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
-                <input class="accept" ng-click="doUpload();" ng-disabled="uploadForm.$invalid || !isFileSelected()" value="Upload!" type="button"">
+                <input class="accept" ng-click="doUpload();" ng-disabled="uploadForm.$invalid || !isFileSelected()" value="Upload!" type="button">
             </form>
 
             <form ng-show="formData.isIssue" name="issueForm" enctype="multipart/form-data">
-                <h4>Report a bug</h4>
-                <textarea ng-model="formData.issueBody" ng-required="true" name="issueBody"></textarea>
+                <h4>Report a bug in {{file.name}}</h4>
+                <textarea ng-model="formData.issueBody" ng-required="true" name="issueBody" placeholder="Describe what's broken and how to fix it"></textarea>
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
                 <input class="accept" ng-click="postBug();" ng-disabled="issueForm.$invalid" value="Submit!" type="button">
             </form>
             
             <div class="clearfix"></div>
+            <span class="errorMessage" ng-show="formData.formResponse.errorMessage">{{formData.formResponse.errorMessage}}</span>
         </div>
-
-        <span class="errorMessage" ng-show="formData.formResponse && formData.formResponse.errorMessage">
-            {{formData.formResponse.errorMessage}}
-        </span>
-        <span class="successMessage" ng-show="formData.formResponse && formData.formResponse.successMessage">
-            {{formData.formResponse.successMessage}} 
-            <a ng-show="formData.formResponse.responseUrl" href="{{formData.formResponse.responseUrl}}">Track on GitHub</a>
-        </span>
+        
+        <div class="formContainer" ng-show="formData.formResponse.successMessage">
+            <span class="successMessage">
+                {{formData.formResponse.successMessage}}
+                <a href="{{formData.formResponse.responseUrl}}" ng-show="formData.formResponse.responseUrl">Track your submission!</a>
+            </span>
+        </div>
     </li>
 </ul>

@@ -5,6 +5,7 @@ package org.bsdata.viewmodel;
 public class RepositoryFileVm extends ResponseVm {
     
     private String name;
+    private String type;
     private String gitHubUrl;
     private String dataFileUrl;
     private String issueUrl;
@@ -39,6 +40,14 @@ public class RepositoryFileVm extends ResponseVm {
 
     public void setIssueUrl(String issueUrl) {
         this.issueUrl = issueUrl;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
     
 }

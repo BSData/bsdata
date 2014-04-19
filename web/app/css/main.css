@@ -102,7 +102,7 @@ body {
     margin:0px;
     padding:0px;
     height:100%;
-    min-width: 620px;
+    min-width: 668px;
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     color: #2e3436;
@@ -365,7 +365,7 @@ ul {
 }
 
 .detailsRow .details {
-    font-size: 0.9em;
+    font-size: 0.95em;
     margin: 0px;
     padding: 4px 4px 0px 0px;
     height: 32px;
@@ -381,7 +381,7 @@ ul {
     padding: 0px 0px 4px 0px;
 }
 
-.detailsRow .details .repoLastUpdated {
+.detailsRow .details .detailsText {
     font-size: 1em;
     margin: 0px;
     padding: 0px 4px 0px 0px;
@@ -396,7 +396,7 @@ ul {
 .formContainer h4 {
     margin: 8px 0px 8px 0px;
     padding: 0px;
-    font-size: 1.1em;
+    font-size: 1.05em;
     font-weight: bold;
 }
 
@@ -465,14 +465,13 @@ ul {
 }
 
 .detailsRow .successMessage {
-    color: limegreen;
-    font-size: 0.8em;
+    color: green;
+    font-size: 1em;
 }
 
 .detailsRow .errorMessage {
     color: red;
-    font-weight: bold;
-    font-size: 0.8em;
+    font-size: 1em;
 }
 
 .repoImg {

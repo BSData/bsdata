@@ -39,7 +39,7 @@ bsDataApp.controller("RepoCtrl", function($scope, $routeParams, repoRestApi, $fi
     });
 });
 
-bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi, $fileUploader, $http) {
+bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi, $fileUploader, $http, $window) {
     
     $scope.formData = {
         currentFile : null,
@@ -48,6 +48,10 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
         commitMessage : "",
         issueBody : "",
         formResponse : null
+    };
+    
+    $scope.isHtml5 = function() {
+        return !!($window.File && $window.FormData);
     };
     
     $scope.setCurrentFile = function(repoFile) {
@@ -140,23 +144,6 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
             })
             .error(function(data) {
                 $scope.formData.formResponse = data;
-            });
-        }
-    };
-});
-
-bsDataApp.directive('validFile', function() {
-    return {
-        require: 'ngModel',
-        link: function(scope, el, attrs, ngModel) {
-            ngModel.$render = function () {
-                ngModel.$setViewValue(el.val());
-            };
-
-            el.bind('change', function () {
-                scope.$apply(function () {
-                    ngModel.$render();
-                });
             });
         }
     };

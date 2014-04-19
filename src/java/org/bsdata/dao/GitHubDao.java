@@ -29,6 +29,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
+import org.bsdata.constants.DataConstants.DataType;
 import org.bsdata.constants.PropertiesConstants;
 import org.bsdata.constants.WebConstants;
 import org.bsdata.viewmodel.RepositoryVm;
@@ -450,6 +451,15 @@ public class GitHubDao {
             
             RepositoryFileVm repositoryFile = new RepositoryFileVm();
             repositoryFile.setName(fileName);
+            if (Utils.isCataloguePath(fileName)) {
+                repositoryFile.setType(StringUtils.capitalize(DataType.CATALOGUE.toString()));
+            }
+            else if (Utils.isGameSytstemPath(fileName)) {
+                repositoryFile.setType(StringUtils.capitalize(DataType.GAME_SYSTEM.toString()));
+            }
+            else if (Utils.isRosterPath(fileName)) {
+                repositoryFile.setType(StringUtils.capitalize(DataType.ROSTER.toString()));
+            }
             repositoryFile.setGitHubUrl(Utils.checkUrl(repositoryVm.getGitHubUrl() + "/blob/master/" + repositoryContents.getPath()));
             repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
             repositoryFile.setIssueUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
@@ -459,6 +469,17 @@ public class GitHubDao {
         Collections.sort(repositoryFiles, new Comparator<RepositoryFileVm>() {
             @Override
             public int compare(RepositoryFileVm o1, RepositoryFileVm o2) {
+                String o1Type = o1.getType().toLowerCase();
+                String o2Type = o2.getType().toLowerCase();
+                if (o1Type.equals(DataType.CATALOGUE.toString())
+                        && o2Type.equals(DataType.GAME_SYSTEM.toString())) {
+                    return 1;
+                }
+                else if (o1Type.equals(DataType.GAME_SYSTEM.toString())
+                        && o2Type.equals(DataType.CATALOGUE.toString())) {
+                    return -1;
+                }
+                
                 return o1.getName().compareTo(o2.getName());
             }
         });
@@ -571,7 +592,7 @@ public class GitHubDao {
         pullRequest = pullRequestService.createPullRequest(repositoryMaster, pullRequest);
         
         ResponseVm responseVm = new ResponseVm();
-        responseVm.setSuccessMessage("Successfully submitted " + fileName);
+        responseVm.setSuccessMessage("Successfully submitted file update for " + fileName + ".");
         responseVm.setResponseUrl(pullRequest.getHtmlUrl());
         return responseVm;
     }
@@ -631,7 +652,7 @@ public class GitHubDao {
         issue = issueService.createIssue(repository, issue);
         
         ResponseVm responseVm = new ResponseVm();
-        responseVm.setSuccessMessage("Successfully submitted issue for " + fileName);
+        responseVm.setSuccessMessage("Successfully submitted bug report for " + fileName + ".");
         responseVm.setResponseUrl(issue.getHtmlUrl());
         return responseVm;
     }

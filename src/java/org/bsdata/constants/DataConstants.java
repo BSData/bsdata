@@ -47,6 +47,9 @@ public class DataConstants {
     public static final String BATTLESCRIBE_VERSION_ATTRIBUTE = "battleScribeVersion";
     public static final String REVISION_ATTRIBUTE = "revision";
     public static final String ID_ATTRIBUTE = "id";
+    public static final String AUTHOR_NAME_ATTRIBUTE = "authorName";
+    public static final String AUTHOR_CONTACT_ATTRIBUTE = "authorContact";
+    public static final String AUTHOR_URL_ATTRIBUTE = "authorUrl";
     public static final String GAME_SYSTEM_ID_ATTRIBUTE = "gameSystemId";
     public static final String GAME_SYSTEM_NAME_ATTRIBUTE = "gameSystemName";
     public static final String GAME_SYSTEM_REVISION_ATTRIBUTE = "gameSystemRevision";
@@ -64,9 +67,6 @@ public class DataConstants {
     public static final String GAME_SYSTEM_TAG = "gameSystem";
     public static final String CATALOGUE_LINK_TAG = "catalogueLink";
     public static final String CATALOGUE_LINKS_TAG = "catalogueLinks";
-    public static final String AUTHOR_NAME_ATTRIBUTE = "authorName";
-    public static final String AUTHOR_CONTACT_ATTRIBUTE = "authorContact";
-    public static final String AUTHOR_URL_ATTRIBUTE = "authorUrl";
 
     public enum DataType {
 
