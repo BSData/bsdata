@@ -585,7 +585,7 @@ public class GitHubDao {
         PullRequestMarker destinationRequestMarker = new PullRequestMarker();
         destinationRequestMarker.setLabel("master"); // Destination is the master branch of the bsdata repository
         PullRequest pullRequest = new PullRequest();
-        pullRequest.setTitle("Anonymous update to " + fileName);
+        pullRequest.setTitle("[Anon] File update: " + fileName);
         pullRequest.setHead(sourceRequestMarker);
         pullRequest.setBase(destinationRequestMarker);
         pullRequest.setBody(commitMessage);
@@ -646,7 +646,7 @@ public class GitHubDao {
         Repository repository = getRepository(organizationName, repositoryName);
         
         Issue issue = new Issue();
-        issue.setTitle("Anonymous bug report for " + fileName);
+        issue.setTitle("[Anon] Bug report: " + fileName);
         issue.setBody(body);
         
         issue = issueService.createIssue(repository, issue);
