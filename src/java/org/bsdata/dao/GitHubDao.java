@@ -81,6 +81,7 @@ public class GitHubDao {
     private static Cache<String, List<Repository>> repoListCache;
     private static Cache<String, List<Release>> repoReleasesCache;
     private static Cache<String, HashMap<String, byte[]>> repoFileCache;
+    private static Cache<String, List<RepositoryContents>> repoContentsCache;
     
     private static HashMap<String, ReentrantLock> repoDownloadLocks = new HashMap<>();
     private static HashMap<String, Date> repoReleaseDates = new HashMap<>();
@@ -110,6 +111,7 @@ public class GitHubDao {
             .build();
         
         repoFileCache = CacheBuilder.newBuilder().build();
+        repoContentsCache = CacheBuilder.newBuilder().build();
     }
     
     /**
@@ -194,6 +196,9 @@ public class GitHubDao {
         
         repoFileCache.invalidateAll();
         repoFileCache.cleanUp();
+        
+        repoContentsCache.invalidateAll();
+        repoContentsCache.cleanUp();
         
         String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
         for (Repository repository : getRepositories(organizationName)) {
@@ -400,7 +405,8 @@ public class GitHubDao {
      * @throws IOException 
      */
     public RepositoryListVm getRepos(String baseUrl) throws IOException {
-        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
+        Properties properties = ApplicationProperties.getProperties();
+        String organizationName = properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
         List<Repository> orgRepositories = getRepositories(organizationName);
         
         List<RepositoryVm> repositories = new ArrayList<>();
@@ -424,6 +430,8 @@ public class GitHubDao {
         RepositoryListVm repositoryList = new RepositoryListVm();
         repositoryList.setRepositories(repositories);
         repositoryList.setFeedUrl(baseUrl + "/feeds/all.atom");
+        repositoryList.setTwitterUrl(properties.getProperty(PropertiesConstants.TWITTER_URL));
+        repositoryList.setFacebookUrl(properties.getProperty(PropertiesConstants.FACEBOOK_URL));
         return repositoryList;
     }
     

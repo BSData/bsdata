@@ -17,11 +17,15 @@ bsDataApp.service("repoRestApi", function($resource) {
 bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
     $scope.m = {
         feedUrl: "",
+        twitterUrl: "",
+        facebookUrl: "",
         repos: []
     };
 
     repoRestApi.list({}, function(data) {
         $scope.m.feedUrl = data.feedUrl;
+        $scope.m.twitterUrl = data.twitterUrl;
+        $scope.m.facebookUrl = data.facebookUrl;
         $scope.m.repos = [];
         angular.forEach(data.repositories, function(repo) {
             $scope.m.repos.push(repo);

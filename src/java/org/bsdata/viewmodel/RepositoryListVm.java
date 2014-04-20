@@ -9,6 +9,8 @@ public class RepositoryListVm extends ResponseVm {
     
     private List<RepositoryVm> repositories;
     private String feedUrl;
+    private String twitterUrl;
+    private String facebookUrl;
     
     public RepositoryListVm() {
         repositories = new ArrayList<>();
@@ -28,5 +30,21 @@ public class RepositoryListVm extends ResponseVm {
 
     public void setFeedUrl(String feedUrl) {
         this.feedUrl = feedUrl;
+    }
+
+    public String getTwitterUrl() {
+        return twitterUrl;
+    }
+
+    public void setTwitterUrl(String twitterUrl) {
+        this.twitterUrl = twitterUrl;
+    }
+
+    public String getFacebookUrl() {
+        return facebookUrl;
+    }
+
+    public void setFacebookUrl(String facebookUrl) {
+        this.facebookUrl = facebookUrl;
     }
 }
