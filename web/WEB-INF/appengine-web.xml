@@ -20,6 +20,8 @@
         <include path="/**.jpg" />
         <include path="/**.jpeg" />
         <include path="/**.gif" />
+        <include path="/**.xml" />
+        <include path="/**.txt" />
     </static-files>
     
     <system-properties>
