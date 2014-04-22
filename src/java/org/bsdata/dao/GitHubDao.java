@@ -166,17 +166,47 @@ public class GitHubDao {
         throw new NotFoundException("Could not find repository " + repositoryName + " in organization " + organizationName);
     }
     
-    private List<RepositoryContents> getRepositoryContents(Repository repository, Release release) throws IOException {
-        GitHubClient gitHubClient = connectToGitHub();
-        ContentsService contentsService = new ContentsService(gitHubClient);
+    /**
+     * Get the first page of releases from GitHub for the given repository
+     * 
+     * @param repository
+     * @return
+     * @throws ExecutionException 
+     */
+    private List<RepositoryContents> getRepositoryContents(final Repository repository, final Release release) throws IOException {
+        try {
+            return repoContentsCache.get(repository.getName(), new Callable<List<RepositoryContents>>() {
+                
+                @Override
+                public List<RepositoryContents> call() throws IOException {
+                    logger.log(Level.INFO, "Getting and caching contents for {0}.", repository.getName());
+                    
+                    ContentsService contentsService = new ContentsService(connectToGitHub());
+                    if (release == null) {
+                        // We didn't find a release for this repo. Just return the HEAD contents.
+                        return contentsService.getContents(repository);
+                    }
+                    else {
+                        return contentsService.getContents(repository, null, release.getTagName());
+                    }
+                }
+            });
+        }
+        catch (ExecutionException e) {
+            if (e.getCause() instanceof IOException) {
+                throw (IOException)e.getCause();
+            }
+            // Callable should only throw an IOException. If we get here, something fishy is going on...
+            throw new IllegalStateException(e.getCause());
+        }
+    }
+    
+    private void clearFileCache(String repoName) {
+        repoFileCache.invalidate(repoName);
+        repoFileCache.cleanUp();
         
-        if (release == null) {
-            // We didn't find a release for this repo. Just return the HEAD contents.
-            return contentsService.getContents(repository);
-        }
-        else {
-            return contentsService.getContents(repository, null, release.getTagName());
-        }
+        repoContentsCache.invalidate(repoName);
+        repoContentsCache.cleanUp();
     }
     
     /**
@@ -191,11 +221,7 @@ public class GitHubDao {
         repoReleasesCache.invalidate(repoName);
         repoReleasesCache.cleanUp();
         
-        repoFileCache.invalidate(repoName);
-        repoFileCache.cleanUp();
-        
-        repoContentsCache.invalidate(repoName);
-        repoContentsCache.cleanUp();
+        clearFileCache(repoName);
         
         // Get the repo data to repopulate the cache
         getRepoFileData(repoName, baseUrl, null);
@@ -364,6 +390,14 @@ public class GitHubDao {
                 latestRelease = release;
             }
         }
+        
+        if (latestRelease != null 
+                && repoReleaseDates.containsKey(repository.getName()) 
+                && latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
+            
+            // Latest release is newer than the last one we saw. Clear file data caches.
+            clearFileCache(repository.getName());
+        }
         return latestRelease;
     }
     
@@ -487,7 +521,6 @@ public class GitHubDao {
             }
         });
         
-        // TODO: this should probably be cached...
         repositoryVm.setRepositoryFiles(repositoryFiles);
         return repositoryVm;
     }
