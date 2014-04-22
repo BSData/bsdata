@@ -72,8 +72,9 @@ public class RepoService {
      * @return 
      */
     public static String getBaseUrl(HttpServletRequest request) {
-        return request.getRequestURL().toString().replace(request.getPathInfo(), "") 
-                + "/" + WebConstants.REPO_SERVICE_PATH;
+        String url = request.getRequestURL().toString();
+        url = url.substring(0, url.indexOf(WebConstants.REPO_SERVICE_PATH) + WebConstants.REPO_SERVICE_PATH.length());
+        return url;
     }
 
     @GET
