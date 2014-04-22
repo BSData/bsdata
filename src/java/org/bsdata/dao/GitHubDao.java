@@ -185,25 +185,20 @@ public class GitHubDao {
      * @param baseUrl
      * @throws IOException 
      */
-    public synchronized void primeCache(String baseUrl) throws IOException {
+    public synchronized void primeCache(String baseUrl, String repoName) throws IOException {
         // Clear the caches so it forces data to be re-cached.
-        repoListCache.invalidateAll();
-        repoListCache.cleanUp();
-        
-        repoReleaseDates = new HashMap<>();
-        repoReleasesCache.invalidateAll();
+        repoReleaseDates.remove(repoName);
+        repoReleasesCache.invalidate(repoName);
         repoReleasesCache.cleanUp();
         
-        repoFileCache.invalidateAll();
+        repoFileCache.invalidate(repoName);
         repoFileCache.cleanUp();
         
-        repoContentsCache.invalidateAll();
+        repoContentsCache.invalidate(repoName);
         repoContentsCache.cleanUp();
         
-        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
-        for (Repository repository : getRepositories(organizationName)) {
-            getRepoFileData(repository.getName(), baseUrl, null);
-        }
+        // Get the repo data to repopulate the cache
+        getRepoFileData(repoName, baseUrl, null);
     }
     
     /**

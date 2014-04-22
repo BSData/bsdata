@@ -215,21 +215,6 @@ public class RepoService {
         return gson.toJson(repositoryList);
     }
 
-    @GET
-    @Path("/prime")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String primeRepositoryCache(@Context HttpServletRequest request) {
-        try {
-            dao.primeCache(getBaseUrl(request));
-        }
-        catch (Exception e) {
-            logger.log(Level.SEVERE, "Failed to prime repo cache: {0}", e.getMessage());
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        }
-        
-        return "Repo cache primed!";
-    }
-
     @POST
     @Path("/{repoName}/{fileName}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -332,6 +317,23 @@ public class RepoService {
         }
         
         return gson.toJson(response);
+    }
+
+    @GET
+    @Path("/{repoName}/prime")
+    @Produces(MediaType.TEXT_PLAIN)
+    public String primeRepositoryCache(
+            @PathParam("repoName") String repoName, 
+            @Context HttpServletRequest request) {
+        try {
+            dao.primeCache(getBaseUrl(request), repoName);
+        }
+        catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to prime repo cache: {0}", e.getMessage());
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        
+        return "Repo cache for " + repoName + " primed!";
     }
     
     @GET
