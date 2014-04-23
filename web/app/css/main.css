@@ -500,9 +500,9 @@ ul {
     top: 50%;
     left: 50%;
     width: 500px;  /* adjust as per your needs */
-    height: 550px;   /* adjust as per your needs */
+    height: 580px;   /* adjust as per your needs */
     margin-left: -250px;   /* negative half of width above */
-    margin-top: -275px;   /* negative half of height above */
+    margin-top: -290px;   /* negative half of height above */
     padding: 16px;
     
     background: #FFFFFF;
