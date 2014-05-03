@@ -112,7 +112,16 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
         $scope.formData.issueBody = "";
         $scope.formData.commitMessage = "";
         $scope.formData.formResponse = null;
+        $scope.clearFileUpload();
         $scope.uploader = null;
+    };
+    
+    $scope.clearFileUpload = function() {
+        $window.document.getElementById("selectFile-" + this.$index).value = "";
+        if ($scope.uploader) {
+            $scope.uploader.cancelAll();
+            $scope.uploader.clearQueue();
+        }
     };
 
     $scope.createUploader = function() {
@@ -126,9 +135,13 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
                 $scope.formData.isUpload = false;
                 $scope.clearData();
             }
+            else if (response.errorMessage) {
+                $scope.clearFileUpload();
+            }
             $scope.formData.formResponse = response;
         });
         $scope.uploader.bind("error", function(event, xhr, item, response) {
+            $scope.clearFileUpload();
             $scope.formData.formResponse = response;
         });
     };
@@ -164,14 +177,14 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
                     "Content-Type": undefined
                 }
             })
-                    .success(function(data) {
+            .success(function(data) {
                 if (data.successMessage) {
                     $scope.formData.isIssue = false;
                     $scope.clearData();
                 }
                 $scope.formData.formResponse = data;
             })
-                    .error(function(data) {
+            .error(function(data) {
                 $scope.formData.formResponse = data;
             });
         }

@@ -689,6 +689,7 @@ public class GitHubDao {
         int maxAttempts = 5;
         for (int i = 0; i < maxAttempts; i++) {
             try {
+                logger.log(Level.INFO, "Waiting for repo to become available for {0}...", repositoryFork.getName());
                 Thread.sleep(5 * 1000);
                 RepositoryContents contents = contentsService.getReadme(repositoryFork);
                 if (contents != null) {

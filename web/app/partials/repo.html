@@ -28,7 +28,7 @@
             <form ng-show="formData.isUpload" name="uploadForm" enctype="multipart/form-data">
                 <h4>Submit file update for {{file.name}}</h4>
                 <textarea ng-model="formData.commitMessage" ng-required="true" name="commitMessage" placeholder="Describe what was broken and how you fixed it"></textarea>
-                <input name="selectFile" type="file" ng-file-select ng-click="uploader.clearQueue();">
+                <input id="selectFile-{{$index}}" name="selectFile-{{$index}}" type="file" ng-file-select ng-click="uploader.clearQueue();">
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
                 <input class="accept" ng-click="doUpload();" ng-disabled="uploadForm.$invalid || !isFileSelected()" value="Upload!" type="button">
             </form>
