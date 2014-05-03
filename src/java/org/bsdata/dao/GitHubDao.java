@@ -655,18 +655,13 @@ public class GitHubDao {
                 + " user:" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) 
                 + " fork:only");
         
-        Repository repositoryFork;
-        
         if (searchRepositories.isEmpty()) {
             logger.log(Level.INFO, "No anon repo found for {0}. Forking.", masterRepository.getName());
-            repositoryFork = repositoryService.forkRepository(masterRepository);
-            
-            awaitFork(gitHubClient, repositoryFork);
-            return repositoryFork;
+            return forkAndWait(gitHubClient, masterRepository);
         }
         
         Release latestRelease = getLatestRelease(masterRepository);
-        repositoryFork = repositoryService.getRepository(
+        Repository repositoryFork = repositoryService.getRepository(
                 properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME), 
                 masterRepository.getName());
         
@@ -674,36 +669,42 @@ public class GitHubDao {
             // There's been a release on the master since we last forked, so delete and re-create
             logger.log(Level.INFO, "New release found since anon fork created for {0}. Deleting and re-forking.", masterRepository.getName());
             gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) + "/" + repositoryFork.getName());
-            repositoryFork = repositoryService.forkRepository(masterRepository);
             
-            awaitFork(gitHubClient, repositoryFork);
-            return repositoryFork;
+            return forkAndWait(gitHubClient, masterRepository);
         }
         else {
             return repositoryFork;
         }
     }
     
-    private boolean awaitFork(GitHubClient gitHubClient, Repository repositoryFork) throws IOException {
-        ContentsService contentsService = new ContentsService(gitHubClient);
+    private Repository forkAndWait(GitHubClient gitHubClient, Repository masterRepository) throws IOException {
+        Properties properties = ApplicationProperties.getProperties();
+        RepositoryService repositoryService = new RepositoryService(gitHubClient);
+        Repository repositoryFork = repositoryService.forkRepository(masterRepository);
+        
         int maxAttempts = 5;
         for (int i = 0; i < maxAttempts; i++) {
             try {
-                logger.log(Level.INFO, "Waiting for repo to become available for {0}...", repositoryFork.getName());
+                logger.log(Level.INFO, "Waiting for repo to become available for {0}...", masterRepository.getName());
                 Thread.sleep(5 * 1000);
-                RepositoryContents contents = contentsService.getReadme(repositoryFork);
-                if (contents != null) {
-                    return true;
+                
+                List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
+                        masterRepository.getName()
+                        + " user:" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) 
+                        + " fork:only");
+                
+                if (searchRepositories.size() == 1) {
+                    return repositoryFork;
                 }
             }
             catch (Exception e) {
-                logger.log(Level.INFO, "Failed to get contents for fork {0}.", repositoryFork.getName());
+                logger.log(Level.INFO, "Error waiting for fork for {0}: {1}", new String[] {masterRepository.getName(), e.getMessage()});
             }
         }
         
-        Properties properties = ApplicationProperties.getProperties();
-        gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) + "/" + repositoryFork.getName());
-        throw new IOException("Repository fork is unavailable.");
+        logger.log(Level.INFO, "Fork for {0} took too long to create.", masterRepository.getName());
+        gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) + "/" + masterRepository.getName());
+        throw new IOException("Repository fork could not be created.");
     }
     
     public ResponseVm createIssue(String repositoryName, String fileName, String body) throws IOException {
