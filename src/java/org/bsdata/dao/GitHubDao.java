@@ -656,7 +656,7 @@ public class GitHubDao {
                 + " fork:only");
         
         if (searchRepositories.isEmpty()) {
-            logger.log(Level.INFO, "No anon repo found for {0}. Forking.", masterRepository.getName());
+            logger.log(Level.INFO, "No anon fork of {0} found. Forking.", masterRepository.getName());
             return forkAndWait(gitHubClient, masterRepository);
         }
         
@@ -667,9 +667,8 @@ public class GitHubDao {
         
         if (latestRelease.getPublishedAt().after(repositoryFork.getCreatedAt())) {
             // There's been a release on the master since we last forked, so delete and re-create
-            logger.log(Level.INFO, "New release found since anon fork created for {0}. Deleting and re-forking.", masterRepository.getName());
-            gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) + "/" + repositoryFork.getName());
-            
+            logger.log(Level.INFO, "New release found since anon fork of {0} was created. Deleting and re-forking.", masterRepository.getName());
+            deleteAndWait(gitHubClient, repositoryFork);
             return forkAndWait(gitHubClient, masterRepository);
         }
         else {
@@ -685,7 +684,7 @@ public class GitHubDao {
         int maxAttempts = 5;
         for (int i = 0; i < maxAttempts; i++) {
             try {
-                logger.log(Level.INFO, "Waiting for repo to become available for {0}...", masterRepository.getName());
+                logger.log(Level.INFO, "Waiting for fork of {0} to become available...", masterRepository.getName());
                 Thread.sleep(5 * 1000);
                 
                 List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
@@ -698,13 +697,42 @@ public class GitHubDao {
                 }
             }
             catch (Exception e) {
-                logger.log(Level.INFO, "Error waiting for fork for {0}: {1}", new String[] {masterRepository.getName(), e.getMessage()});
+                logger.log(Level.INFO, "Error waiting for fork of {0} to create: {1}", new String[] {masterRepository.getName(), e.getMessage()});
             }
         }
         
         logger.log(Level.INFO, "Fork for {0} took too long to create.", masterRepository.getName());
         gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) + "/" + masterRepository.getName());
         throw new IOException("Repository fork could not be created.");
+    }
+    
+    private boolean deleteAndWait(GitHubClient gitHubClient, Repository repository) throws IOException {
+        Properties properties = ApplicationProperties.getProperties();
+        RepositoryService repositoryService = new RepositoryService(gitHubClient);
+        gitHubClient.delete("/repos/" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) + "/" + repository.getName());
+        
+        int maxAttempts = 5;
+        for (int i = 0; i < maxAttempts; i++) {
+            try {
+                logger.log(Level.INFO, "Waiting for fork of {0} to delete...", repository.getName());
+                Thread.sleep(5 * 1000);
+                
+                List<SearchRepository> searchRepositories = repositoryService.searchRepositories(
+                        repository.getName()
+                        + " user:" + properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME) 
+                        + " fork:only");
+                
+                if (searchRepositories.isEmpty()) {
+                    return true;
+                }
+            }
+            catch (Exception e) {
+                logger.log(Level.INFO, "Error waiting for fork of {0} to delete: {1}", new String[] {repository.getName(), e.getMessage()});
+            }
+        }
+        
+        logger.log(Level.INFO, "Deleting repository {0} took too long.", repository.getName());
+        throw new IOException("Repository fork could not be deleted.");
     }
     
     public ResponseVm createIssue(String repositoryName, String fileName, String body) throws IOException {
