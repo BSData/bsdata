@@ -52,6 +52,13 @@
                 <a href="{{formData.formResponse.responseUrl}}" ng-show="formData.formResponse.responseUrl">Track your submission!</a>
             </span>
         </div>
+        
+        <div class="loading" ng-show="formData.isLoading">
+            <div>
+                <img src="app/img/spinner.gif">
+                <p>Submitting...<p>
+            </div>
+        </div>
 
         <div class="lightboxWrapper" ng-show="(formData.isUpload || formData.isIssue) && formData.showGuidelines">
             <div class="guidelines">

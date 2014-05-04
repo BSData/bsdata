@@ -51,6 +51,7 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
         isUpload: false,
         commitMessage: "",
         issueBody: "",
+        isLoading: false,
         formResponse: null,
         guidelinesAccepted: false,
         showGuidelines : true
@@ -139,10 +140,12 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
                 $scope.clearFileUpload();
             }
             $scope.formData.formResponse = response;
+            $scope.formData.isLoading = false;
         });
         $scope.uploader.bind("error", function(event, xhr, item, response) {
             $scope.clearFileUpload();
             $scope.formData.formResponse = response;
+            $scope.formData.isLoading = false;
         });
     };
 
@@ -155,6 +158,7 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
 
     $scope.doUpload = function() {
         if ($scope.formData.isUpload && $scope.uploader.queue && $scope.uploader.queue.length === 1) {
+            $scope.formData.isLoading = true;
             var item = $scope.uploader.queue[0];
             item.url = $scope.formData.currentFile.dataFileUrl;
             item.formData = [
@@ -166,6 +170,7 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
 
     $scope.postBug = function() {
         if ($scope.formData.isIssue) {
+            $scope.formData.isLoading = true;
             var formData = new FormData();
             formData.append("issueBody", $scope.formData.issueBody);
             $http({
@@ -183,9 +188,11 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
                     $scope.clearData();
                 }
                 $scope.formData.formResponse = data;
+                $scope.formData.isLoading = false;
             })
             .error(function(data) {
                 $scope.formData.formResponse = data;
+                $scope.formData.isLoading = false;
             });
         }
     };

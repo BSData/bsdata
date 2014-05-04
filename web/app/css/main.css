@@ -342,6 +342,7 @@ ul {
 .detailsList .detailsRow {
     margin: 0px 0px 12px 0px;
     width: 100%;
+    position: relative;
 }
 
 .detailsRow .detailsTitle {
@@ -390,7 +391,7 @@ ul {
 .detailsRow .formContainer {
     margin-bottom: 24px;
     clear: both;
-    width: 80%;
+    width: 100%;
 }
 
 .formContainer h4 {
@@ -481,6 +482,42 @@ ul {
 .detailsRow .errorMessage {
     color: red;
     font-size: 1em;
+}
+
+.loading {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    
+    background: #BBBBBB;
+    background-color: rgba(187, 187, 187, 0.25);
+}
+
+.loading div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px;
+    height: 140px;
+    margin-left: -80px;
+    margin-top: -70px;
+    
+    background: #FFFFFF;
+    border: 1px solid #BBBBBB;
+    
+    text-align: center;
+    padding: 16px;
+}
+
+.loading img {
+    margin: 0px auto 0px auto;
+}
+
+.loading p {
+    font-size: 1.2em;
 }
 
 .lightboxWrapper {
