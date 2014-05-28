@@ -9,10 +9,10 @@
 
 <ul class="detailsList">
     <li ng-repeat="repo in m.repos" class="detailsRow">
-        <a href="{{repo.repoUrl}}" class="detailsTitle"><img src="app/img/blank.png">{{repo.description}}</a>
+        <a href="#/repo/{{repo.name}}" class="detailsTitle">{{repo.description}}</a>
         <div class="details">
             <span ng-if="repo.lastUpdated" class="detailsText">Updated {{repo.lastUpdated | date:'medium'}}</span> |
-            <a ng-href="#/repo/{{repo.name}}">Contents</a> |
+            <a ng-href="{{repo.repoUrl}}"><img src="app/img/blank.png"/>Download</a> |
             <a href="{{repo.gitHubUrl}}"><img src="app/img/github_icon_16.png"/></a>
             <a href="{{repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_16.png"/></a>
         </div>
