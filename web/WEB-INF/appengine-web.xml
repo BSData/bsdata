@@ -8,12 +8,12 @@
     <version>4</version>
     <threadsafe>true</threadsafe>
     
-    <!-- Appengine scaling -->
+<!--     Appengine scaling 
     <automatic-scaling>
         <max-idle-instances>1</max-idle-instances>
         <min-pending-latency>15.0s</min-pending-latency>
         <max-pending-latency>15.0s</max-pending-latency>
-    </automatic-scaling>
+    </automatic-scaling>-->
     
     <!-- Mark all HTML/CSS/JS/Image files as static -->
     <static-files>
