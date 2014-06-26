@@ -10,9 +10,6 @@ public class Catalogue extends DataFile {
     private int gameSystemRevision;
     private String battleScribeVersion;
     private String name;
-    private String authorName;
-    private String authorContact;
-    private String authorUrl;
 
     public Catalogue() {
     }
@@ -63,29 +60,5 @@ public class Catalogue extends DataFile {
 
     public void setGameSystemRevision(int value) {
         this.gameSystemRevision = value;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public String getAuthorContact() {
-        return authorContact;
-    }
-
-    public void setAuthorContact(String authorContact) {
-        this.authorContact = authorContact;
-    }
-
-    public String getAuthorUrl() {
-        return authorUrl;
-    }
-
-    public void setAuthorUrl(String authorUrl) {
-        this.authorUrl = authorUrl;
     }
 }

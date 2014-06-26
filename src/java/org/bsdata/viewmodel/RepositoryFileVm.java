@@ -11,6 +11,7 @@ public class RepositoryFileVm extends ResponseVm {
     private String issueUrl;
     private String authorName;
     private String authorContact;
+    private String authorUrl;
 
     public String getName() {
         return name;
@@ -66,6 +67,14 @@ public class RepositoryFileVm extends ResponseVm {
 
     public void setAuthorContact(String authorContact) {
         this.authorContact = authorContact;
+    }
+
+    public String getAuthorUrl() {
+        return authorUrl;
+    }
+
+    public void setAuthorUrl(String authorUrl) {
+        this.authorUrl = authorUrl;
     }
     
 }

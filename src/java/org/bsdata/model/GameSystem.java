@@ -8,9 +8,6 @@ public class GameSystem extends DataFile {
     private int revision;
     private String battleScribeVersion;
     private String name;
-    private String authorName;
-    private String authorContact;
-    private String authorUrl;
     
     public GameSystem () {
     }
@@ -45,29 +42,5 @@ public class GameSystem extends DataFile {
 
     public void setBattleScribeVersion(String value) {
         this.battleScribeVersion = value;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public void setAuthorName(String authorName) {
-        this.authorName = authorName;
-    }
-
-    public String getAuthorContact() {
-        return authorContact;
-    }
-
-    public void setAuthorContact(String authorContact) {
-        this.authorContact = authorContact;
-    }
-
-    public String getAuthorUrl() {
-        return authorUrl;
-    }
-
-    public void setAuthorUrl(String authorUrl) {
-        this.authorUrl = authorUrl;
     }
 }

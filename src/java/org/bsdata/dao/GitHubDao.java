@@ -467,6 +467,7 @@ public class GitHubDao {
                 continue;
             }
             
+            DataFile dataFile = repoFileData.get(fileName);
             RepositoryFileVm repositoryFile = new RepositoryFileVm();
             repositoryFile.setName(fileName);
             if (Utils.isCataloguePath(fileName)) {
@@ -481,6 +482,11 @@ public class GitHubDao {
             repositoryFile.setGitHubUrl(Utils.checkUrl(repositoryVm.getGitHubUrl() + "/blob/master/" + fileName));
             repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
             repositoryFile.setIssueUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
+            
+            repositoryFile.setAuthorName(dataFile.getAuthorName());
+            repositoryFile.setAuthorContact(dataFile.getAuthorContact());
+            repositoryFile.setAuthorUrl(dataFile.getAuthorUrl());
+            
             repositoryFiles.add(repositoryFile);
         }
         
@@ -707,7 +713,7 @@ public class GitHubDao {
                     return true;
                 }
             }
-            catch (Exception e) {
+            catch (InterruptedException | IOException e) {
                 logger.log(Level.INFO, "Error waiting for fork of {0} to delete: {1}", new String[] {repository.getName(), e.getMessage()});
             }
         }

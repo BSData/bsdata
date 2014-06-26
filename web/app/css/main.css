@@ -136,8 +136,9 @@ ul {
 .center {
     margin-left: auto;
     margin-right: auto;
-    width: 668px;
-    padding:0px 24px 0px 24px;
+    min-width: 668px;
+    width: 75%;
+    padding: 0px 24px 0px 24px;
 }
 
 #header {
@@ -313,7 +314,6 @@ ul {
     clear: both;
     margin: 0px;
     padding: 0px;
-    height: 32px;
     font-size: 1.2em;
 }
 
@@ -374,12 +374,12 @@ ul {
 
 .detailsRow .details a {
     margin: 0px;
-    padding: 0px 4px 0px 4px;
+    padding: 0px 0px 0px 0px;
 }
 
 .detailsRow .details img {
     margin: 0px;
-    padding: 0px 0px 4px 0px;
+    padding: 0px 0px 2px 0px;
 }
 
 .detailsRow .details .detailsText {
@@ -392,6 +392,10 @@ ul {
     margin-bottom: 24px;
     clear: both;
     width: 100%;
+}
+
+.detailsPadding {
+    padding: 0px 4px 0px 4px;
 }
 
 .formContainer h4 {

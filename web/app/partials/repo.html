@@ -5,7 +5,7 @@
     <a href="{{m.repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a>
     
     <div class="details">
-        <span ng-if="m.repo.lastUpdated" class="lastUpdated">Updated {{m.repo.lastUpdated | date:'medium'}}: {{m.repo.lastUpdateDescription}}</span>
+        <span ng-if="m.repo.lastUpdated" class="lastUpdated">Updated {{m.repo.lastUpdated|date:'medium'}}: {{m.repo.lastUpdateDescription}}</span>
     </div>
 </div>
 
@@ -13,13 +13,16 @@
     <li class="detailsRow" ng-repeat="file in m.repo.repositoryFiles" ng-controller="FileFormCtrl">
         <a href="{{file.dataFileUrl}}" class="detailsTitle">{{file.name}}</a>
         <div class="details">
-            <span class="detailsText">{{file.type}}</span> | 
+            <span ng-show="file.authorName && !file.authorUrl">By {{file.authorName}}<span class="detailsPadding"> | </span></span>
+            <span ng-show="file.authorName && file.authorUrl">
+                By <a href="{{file.authorUrl}}">{{file.authorName}}</a><span class="detailsPadding"> | </span>
+            </span>
             <span ng-show="isHtml5()">
-                <a ng-click="showIssueForm(file);" href="">Report a bug</a> |
-                <a ng-click="showUploadForm(file);" href="">Submit file update</a> |
+                <a ng-click="showIssueForm(file);" href="">Report a bug</a><span class="detailsPadding"> | </span>
+                <a ng-click="showUploadForm(file);" href="">Submit file update</a><span class="detailsPadding"> | </span>
             </span>
             <span ng-show="!isHtml5()">
-                <span class="detailsText" style="padding-left: 4px; color: #999;">Bug / file submissions unavailable</span> | 
+                <span style="padding-left: 4px; color: #999;">Bug / file submissions unavailable</span><span class="detailsPadding"> | </span>
             </span>
             <a href="{{file.gitHubUrl}}"><img src="app/img/github_icon_16.png"/></a>
         </div>
