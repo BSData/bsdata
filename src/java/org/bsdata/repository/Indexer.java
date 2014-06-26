@@ -9,9 +9,9 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import org.apache.commons.io.FilenameUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.model.Catalogue;
+import org.bsdata.model.DataFile;
 import org.bsdata.model.DataIndex;
 import org.bsdata.model.DataIndexEntry;
 import org.bsdata.model.GameSystem;
@@ -69,119 +69,75 @@ public class Indexer {
      * Returns a complete data file repository from a set of data files (including the index) from a particular GitHub repository.
      * 
      * 1) A data file repository index file is created from the data files.
-     * 2) All data files and the index file are ensured to be compressed.
+     * 2) All data files and the index file are compressed.
      * 3) All file names are ensured to be the compressed format.
      * 4) A HashMap of compressed data file name to compressed file data is created.
      * 5) The HashMap is returned so it can be cached and/or served.
      * 
      * @param repositoryName
      * @param baseUrl
-     * @param repositoryUrls
-     * @param dataFiles
+     * @param repositoryUrls List of additional repo URLs to add to the index
+     * @param dataFiles Map of uncompressed file name to uncompressed file data
      * @return
      * @throws IOException 
      */
-    public HashMap<String, byte[]> createRepositoryData(
+    public HashMap<String, DataFile> createRepositoryData(
             String repositoryName, 
             String baseUrl, 
             List<String> repositoryUrls, 
-            HashMap<String, byte[]> dataFiles) throws IOException {
-        
-        DataIndex dataIndex = createDataIndex(repositoryName, baseUrl, repositoryUrls, dataFiles);
-        dataFiles.put(DataConstants.DEFAULT_INDEX_FILE_NAME, writeDataIndex(dataIndex));
-        return compressRepositoryData(dataFiles);
-    }
-    
-    /**
-     * Returns a new map of fileName to fileData ensuring all file names are compressed names and all data is compressed.
-     * When an uncompressed file name is encountered, the associated inputStream is compressed.
-     * 
-     * @param dataFiles
-     * @return
-     * @throws IOException 
-     */
-    private HashMap<String, byte[]> compressRepositoryData(HashMap<String, byte[]> dataFiles) throws IOException {
-        HashMap<String, byte[]> compressedDataFiles = new HashMap<>();
-        for (String fileName : dataFiles.keySet()) {
-            byte[] data = dataFiles.get(fileName);
-
-            if (Utils.isCompressedPath(fileName)) {
-                // Data already compressed - just make sure it's a file name (not full path)
-                fileName = FilenameUtils.getName(fileName);
-                compressedDataFiles.put(fileName, data);
-            }
-            else {
-                // We need to compress the data
-                byte[] compressedData = Utils.compressData(fileName, data);
-                fileName = Utils.getCompressedFileName(fileName);
-                compressedDataFiles.put(fileName, compressedData);
-            }
-        }
-        return compressedDataFiles;
-    }
-
-    /**
-     * Create a data index from a set of data files.
-     * Ensures the resulting data index entries use compressed file names.
-     * 
-     * @param repositoryName A name for the repo
-     * @param baseUrl The part of the URL before "index.bsi"
-     * @param repositoryUrls Optional list of repo URLs to include in the index
-     * @param dataFiles The data files to make the index from
-     * 
-     * @return
-     * @throws IOException
-     * @throws XmlException 
-     */
-    private DataIndex createDataIndex(
-            String repositoryName, 
-            String baseUrl, 
-            List<String> repositoryUrls, 
-            HashMap<String, byte[]> dataFiles)
+            HashMap<String, byte[]> fileDatas)
             throws IOException, XmlException {
 
         String indexUrl = Utils.checkUrl(baseUrl + "/" + repositoryName + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);
         DataIndex dataIndex = new DataIndex(repositoryName, indexUrl, repositoryUrls);
+        
+        HashMap<String, DataFile> repositoryData = new HashMap<>();
 
-        for (String fileName : dataFiles.keySet()) {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(dataFiles.get(fileName));
+        for (String fileName : fileDatas.keySet()) {
             if (Utils.isCompressedPath(fileName)) {
-                // Decompress the stream if we need to so we can read the XML
-                inputStream = Utils.decompressStream(inputStream);
+                // We should only get uncompressed data at this point
+                throw new IllegalArgumentException("Data file " + fileName + " is already compressed.");
             }
             
-            // Make sure we use a compressed file names in the index. 
-            // This will also ensure it's just the filename, not full path.
+            byte[] fileData = fileDatas.get(fileName);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
+            
+            DataFile dataFile;
+            if (Utils.isGameSytstemPath(fileName)) {
+                dataFile = readGameSystem(inputStream);
+            }
+            else if (Utils.isCataloguePath(fileName)) {
+                dataFile = readCatalogue(inputStream);
+            }
+            else if (Utils.isRosterPath(fileName)) {
+                dataFile = readRoster(inputStream);
+            }
+            else {
+                continue;
+            }
+            
+            // Compress the file data and set it on the DataFile
+            fileData = Utils.compressData(fileName, fileData);
+            dataFile.setData(fileData);
+
+            // Create a DataIndexEntry using compressed file name
             fileName = Utils.getCompressedFileName(fileName);
+            DataIndexEntry dataIndexEntry = new DataIndexEntry(fileName, dataFile);
             
-            try {
-                // Create a data index entry and add it to our data index
-                DataIndexEntry dataIndexEntry;
-                
-                if (Utils.isGameSytstemPath(fileName)) {
-                    GameSystem gameSystem = readGameSystem(inputStream);
-                    dataIndexEntry = new DataIndexEntry(fileName, gameSystem);
-                }
-                else if (Utils.isCataloguePath(fileName)) {
-                    Catalogue catalogue = readCatalogue(inputStream);
-                    dataIndexEntry = new DataIndexEntry(fileName, catalogue);
-                }
-                else if (Utils.isRosterPath(fileName)) {
-                    Roster roster = readRoster(inputStream);
-                    dataIndexEntry = new DataIndexEntry(fileName, roster);
-                }
-                else {
-                    continue;
-                }
-                
-                dataIndex.getDataIndexEntries().add(dataIndexEntry);
-            }
-            catch (IOException e) {
-                // TODO: handle exception
-            }
+            // Add our data file and index entry
+            repositoryData.put(fileName, dataFile);
+            dataIndex.getDataIndexEntries().add(dataIndexEntry);
         }
         
-        return dataIndex;
+        // Compress the index file data and set it on the DataIndex
+        byte[] indexData = writeDataIndex(dataIndex);
+        indexData = Utils.compressData(DataConstants.DEFAULT_INDEX_FILE_NAME, indexData);
+        dataIndex.setData(indexData);
+        
+        // Add the DataIndex to the hashmap
+        repositoryData.put(DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME, dataIndex);
+        
+        return repositoryData;
     }
 
     /**

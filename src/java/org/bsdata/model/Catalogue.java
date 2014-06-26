@@ -1,10 +1,8 @@
 
 package org.bsdata.model;
 
-import java.io.Serializable;
 
-
-public class Catalogue implements Serializable {
+public class Catalogue extends DataFile {
 
     private String id;
     private int revision;

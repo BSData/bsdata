@@ -40,46 +40,39 @@ public class DataIndexEntry implements Serializable {
         this.dataRevision = dataRevision;
     }
     
-    public DataIndexEntry(String filePath, GameSystem gameSystem) {
-        this(filePath, 
-                DataType.GAME_SYSTEM.toString(),
-                gameSystem.getId(),
-                gameSystem.getName(),
-                gameSystem.getBattleScribeVersion(),
-                gameSystem.getRevision());
-    }
-    
-    public DataIndexEntry(String filePath, GameSystem gameSystem, Date lastModified) {
-        this (filePath, gameSystem);
-        this.lastModified = lastModified;
-    }
-    
-    public DataIndexEntry(String filePath, Catalogue catalogue) {
-        this(filePath, 
-                DataType.CATALOGUE.toString(),
-                catalogue.getId(),
-                catalogue.getName(),
-                catalogue.getBattleScribeVersion(),
-                catalogue.getRevision());
-    }
-    
-    public DataIndexEntry(String filePath, Catalogue catalogue, Date lastModified) {
-        this (filePath, catalogue);
-        this.lastModified = lastModified;
-    }
-    
-    public DataIndexEntry(String filePath, Roster roster) {
-        this(filePath, 
-                DataType.ROSTER.toString(),
-                roster.getId(),
-                roster.getName(),
-                roster.getBattleScribeVersion(),
-                0);
-    }
-    
-    public DataIndexEntry(String filePath, Roster roster, Date lastModified) {
-        this (filePath, roster);
-        this.lastModified = lastModified;
+    public DataIndexEntry(String filePath, DataFile dataFile) {
+        this.filePath = filePath;
+        
+        if (dataFile instanceof GameSystem) {
+            GameSystem gameSystem = (GameSystem)dataFile;
+            
+            this.dataType = DataType.GAME_SYSTEM.toString();
+            this.dataId = gameSystem.getId();
+            this.dataName = gameSystem.getName();
+            this.dataBattleScribeVersion = gameSystem.getBattleScribeVersion();
+            this.dataRevision = gameSystem.getRevision();
+        }
+        else if (dataFile instanceof Catalogue) {
+            Catalogue catalogue = (Catalogue)dataFile;
+            
+            this.dataType = DataType.CATALOGUE.toString();
+            this.dataId = catalogue.getId();
+            this.dataName = catalogue.getName();
+            this.dataBattleScribeVersion = catalogue.getBattleScribeVersion();
+            this.dataRevision = catalogue.getRevision();
+        }
+        else if (dataFile instanceof Roster) {
+            Roster roster = (Roster)dataFile;
+            
+            this.dataType = DataType.ROSTER.toString();
+            this.dataId = roster.getId();
+            this.dataName = roster.getName();
+            this.dataBattleScribeVersion = roster.getBattleScribeVersion();
+            this.dataRevision = 0;
+        }
+        else {
+            throw new IllegalArgumentException("Not a data file");
+        }
     }
 
     public String getDataBattleScribeVersion() {

@@ -1,10 +1,8 @@
 
 package org.bsdata.model;
 
-import java.io.Serializable;
 
-
-public class GameSystem implements Serializable {
+public class GameSystem extends DataFile {
 
     private String id;
     private int revision;

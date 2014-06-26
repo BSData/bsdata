@@ -1,7 +1,6 @@
 
 package org.bsdata.model;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +13,7 @@ import org.simpleframework.xml.Root;
 
 @Root
 @Namespace(reference = "http://www.battlescribe.net/schema/dataIndexSchema")
-public class DataIndex implements Serializable {
+public class DataIndex extends DataFile {
 
     @Attribute
     private String battleScribeVersion;

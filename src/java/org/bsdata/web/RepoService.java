@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.WebConstants;
 import org.bsdata.dao.GitHubDao;
+import org.bsdata.model.DataFile;
 import org.bsdata.viewmodel.RepositoryListVm;
 import org.bsdata.utils.Utils;
 import org.bsdata.viewmodel.RepositoryVm;
@@ -109,9 +110,9 @@ public class RepoService {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
-        HashMap<String, byte[]> repoData;
+        HashMap<String, DataFile> repoData;
         try {
-            repoData = dao.getRepoFileData(repoName, getBaseUrl(request), null);
+            repoData = dao.getRepoFileData(repoName, getBaseUrl(request));
         }
         catch (NotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
@@ -122,7 +123,7 @@ public class RepoService {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
-        byte[] fileData = repoData.get(fileName);
+        byte[] fileData = repoData.get(fileName).getData();
         if (fileData == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

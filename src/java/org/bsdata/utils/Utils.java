@@ -269,6 +269,10 @@ public class Utils {
      * @throws IOException 
      */
     public static byte[] compressData(String zipEntryName, byte[] data) throws IOException {
+        if (Utils.isCompressedPath(zipEntryName)) {
+            throw new IllegalArgumentException("Zip entry name must have an uncompressed file extention");
+        }
+        
         ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ZipOutputStream zipOutputStream = getCompressedOutputStream(zipEntryName, outputStream);

@@ -1,10 +1,8 @@
 
 package org.bsdata.model;
 
-import java.io.Serializable;
 
-
-public class Roster implements Serializable {
+public class Roster extends DataFile {
 
     private String id;
     private String battleScribeVersion;

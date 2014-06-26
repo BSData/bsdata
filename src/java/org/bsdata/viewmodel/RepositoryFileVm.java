@@ -9,6 +9,8 @@ public class RepositoryFileVm extends ResponseVm {
     private String gitHubUrl;
     private String dataFileUrl;
     private String issueUrl;
+    private String authorName;
+    private String authorContact;
 
     public String getName() {
         return name;
@@ -48,6 +50,22 @@ public class RepositoryFileVm extends ResponseVm {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+
+    public String getAuthorContact() {
+        return authorContact;
+    }
+
+    public void setAuthorContact(String authorContact) {
+        this.authorContact = authorContact;
     }
     
 }
