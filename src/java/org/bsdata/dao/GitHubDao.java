@@ -215,7 +215,7 @@ public class GitHubDao {
      * @param baseUrl
      * @param repositoryUrls
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
     public HashMap<String, DataFile> getRepoFileData(
             String repositoryName, 
@@ -427,6 +427,9 @@ public class GitHubDao {
             }
             
             Release latestRelease = getLatestRelease(repository);
+            if (latestRelease == null) {
+                continue;
+            }
             RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
             repositories.add(repositoryVm);
         }

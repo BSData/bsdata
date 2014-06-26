@@ -375,6 +375,11 @@ ul {
 .detailsRow .details a {
     margin: 0px;
     padding: 0px 0px 0px 0px;
+    /*color: #E9803E;*/
+}
+
+.detailsRow .details a:hover {
+    /*color: #E9B63E;*/
 }
 
 .detailsRow .details img {
