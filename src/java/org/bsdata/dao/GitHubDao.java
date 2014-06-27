@@ -486,6 +486,7 @@ public class GitHubDao {
             repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
             repositoryFile.setIssueUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
             
+            repositoryFile.setRevision(dataFile.getRevision());
             repositoryFile.setAuthorName(dataFile.getAuthorName());
             repositoryFile.setAuthorContact(dataFile.getAuthorContact());
             repositoryFile.setAuthorUrl(dataFile.getAuthorUrl());

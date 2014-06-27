@@ -5,7 +5,6 @@ package org.bsdata.model;
 public class GameSystem extends DataFile {
 
     private String id;
-    private int revision;
     private String battleScribeVersion;
     private String name;
     
@@ -26,14 +25,6 @@ public class GameSystem extends DataFile {
 
     public void setId(String value) {
         this.id = value;
-    }
-
-    public int getRevision() {
-        return revision;
-    }
-
-    public void setRevision(int value) {
-        this.revision = value;
     }
 
     public String getBattleScribeVersion() {

@@ -5,7 +5,6 @@ package org.bsdata.model;
 public class Catalogue extends DataFile {
 
     private String id;
-    private int revision;
     private String gameSystemId;
     private int gameSystemRevision;
     private String battleScribeVersion;
@@ -36,14 +35,6 @@ public class Catalogue extends DataFile {
 
     public void setId(String value) {
         this.id = value;
-    }
-
-    public int getRevision() {
-        return revision;
-    }
-
-    public void setRevision(int value) {
-        this.revision = value;
     }
 
     public String getGameSystemId() {

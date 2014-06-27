@@ -9,6 +9,7 @@ public class RepositoryFileVm extends ResponseVm {
     private String gitHubUrl;
     private String dataFileUrl;
     private String issueUrl;
+    private int revision;
     private String authorName;
     private String authorContact;
     private String authorUrl;
@@ -75,6 +76,14 @@ public class RepositoryFileVm extends ResponseVm {
 
     public void setAuthorUrl(String authorUrl) {
         this.authorUrl = authorUrl;
+    }
+
+    public int getRevision() {
+        return revision;
+    }
+
+    public void setRevision(int revision) {
+        this.revision = revision;
     }
     
 }

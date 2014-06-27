@@ -13,6 +13,7 @@
     <li class="detailsRow" ng-repeat="file in m.repo.repositoryFiles" ng-controller="FileFormCtrl">
         <a href="{{file.dataFileUrl}}" class="detailsTitle">{{file.name}}</a>
         <div class="details">
+            <span>v{{file.revision}}<span class="detailsPadding"> | </span></span>
             <span ng-show="file.authorName && !file.authorUrl">By {{file.authorName}}<span class="detailsPadding"> | </span></span>
             <span ng-show="file.authorName && file.authorUrl">
                 By <a href="{{file.authorUrl}}">{{file.authorName}}</a><span class="detailsPadding"> | </span>
