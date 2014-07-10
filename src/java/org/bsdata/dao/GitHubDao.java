@@ -482,9 +482,12 @@ public class GitHubDao {
             else if (Utils.isRosterPath(fileName)) {
                 repositoryFile.setType(StringUtils.capitalize(DataType.ROSTER.toString()));
             }
-            repositoryFile.setGitHubUrl(Utils.checkUrl(repositoryVm.getGitHubUrl() + "/blob/master/" + fileName));
+            
             repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
             repositoryFile.setIssueUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
+            
+            String uncompressedFileName = Utils.getUncompressedFileName(fileName);
+            repositoryFile.setGitHubUrl(Utils.checkUrl(repositoryVm.getGitHubUrl() + "/blob/master/" + uncompressedFileName));
             
             repositoryFile.setRevision(dataFile.getRevision());
             repositoryFile.setAuthorName(dataFile.getAuthorName());
