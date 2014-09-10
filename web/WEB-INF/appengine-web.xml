@@ -20,6 +20,7 @@
         <include path="/**.html" />
         <include path="/**.css" />
         <include path="/**.js" />
+        <include path="/**.map" />
         <include path="/**.png" />
         <include path="/**.jpg" />
         <include path="/**.jpeg" />

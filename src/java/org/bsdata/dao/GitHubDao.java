@@ -77,7 +77,7 @@ public class GitHubDao {
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
     private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 30;
-    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 10;
+    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 30;
     
     private static Cache<String, List<Repository>> repoListCache;
     private static Cache<String, List<Release>> repoReleasesCache;
@@ -420,9 +420,15 @@ public class GitHubDao {
         String organizationName = properties.getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
         List<Repository> orgRepositories = getRepositories(organizationName);
         
+        boolean isDev = baseUrl.toLowerCase().contains("localhost") || baseUrl.toLowerCase().contains("bsdatadev");
+        
         List<RepositoryVm> repositories = new ArrayList<>();
         for (Repository repository : orgRepositories) {
             if (repository.getName().equals(DataConstants.GITHUB_BSDATA_REPO_NAME)) {
+                continue;
+            }
+            
+            if (!isDev && repository.getName().toLowerCase().equals("test")) {
                 continue;
             }
             
@@ -567,8 +573,8 @@ public class GitHubDao {
         
         // get the current commit on the master branch in the fork and get the tree it points to
         Reference masterRefFork = dataService.getReference(repositoryFork, "heads/master");
-        RepositoryCommit latestMasterCommit = commitService.getCommit(repositoryFork, masterRefFork.getObject().getSha());
-        Tree masterTreeFork = latestMasterCommit.getCommit().getTree();
+        RepositoryCommit latestCommitFork = commitService.getCommit(repositoryFork, masterRefFork.getObject().getSha());
+        Tree masterTreeFork = latestCommitFork.getCommit().getTree();
         
         // post a new blob object with new content, getting a blob SHA back
         Blob contentBlobFork = new Blob();
@@ -590,9 +596,9 @@ public class GitHubDao {
         Commit commitFork = new Commit();
         commitFork.setMessage(commitMessage);
         commitFork.setTree(treeFork);
+        Commit parentCommit = latestCommitFork.getCommit();
+        parentCommit.setSha(latestCommitFork.getSha()); // For some reason the parentCommit's sha isn't set
         List<Commit> commitParentsFork = new ArrayList<>();
-        Commit parentCommit = latestMasterCommit.getCommit();
-        parentCommit.setSha(latestMasterCommit.getSha()); // For some reason the parentCommit's sha isn't set
         commitParentsFork.add(parentCommit);
         commitFork.setParents(commitParentsFork);
         commitFork = dataService.createCommit(repositoryFork, commitFork);
@@ -670,6 +676,7 @@ public class GitHubDao {
         }
     }
     
+    @SuppressWarnings("SleepWhileInLoop")
     private Repository forkAndWait(GitHubClient gitHubClient, Repository masterRepository) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         RepositoryService repositoryService = new RepositoryService(gitHubClient);
@@ -700,6 +707,7 @@ public class GitHubDao {
         throw new IOException("Repository fork could not be created.");
     }
     
+    @SuppressWarnings("SleepWhileInLoop")
     private boolean deleteAndWait(GitHubClient gitHubClient, Repository repository) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         RepositoryService repositoryService = new RepositoryService(gitHubClient);
@@ -729,7 +737,22 @@ public class GitHubDao {
         throw new IOException("Repository fork could not be deleted.");
     }
     
-    public ResponseVm createIssue(String repositoryName, String fileName, String body) throws IOException {
+    public ResponseVm createIssue(
+            String repositoryName, String fileName, String battleScribeVersion, String platform, boolean usingDropbox, String body) throws IOException {
+        
+        StringBuilder issueBody = new StringBuilder();
+        issueBody.append("**File:** ").append(fileName)
+                .append("\n\n**BattleScribe version:** ").append(battleScribeVersion)
+                .append("\n\n**Platform:** ").append(platform)
+                .append("\n\n**Dropbox:** ");
+        if (usingDropbox) {
+            issueBody.append("Yes");
+        }
+        else {
+            issueBody.append("No");
+        }
+        issueBody.append("\n\n**Description:** ").append(body);
+        
         GitHubClient gitHubClient = connectToGitHub();
         IssueService issueService = new IssueService(gitHubClient);
         
@@ -738,7 +761,7 @@ public class GitHubDao {
         
         Issue issue = new Issue();
         issue.setTitle("[Anon] Bug report: " + fileName);
-        issue.setBody(body);
+        issue.setBody(issueBody.toString());
         
         issue = issueService.createIssue(repository, issue);
         

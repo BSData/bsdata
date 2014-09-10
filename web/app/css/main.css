@@ -188,8 +188,7 @@ ul {
 
 /* END title vertical center code */
 
-.pageTitle li .outerContainer .innerContainer .element h1 
-{
+.pageTitle li .outerContainer .innerContainer .element h1 {
     font-family: 'Roboto Slab', serif;
     color: #fff;
     text-decoration: none;
@@ -198,8 +197,7 @@ ul {
     display: block;
 }
 
-.pageTitle li .outerContainer .innerContainer .element h2
-{
+.pageTitle li .outerContainer .innerContainer .element h2 {
     color: #fff;
     text-decoration: none;
     padding: 0px;
@@ -410,9 +408,28 @@ ul {
     font-weight: bold;
 }
 
-.formContainer input, .formContainer textarea {
-    margin: 4px 0px 4px 0px;
+.formContainer {
+    font-size: 0.95em;
+}
+
+.formContainer input, .formContainer textarea, .formContainer select, .formContainer label {
+    padding: 4px;
+    margin: 8px 0px 0px 0px;
     width: 100%;
+    font-weight: normal;
+}
+
+.formContainer label {
+    display: inline;
+}
+
+.formContainer input[type=radio] {
+    width: auto;
+    margin: 8px 8px 0px 8px;
+}
+
+.formContainer select, .formContainer input[type=text] {
+    width: 50%;
 }
 
 .formContainer textarea {
@@ -420,9 +437,7 @@ ul {
 }
 
 .formContainer input[type=file] {
-    height: 32px;
     border: 1px solid #BBBBBB;
-    padding: 4px;
     font-size: 0.8em;
 }
 
@@ -430,7 +445,16 @@ ul {
     display: block;
     float: right;
     clear: both;
+    margin-top: 4px;
     font-size: 0.8em;
+}
+
+.formContainer span.error {
+    float: right;
+    clear: both;
+    width: 100%;
+    display: block;
+    text-align: right;
 }
 
 .formContainer input.accept[type=button] {
@@ -545,10 +569,10 @@ ul {
     position: fixed;
     top: 50%;
     left: 50%;
-    width: 500px;  /* adjust as per your needs */
-    height: 580px;   /* adjust as per your needs */
-    margin-left: -250px;   /* negative half of width above */
-    margin-top: -290px;   /* negative half of height above */
+    width: 560px;  /* adjust as per your needs */
+    height: 660px;   /* adjust as per your needs */
+    margin-left: -280px;   /* negative half of width above */
+    margin-top: -330px;   /* negative half of height above */
     padding: 16px;
     
     background: #FFFFFF;
@@ -570,7 +594,7 @@ ul {
 .guidelines .acceptCheckbox {
     font-size: 0.8em;
     padding: 0px;
-    margin: 8px;
+    margin-top: 8px;
     display: inline-block;
     
     font-weight: normal;
@@ -584,7 +608,7 @@ ul {
     font-size: 1.1em;
     font-weight: bold;
     padding: 0px;
-    margin: 8px;
+    margin-top: 8px;
     display: inline-block;
 }
 

@@ -31,7 +31,8 @@
         <div class="formContainer" ng-show="formData.isUpload || formData.isIssue">
             <form ng-show="formData.isUpload" name="uploadForm" enctype="multipart/form-data">
                 <h4>Submit file update for {{file.name}}</h4>
-                <textarea ng-model="formData.commitMessage" ng-required="true" name="commitMessage" placeholder="Describe what was broken and how you fixed it"></textarea>
+                <textarea ng-model="formData.commitMessage" ng-required="true" ng-minlength="50" name="commitMessage" placeholder="Describe what was broken and how you fixed it"></textarea>
+                <span class="error red" style="float: none;" ng-hide="formData.commitMessage.length >= 50">Minimum 50 characters</span>
                 <input id="selectFile-{{$index}}" name="selectFile-{{$index}}" type="file" ng-file-select ng-click="uploader.clearQueue();">
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
                 <input class="accept" ng-click="doUpload();" ng-disabled="uploadForm.$invalid || !isFileSelected()" value="Upload!" type="button">
@@ -39,7 +40,20 @@
 
             <form ng-show="formData.isIssue" name="issueForm" enctype="multipart/form-data">
                 <h4>Report a bug in {{file.name}}</h4>
-                <textarea ng-model="formData.issueBody" ng-required="true" name="issueBody" placeholder="Describe what's broken and how to fix it"></textarea>
+                <span class="red">All fields are required.</span>
+                <br>
+                <input ng-model="formData.battleScribeVersion" ng-required="true" name="battleScribeVersion" type="text" placeholder="What version of BattleScribe are you using?">
+                <br>
+                <select ng-model="formData.platform" ng-required="true" name="platform" ng-options="platform for platform in platforms">
+                    <option value="">Select platform...</option>
+                </select>
+                <br>
+                Are you using Dropbox?
+                <label><input ng-model="formData.usingDropbox" ng-required="true" name="usingDropbox" value="true" type="radio">Yes</label>
+                <label><input ng-model="formData.usingDropbox" ng-required="true" name="usingDropbox" value="false" type="radio">No</label>
+                <br>
+                <textarea ng-model="formData.issueBody" ng-required="true" ng-minlength="50" name="issueBody" placeholder="Describe what's broken and what to do to reproduce the bug. If you do not provide enough information, your bug report may be rejected."></textarea>
+                <span class="error red" ng-hide="formData.issueBody.length >= 50">Minimum 50 characters</span>
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
                 <input class="accept" ng-click="postBug();" ng-disabled="issueForm.$invalid" value="Submit!" type="button">
             </form>
@@ -67,15 +81,20 @@
         <div class="lightboxWrapper" ng-show="(formData.isUpload || formData.isIssue) && formData.showGuidelines">
             <div class="guidelines">
                 <h4>Submission Guidelines</h4>
-<!--                <p>Please read these guidelines before submitting bug reports or file updates. They will help you make sure your submission is accepted.</p>-->
+                
+                <h5 class="bold red">Before you submit a bug or file</h5>
+                <ul>
+                    <li><span class="bold">Make sure</span> you are using the <a href="http://www.battlescribe.net">latest version of BattleScribe</a>.</li>
+                    <li><span class="bold">Make sure</span> you have updated your data. The bug may have already been fixed.</li>
+                    <li><span class="bold">Make sure</span> the bug hasn't <a href="{{m.repo.bugTrackerUrl}}">already been submitted.</a></li>
+                </ul>
                 
                 <h5 class="bold">When submitting a bug or describing a file update</h5>
                 <ul>
-                    <li><a href="{{m.repo.bugTrackerUrl}}">Make sure the issue hasn't already been submitted / fixed.</a></li>
                     <li>Say what is / was broken (e.g. "Item X is 5 points, should be 10").</li>
                     <li>Say what should be / has been changed to fix it (e.g. "Changed item X points to 10").</li>
                     <li>Submit a bug report for each individual issue you find, not one big bug report listing multiple issues.</li>
-                    <li>Be descriptive! This helps the admins review your submission.</li>
+                    <li><span class="bold">Be descriptive!</span> This helps the admins review your submission.</li>
                 </ul>
                 
                 <h5 class="bold">When submitting a file update</h5>
@@ -96,14 +115,14 @@
                         your submissions, and allows them to accept individual bug fixes.
                     </li>
                     <li>
-                        Use BattleScribe <span class="bold">1.14.00 or newer</span> to edit your files.
+                        Use BattleScribe <span class="bold">1.14.07 or newer</span> to edit your files.
                     </li>
                 </ul>
                 
                 <div style="text-align: center; position: absolute; left: 0px; bottom: 16px; width: 100%;">
                     <a class="acceptLink" ng-click="hideGuidelines();" href="">OK, I understand</a>
                     <br>
-                    <span class="acceptCheckbox"><input type="checkbox" name="guidelinesAccepted" ng-model="formData.guidelinesAccepted">Don't show this again</span>
+                    <span class="acceptCheckbox"><input type="checkbox" name="guidelinesAccepted" ng-model="formData.guidelinesAccepted">Don't show this message again during this session</span>
                 </div>
             </div>
         </div>

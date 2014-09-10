@@ -281,15 +281,13 @@ public class RepoService {
     public String submitIssue(
             @PathParam("repoName") String repoName, 
             @PathParam("fileName") String fileName,
+            @FormDataParam("battleScribeVersion") String battleScribeVersion,
+            @FormDataParam("platform") String platform,
+            @FormDataParam("usingDropbox") String usingDropbox,
             @FormDataParam("issueBody") String issueBody,
             @Context HttpServletRequest request) {
         
-        ResponseVm response;
         Gson gson = new Gson();
-        
-//        response = new ResponseVm();
-//        response.setErrorMessage("There was an error submitting your bug report. Please try again later.");
-//        return gson.toJson(response);
         
         if (StringUtils.isEmpty(repoName)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
@@ -297,14 +295,27 @@ public class RepoService {
         if (StringUtils.isEmpty(fileName)) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
+        
+        ResponseVm response = new ResponseVm();
+        if (StringUtils.isEmpty(battleScribeVersion)) {
+            response.setErrorMessage("You must enter the version of BattleScribe you are using.");
+        }
+        if (StringUtils.isEmpty(platform)) {
+            response.setErrorMessage("You must select the platform you use BattleScribe on.");
+        }
+        if (StringUtils.isEmpty(usingDropbox)) {
+            response.setErrorMessage("You must select whether or not you are using Dropbox.");
+        }
         if (StringUtils.isEmpty(issueBody)) {
-            response = new ResponseVm();
             response.setErrorMessage("You must enter a bug description.");
+        }
+        
+        if (!StringUtils.isEmpty(response.getErrorMessage())) {
             return gson.toJson(response);
         }
         
         try {
-            response = dao.createIssue(repoName, fileName, issueBody);
+            response = dao.createIssue(repoName, fileName, battleScribeVersion, platform, Boolean.parseBoolean(usingDropbox), issueBody);
         }
         catch (NotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
