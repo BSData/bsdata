@@ -42,6 +42,7 @@ import org.bsdata.utils.Utils;
 import org.bsdata.viewmodel.ResponseVm;
 import org.eclipse.egit.github.core.Blob;
 import org.eclipse.egit.github.core.Commit;
+import org.eclipse.egit.github.core.CommitUser;
 import org.eclipse.egit.github.core.Issue;
 import org.eclipse.egit.github.core.PullRequest;
 import org.eclipse.egit.github.core.PullRequestMarker;
@@ -429,7 +430,7 @@ public class GitHubDao {
             }
             
             if (!isDev && repository.getName().toLowerCase().equals("test")) {
-                continue;
+                continue; // Hack to prevent test repo showing up on the live site
             }
             
             Release latestRelease = getLatestRelease(repository);
@@ -592,10 +593,22 @@ public class GitHubDao {
         treeEntries.add(treeEntryFork);
         Tree treeFork = dataService.createTree(repositoryFork, treeEntries, masterTreeFork.getSha());
         
+        Properties properties = ApplicationProperties.getProperties();
+        CommitUser commitUser = new CommitUser();
+        commitUser.setName(properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME));
+        commitUser.setEmail(properties.getProperty(PropertiesConstants.GITHUB_ANON_EMAIL));
+        commitUser.setDate(new Date());
+         
+        StringBuilder issueBody = new StringBuilder();
+        issueBody.append("**File:** ").append(fileName)
+                .append("\n\n**Description:** ").append(commitMessage);
+        
         // create a new commit object with the current commit SHA as the parent and the new tree SHA, getting a commit SHA back
         Commit commitFork = new Commit();
-        commitFork.setMessage(commitMessage);
+        commitFork.setMessage(issueBody.toString());
         commitFork.setTree(treeFork);
+        commitFork.setAuthor(commitUser);
+        commitFork.setCommitter(commitUser);
         Commit parentCommit = latestCommitFork.getCommit();
         parentCommit.setSha(latestCommitFork.getSha()); // For some reason the parentCommit's sha isn't set
         List<Commit> commitParentsFork = new ArrayList<>();

@@ -13,6 +13,7 @@ public class PropertiesConstants {
     public static final String PROPERTIES_FILE_PATH = "bsdata.properties";
     
     public static final String GITHUB_ANON_USERNAME = "github.anon.username";
+    public static final String GITHUB_ANON_EMAIL = "github.anon.email";
     public static final String GITHUB_ANON_TOKEN = "github.anon.token";
     
     public static final String GITHUB_ORGANIZATION = "github.organisation";
