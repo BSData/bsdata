@@ -3,9 +3,9 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!-- The following line from HTML5Boilerplate does not validate; it is used by Modernizr: the "no-js" class acts as a fallback if JavaScript is disabled -->
-<!--[if gt IE 8]><!--> 
+<!--[if gt IE 8]><!--> <!--<![endif]-->
 
-<html class="no-js" lang="en" data-ng-app="bsdataApp"> <!--<![endif]-->
+<html class="no-js" lang="en" data-ng-app="bsdataApp" id="ng-app">
 
     <head>
         <meta charset="utf-8">
@@ -25,6 +25,17 @@
         
         <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.2/modernizr.min.js"></script>
         <script type="text/javascript" src="http://updateyourbrowser.net/uyb.js"></script>
+        <script type="text/javascript">
+            var $buoop = {};
+            $buoop.ol = window.onload;
+            window.onload=function(){
+                 try {if ($buoop.ol) $buoop.ol();}catch (e) {}
+                 var e = document.createElement("script");
+                 e.setAttribute("type", "text/javascript");
+                 e.setAttribute("src", "//browser-update.org/update.js");
+                 document.body.appendChild(e);
+            }
+        </script>
         <!--<script src="app/js/vendor/modernizr-2.7.2.min.js"></script>-->
 
         <!--[if IE 7]>
