@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -428,11 +430,11 @@ public class GitHubDao {
             if (repository.getName().equals(DataConstants.GITHUB_BSDATA_REPO_NAME)) {
                 continue;
             }
-            
+
             if (!isDev && repository.getName().toLowerCase().equals("test")) {
                 continue; // Hack to prevent test repo showing up on the live site
             }
-            
+
             Release latestRelease = getLatestRelease(repository);
             if (latestRelease == null) {
                 continue;
@@ -440,7 +442,7 @@ public class GitHubDao {
             RepositoryVm repositoryVm = createRepositoryVm(repository, baseUrl, latestRelease);
             repositories.add(repositoryVm);
         }
-        
+                        
         Collections.sort(repositories, new Comparator<RepositoryVm>() {
             @Override
             public int compare(RepositoryVm o1, RepositoryVm o2) {
@@ -598,14 +600,10 @@ public class GitHubDao {
         commitUser.setName(properties.getProperty(PropertiesConstants.GITHUB_ANON_USERNAME));
         commitUser.setEmail(properties.getProperty(PropertiesConstants.GITHUB_ANON_EMAIL));
         commitUser.setDate(new Date());
-         
-        StringBuilder issueBody = new StringBuilder();
-        issueBody.append("**File:** ").append(fileName)
-                .append("\n\n**Description:** ").append(commitMessage);
         
         // create a new commit object with the current commit SHA as the parent and the new tree SHA, getting a commit SHA back
         Commit commitFork = new Commit();
-        commitFork.setMessage(issueBody.toString());
+        commitFork.setMessage(commitMessage);
         commitFork.setTree(treeFork);
         commitFork.setAuthor(commitUser);
         commitFork.setCommitter(commitUser);
@@ -627,6 +625,10 @@ public class GitHubDao {
                 + "_" + branchDateFormat.format(new Date());
         branchRefFork.setRef("refs/heads/" + branchNameFork);
         dataService.createReference(repositoryFork, branchRefFork);
+         
+        StringBuilder issueBody = new StringBuilder();
+        issueBody.append("**File:** ").append(fileName)
+                .append("\n\n**Description:** ").append(commitMessage);
         
         // Submit a pull request back to the source repository
         PullRequestMarker sourceRequestMarker = new PullRequestMarker();
@@ -637,7 +639,7 @@ public class GitHubDao {
         pullRequest.setTitle("[Anon] File update: " + fileName);
         pullRequest.setHead(sourceRequestMarker);
         pullRequest.setBase(destinationRequestMarker);
-        pullRequest.setBody(commitMessage);
+        pullRequest.setBody(issueBody.toString());
         pullRequest = pullRequestService.createPullRequest(repositoryMaster, pullRequest);
         
         ResponseVm responseVm = new ResponseVm();
