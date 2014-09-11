@@ -41,6 +41,10 @@ bsDataApp.controller("RepoCtrl", function($scope, $routeParams, repoRestApi) {
     repoRestApi.get({id: $routeParams.repoName}, function(data) {
         $scope.m.repo = data;
     });
+
+    $scope.pageData = {
+        guidelinesAccepted: false
+    };
 });
 
 bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi, $fileUploader, $http, $window, $cookies) {
@@ -50,12 +54,23 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
         isIssue: false,
         isUpload: false,
         commitMessage: "",
+        battleScribeVersion: "",
+        platform: "",
+        usingDropbox: null,
         issueBody: "",
         isLoading: false,
         formResponse: null,
         guidelinesAccepted: false,
         showGuidelines : true
     };
+
+    $scope.platforms = [
+        "iPhone / iPod / iPad",
+        "Android",
+        "Windows",
+        "Mac",
+        "Linux"
+    ];
 
     $scope.isHtml5 = function() {
         return !!($window.File && $window.FormData);
@@ -67,16 +82,11 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
 
     $scope.hideGuidelines = function() {
         $scope.formData.showGuidelines = false;
-        if ($scope.formData.guidelinesAccepted) {
-            $cookies.guidelinesAccepted = "true";
-        }
-        else {
-            $cookies.guidelinesAccepted = "false";
-        }
+        $scope.$parent.pageData.guidelinesAccepted = $scope.formData.guidelinesAccepted;
     };
 
     $scope.setCurrentFile = function(repoFile) {
-        $scope.formData.guidelinesAccepted = ($cookies.guidelinesAccepted) && ($cookies.guidelinesAccepted.localeCompare("true") === 0);
+        $scope.formData.guidelinesAccepted = $scope.$parent.pageData.guidelinesAccepted;
         $scope.formData.showGuidelines = !$scope.formData.guidelinesAccepted;
         
         $scope.clearData();
@@ -169,31 +179,38 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
     };
 
     $scope.postBug = function() {
-        if ($scope.formData.isIssue) {
-            $scope.formData.isLoading = true;
-            var formData = new FormData();
-            formData.append("issueBody", $scope.formData.issueBody);
-            $http({
-                method: "POST",
-                url: $scope.formData.currentFile.issueUrl,
-                data: formData,
-                transformRequest: angular.identity,
-                headers: {
-                    "Content-Type": undefined
-                }
-            })
-            .success(function(data) {
-                if (data.successMessage) {
-                    $scope.formData.isIssue = false;
-                    $scope.clearData();
-                }
-                $scope.formData.formResponse = data;
-                $scope.formData.isLoading = false;
-            })
-            .error(function(data) {
-                $scope.formData.formResponse = data;
-                $scope.formData.isLoading = false;
-            });
+        if (!$scope.formData.isIssue) {
+            return;
         }
+        
+        $scope.formData.isLoading = true;
+        
+        var formData = new FormData();
+        formData.append("battleScribeVersion", $scope.formData.battleScribeVersion);
+        formData.append("platform", $scope.formData.platform);
+        formData.append("usingDropbox", $scope.formData.usingDropbox);
+        formData.append("issueBody", $scope.formData.issueBody);
+        
+        $http({
+            method: "POST",
+            url: $scope.formData.currentFile.issueUrl,
+            data: formData,
+            transformRequest: angular.identity,
+            headers: {
+                "Content-Type": undefined
+            }
+        })
+        .success(function(data) {
+            if (data.successMessage) {
+                $scope.formData.isIssue = false;
+                $scope.clearData();
+            }
+            $scope.formData.formResponse = data;
+            $scope.formData.isLoading = false;
+        })
+        .error(function(data) {
+            $scope.formData.formResponse = data;
+            $scope.formData.isLoading = false;
+        });
     };
 });

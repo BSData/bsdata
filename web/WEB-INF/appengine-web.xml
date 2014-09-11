@@ -5,7 +5,7 @@
     
     <!-- Basic app settings -->
     <application>battlescribedata</application>
-    <version>4</version>
+    <version>5</version>
     <threadsafe>true</threadsafe>
     
 <!--     Appengine scaling 
@@ -20,6 +20,7 @@
         <include path="/**.html" />
         <include path="/**.css" />
         <include path="/**.js" />
+        <include path="/**.map" />
         <include path="/**.png" />
         <include path="/**.jpg" />
         <include path="/**.jpeg" />

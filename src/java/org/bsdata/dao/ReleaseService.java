@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import org.eclipse.egit.github.core.IRepositoryIdProvider;
 import org.eclipse.egit.github.core.client.GitHubClient;
-import static org.eclipse.egit.github.core.client.IGitHubConstants.SEGMENT_REPOS;
+import org.eclipse.egit.github.core.client.IGitHubConstants;
 import org.eclipse.egit.github.core.client.PagedRequest;
 import org.eclipse.egit.github.core.service.GitHubService;
 
@@ -46,7 +46,7 @@ public class ReleaseService extends GitHubService {
      */
     public List<Release> getReleases(IRepositoryIdProvider repository, int start, int size) throws IOException {
         String id = getId(repository);
-        StringBuilder uri = new StringBuilder(SEGMENT_REPOS);
+        StringBuilder uri = new StringBuilder(IGitHubConstants.SEGMENT_REPOS);
         uri.append('/').append(id);
         uri.append(SEGMENT_RELEASES);
         PagedRequest<Release> request;
