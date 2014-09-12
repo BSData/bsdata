@@ -42,18 +42,20 @@
                 <h4>Report a bug in {{file.name}}</h4>
                 <span class="red">All fields are required.</span>
                 <br>
-                <input ng-model="formData.battleScribeVersion" ng-required="true" name="battleScribeVersion" type="text" placeholder="What version of BattleScribe are you using?">
+                <input ng-model="formData.battleScribeVersion" ng-required="true" ng-pattern="/^[0-9]\.[0-9][0-9]\.[0-9][0-9]$/" name="battleScribeVersion" type="text" placeholder="What version of BattleScribe are you using?">
+                <span class="small">See &quot;About&quot; in BattleScribe</span>
                 <br>
                 <select ng-model="formData.platform" ng-required="true" name="platform" ng-options="platform for platform in platforms">
                     <option value="">Select platform...</option>
                 </select>
                 <br>
-                Are you using Dropbox?
+                <span style="margin-left: 4px;">Are you using Dropbox?</span>
                 <label><input ng-model="formData.usingDropbox" ng-required="true" name="usingDropbox" value="true" type="radio">Yes</label>
                 <label><input ng-model="formData.usingDropbox" ng-required="true" name="usingDropbox" value="false" type="radio">No</label>
                 <br>
-                <textarea ng-model="formData.issueBody" ng-required="true" ng-minlength="50" name="issueBody" placeholder="Describe what's broken and what to do to reproduce the bug. If you do not provide enough information, your bug report may be rejected."></textarea>
-                <span class="error red" ng-hide="formData.issueBody.length >= 50">Minimum 50 characters</span>
+                <textarea ng-model="formData.issueBody" ng-required="true" ng-minLength="50" name="issueBody" placeholder="Describe what's broken and what to do to reproduce the bug. If you do not provide enough information, your bug report may be rejected."></textarea>
+                <span class="error red" ng-show="issueForm.battleScribeVersion.$error.pattern">BattleScribe version must be in the format "x.yy.zz"</span>
+                <span class="error red" ng-show="issueForm.issueBody.$error.required || issueForm.issueBody.$error.minlength">Minimum 50 character description</span>
                 <input class="cancel" ng-click="cancelForm();" value="Cancel" type="button">
                 <input class="accept" ng-click="postBug();" ng-disabled="issueForm.$invalid" value="Submit!" type="button">
             </form>

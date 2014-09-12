@@ -640,6 +640,10 @@ ul {
     font-size: 1.2em;
 }
 
+.small {
+    font-size: 0.8em;
+}
+
 .red {
     color: red;
 }
