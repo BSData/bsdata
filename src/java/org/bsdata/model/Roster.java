@@ -4,7 +4,6 @@ package org.bsdata.model;
 
 public class Roster extends DataFile {
 
-    private String id;
     private String battleScribeVersion;
     private String name;
     private double points;
@@ -79,13 +78,5 @@ public class Roster extends DataFile {
 
     public void setGameSystemRevision(int gameSystemRevision) {
         this.gameSystemRevision = gameSystemRevision;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 }

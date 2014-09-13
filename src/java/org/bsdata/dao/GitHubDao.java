@@ -212,7 +212,7 @@ public class GitHubDao {
     }
     
     /**
-     * Gets the data files for a particular data file repository. File data is cached for 24hrs.
+     * Gets the data files for a particular data file repository. File data is cached.
      * 
      * @param repositoryName
      * @param baseUrl

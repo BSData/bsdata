@@ -14,8 +14,8 @@ public class DataFile implements Serializable {
     
     private transient byte[] data;
     
+    private String id;
     private int revision;
-    
     private String authorName;
     private String authorContact;
     private String authorUrl;
@@ -58,6 +58,14 @@ public class DataFile implements Serializable {
 
     public void setRevision(int revision) {
         this.revision = revision;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
     
 }

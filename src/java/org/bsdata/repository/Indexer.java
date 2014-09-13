@@ -4,6 +4,7 @@ package org.bsdata.repository;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
@@ -92,7 +93,8 @@ public class Indexer {
         DataIndex dataIndex = new DataIndex(repositoryName, indexUrl, repositoryUrls);
         
         HashMap<String, DataFile> repositoryData = new HashMap<>();
-
+        List<String> fileIds = new ArrayList<>();
+        
         for (String fileName : fileDatas.keySet()) {
             if (Utils.isCompressedPath(fileName)) {
                 // We should only get uncompressed data at this point
@@ -115,6 +117,11 @@ public class Indexer {
             else {
                 continue;
             }
+            
+            if (fileIds.contains(dataFile.getId())) {
+                continue; // Skip if we've already come accross this ID for this repo
+            }
+            fileIds.add(dataFile.getId());
             
             // Compress the file data and set it on the DataFile
             fileData = Utils.compressData(fileName, fileData);
