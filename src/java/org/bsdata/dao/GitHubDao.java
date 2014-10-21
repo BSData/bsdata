@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -79,8 +77,8 @@ public class GitHubDao {
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
-    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 30;
-    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 30;
+    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 60;
+    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 60;
     
     private static Cache<String, List<Repository>> repoListCache;
     private static Cache<String, List<Release>> repoReleasesCache;
