@@ -180,7 +180,7 @@ public class RepoService {
     
         StringWriter writer = new StringWriter();
         try {
-            Feed feed = dao.getReleaseFeed(repoName, getBaseUrl(request));
+            Feed feed = dao.getReleaseFeed(repoName, getBaseUrl(request), WebConstants.MAX_FEED_ENTRIES);
             WireFeedOutput feedOutput = new WireFeedOutput();
             feedOutput.output(feed, writer);
         }

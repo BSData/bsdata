@@ -784,7 +784,7 @@ public class GitHubDao {
         return responseVm;
     }
     
-    public Feed getReleaseFeed(String repositoryName, String baseUrl) throws IOException {
+    public Feed getReleaseFeed(String repositoryName, String baseUrl, int maxFeedEntries) throws IOException {
         Feed feed = new Feed();
         feed.setFeedType("atom_1.0");
         
@@ -816,9 +816,12 @@ public class GitHubDao {
             description.setValue("Data file releases for all repositories");
             feed.setSubtitle(description);
             
+            List<Repository> repositories = getRepositories(organizationName);
+            maxFeedEntries /= repositories.size();
+            
             entries = new ArrayList<>();
-            for (Repository repository : getRepositories(organizationName)) {
-                entries.addAll(getReleaseFeedEntries(baseUrl, repository));
+            for (Repository repository : repositories) {
+                entries.addAll(getReleaseFeedEntries(baseUrl, repository, maxFeedEntries));
             }
         }
         else {
@@ -843,7 +846,7 @@ public class GitHubDao {
             description.setValue("Data file releases for " + repository.getDescription());
             feed.setSubtitle(description);
             
-            entries = getReleaseFeedEntries(baseUrl, repository);
+            entries = getReleaseFeedEntries(baseUrl, repository, maxFeedEntries);
         }
         
         Collections.sort(entries, new Comparator<Entry>() {
@@ -863,7 +866,7 @@ public class GitHubDao {
         return feed;
     }
     
-    private List<Entry> getReleaseFeedEntries(String baseUrl, Repository repository) throws IOException {
+    private List<Entry> getReleaseFeedEntries(String baseUrl, Repository repository, int maxFeedEntries) throws IOException {
         List<Entry> entries = new ArrayList<>();
         for (Release release : getReleases(repository)) {
             Entry entry = new Entry();
@@ -891,6 +894,10 @@ public class GitHubDao {
             entry.setSummary(description);
             
             entries.add(entry);
+            
+            if (maxFeedEntries != 0  && entries.size() >= maxFeedEntries) {
+                break;
+            }
         }
         return entries;
     }

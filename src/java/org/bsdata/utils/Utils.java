@@ -125,7 +125,7 @@ public class Utils {
     }
     
     public static String getCompressedFileName(File file) {
-        return getCompressedFileName(file);
+        return getCompressedFileName(file.getName());
     }
     
     /**
