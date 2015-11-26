@@ -73,26 +73,14 @@
     <import file="${appengine.sdk.dir}/config/user/ant-macros.xml" />
     
     <target name="-pre-dist">
-        <antcall target="copyjars" />
-    </target>
-    
-    <target name="copyjars"
-            description="Copies the App Engine JARs to the WAR.">
-        <copy
-            todir="build/web/WEB-INF/lib"
-            flatten="true">
-        
+        <copy todir="build/web/WEB-INF/lib" flatten="true">
             <fileset dir="${appengine.sdk.dir}/lib/user">
                 <include name="**/*.jar" />
             </fileset>
         </copy>
     </target>
     
-<!--    <target name="-post-dist">
-        <antcall target="update" />
-    </target>-->
-    
-    <target name="update"
+    <target name="appengine-update"
           description="Uploads the application to App Engine.">
         <appcfg action="update" war="build/web" />
     </target>
