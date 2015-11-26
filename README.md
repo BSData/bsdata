@@ -33,15 +33,14 @@ Yeah! We have it hosted on AppSpot. Take a look: [BattleScribe Data on Appspot][
 
 ####Configuring the project in Netbeans####
 
-- Download and install Netbeans 7.3.x (Java EE version).
-    * link: https://netbeans.org/downloads/7.3.1/
+- Download and install Netbeans 8.x (Java EE version).
+    * link: http://netbeans.org/downloads/8.0.2
+- Add the App Engine plugin to Netbeans.
+    * link: http://kenai.com/projects/nbappengine/pages/NBInstall
 - Download and extract the App Engine Java SDK.
-    * link: https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Java
-- Download and extract the App Engine plugins for 7.3.
-    * link: https://code.google.com/p/nb-gaelyk-plugin/downloads/list.
-- In Netbeans, go to Tools -> Plugins -> Downloaded tab -> Add Plugins.
-- Select all the .nbm files from the unzipped plugins folder and install them.
-- Tools -> Servers -> Add Server. Choose Google App Engine, then browse to the folder you extracted the SDK to.
+    * link: http://developers.google.com/appengine/downloads
+- Add the App Engine server to Netbeans.
+    * Tools -> Servers -> Add Server. Choose Google App Engine, then browse to the folder you extracted the SDK to.
 - In Netbeans, create a new project (New Project -> Java Web -> Web Application). Name the project and choose where to create it. Check "Dedicated folder for libraries". Select App Engine as the server. No need to check any frameworks.
 - Check out the project from GitHub into the newly created project folder.
 - Once your project is created, you need to reference the required library jars. Right click the Libraries node -> Add Jar/Folder -> browse to the lib folder under the project folder -> Select all the .jar files -> Open
