@@ -5,7 +5,7 @@
     
     <!-- Basic app settings -->
     <application>battlescribedata</application>
-    <version>5</version>
+    <version>6</version>
     <threadsafe>true</threadsafe>
     
 <!--     Appengine scaling 
