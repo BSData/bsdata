@@ -343,14 +343,6 @@ public class GitHubDao {
                         // Callable must return a value or throw an exception - can't return null
                         throw new IllegalArgumentException();
                     }
-                    
-                    Collections.sort(releases, new Comparator<Release>() {
-                        
-                        @Override
-                        public int compare(Release o1, Release o2) {
-                            return o1.getPublishedAt().compareTo(o2.getPublishedAt());
-                        }
-                    });
                     return releases;
                 }
             });
@@ -818,6 +810,9 @@ public class GitHubDao {
             
             List<Repository> repositories = getRepositories(organizationName);
             maxFeedEntries /= repositories.size();
+            if (maxFeedEntries < 1) {
+                maxFeedEntries = 1;
+            }
             
             entries = new ArrayList<>();
             for (Repository repository : repositories) {
@@ -869,7 +864,6 @@ public class GitHubDao {
     private List<Entry> getReleaseFeedEntries(String baseUrl, Repository repository, int maxFeedEntries) throws IOException {
         List<Entry> entries = new ArrayList<>();
         List<Release> releases = getReleases(repository);
-        Collections.reverse(releases);
         
         for (Release release : releases) {
             Entry entry = new Entry();
