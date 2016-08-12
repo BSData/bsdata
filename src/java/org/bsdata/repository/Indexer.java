@@ -10,6 +10,7 @@ import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.commons.io.FilenameUtils;
 import org.bsdata.constants.DataConstants;
 import org.bsdata.model.Catalogue;
 import org.bsdata.model.DataFile;
@@ -78,9 +79,10 @@ public class Indexer {
      * @param repositoryName
      * @param baseUrl
      * @param repositoryUrls List of additional repo URLs to add to the index
-     * @param dataFiles Map of uncompressed file name to uncompressed file data
+     * @param fileDatas
      * @return
      * @throws IOException 
+     * @throws org.bsdata.repository.XmlException 
      */
     public HashMap<String, DataFile> createRepositoryData(
             String repositoryName, 
@@ -95,14 +97,17 @@ public class Indexer {
         HashMap<String, DataFile> repositoryData = new HashMap<>();
         List<String> fileIds = new ArrayList<>();
         
-        for (String fileName : fileDatas.keySet()) {
-            if (Utils.isCompressedPath(fileName)) {
+        for (String filePath : fileDatas.keySet()) {
+            if (Utils.isCompressedPath(filePath)) {
                 // We should only get uncompressed data at this point
-                throw new IllegalArgumentException("Data file " + fileName + " is already compressed.");
+                throw new IllegalArgumentException("Data file " + filePath + " is already compressed.");
             }
             
-            byte[] fileData = fileDatas.get(fileName);
+            byte[] fileData = fileDatas.get(filePath);
             ByteArrayInputStream inputStream = new ByteArrayInputStream(fileData);
+            
+            // Make sure we have just the filename, without the path
+            String fileName = FilenameUtils.getName(filePath);
             
             DataFile dataFile;
             if (Utils.isGameSytstemPath(fileName)) {

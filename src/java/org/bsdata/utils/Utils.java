@@ -1,13 +1,16 @@
 
 package org.bsdata.utils;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -43,6 +46,40 @@ public class Utils {
         return url;
     }
     
+    /**
+     * Downloads the file at the given URL.
+     * 
+     * @param url
+     * @return
+     * @throws IOException 
+     */
+    public static byte[] downloadFile(String url) throws IOException {
+        HttpURLConnection connection = null;
+        InputStream inputStream = null;
+        try {
+            connection = (HttpURLConnection)new URL(url).openConnection();
+            connection.setDoInput(true);
+            connection.setRequestMethod("GET");
+            connection.setUseCaches(false);
+            connection.setInstanceFollowRedirects(true);
+            connection.setConnectTimeout(5 * 1000);
+            connection.setAllowUserInteraction(false);
+            connection.setRequestProperty("Connection", "close");
+            
+            inputStream = new BufferedInputStream(connection.getInputStream());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            IOUtils.copy(inputStream, outputStream);
+            
+            return outputStream.toByteArray();
+        }
+        finally {
+            IOUtils.closeQuietly(inputStream);
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+    
     public static String getBaseUrl(String url) {
         return url.substring(0, url.lastIndexOf('/') + 1);
     }
@@ -57,12 +94,9 @@ public class Utils {
 
     public static boolean isRosterPath(String path) {
         path = path.trim().toLowerCase();
-        if (path.endsWith(DataConstants.ROSTER_FILE_EXTENSION)
+        return path.endsWith(DataConstants.ROSTER_FILE_EXTENSION)
                 || path.endsWith(DataConstants.ROSTER_COMPRESSED_FILE_EXTENSION)
-                || path.endsWith(DataConstants.ROSTER_COMPRESSED_FILE_EXTENSION_OLD)) {
-            return true;
-        }
-        return false;
+                || path.endsWith(DataConstants.ROSTER_COMPRESSED_FILE_EXTENSION_OLD);
     }
 
     public static boolean isCatalogueFile(File file) {
@@ -71,12 +105,9 @@ public class Utils {
 
     public static boolean isCataloguePath(String path) {
         path = path.trim().toLowerCase();
-        if (path.endsWith(DataConstants.CATALOGUE_FILE_EXTENSION)
+        return path.endsWith(DataConstants.CATALOGUE_FILE_EXTENSION)
                 || path.endsWith(DataConstants.CATALOGUE_COMPRESSED_FILE_EXTENSION)
-                || path.endsWith(DataConstants.CATALOGUE_COMPRESSED_FILE_EXTENSION_OLD)) {
-            return true;
-        }
-        return false;
+                || path.endsWith(DataConstants.CATALOGUE_COMPRESSED_FILE_EXTENSION_OLD);
     }
     
     public static boolean isGameSytstemFile(File file) {
@@ -85,12 +116,9 @@ public class Utils {
 
     public static boolean isGameSytstemPath(String path) {
         path = path.trim().toLowerCase();
-        if (path.endsWith(DataConstants.GAME_SYSTEM_FILE_EXTENSION)
+        return path.endsWith(DataConstants.GAME_SYSTEM_FILE_EXTENSION)
                 || path.endsWith(DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION)
-                || path.endsWith(DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION_OLD)) {
-            return true;
-        }
-        return false;
+                || path.endsWith(DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION_OLD);
     }
 
     public static boolean isIndexFile(File file) {
@@ -99,11 +127,8 @@ public class Utils {
 
     public static boolean isIndexPath(String path) {
         path = path.trim().toLowerCase();
-        if (path.endsWith(DataConstants.INDEX_COMPRESSED_FILE_EXTENSION)
-                || path.endsWith(DataConstants.DEFAULT_INDEX_FILE_NAME)) {
-            return true;
-        }
-        return false;
+        return path.endsWith(DataConstants.INDEX_COMPRESSED_FILE_EXTENSION)
+                || path.endsWith(DataConstants.DEFAULT_INDEX_FILE_NAME);
     }
 
     public static boolean isCompressedFile(File file) {
@@ -112,16 +137,13 @@ public class Utils {
     
     public static boolean isCompressedPath(String path) {
         path = path.trim().toLowerCase();
-        if (path.endsWith(DataConstants.CATALOGUE_COMPRESSED_FILE_EXTENSION)
+        return path.endsWith(DataConstants.CATALOGUE_COMPRESSED_FILE_EXTENSION)
                 || path.endsWith(DataConstants.CATALOGUE_COMPRESSED_FILE_EXTENSION_OLD)
                 || path.endsWith(DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION)
                 || path.endsWith(DataConstants.GAME_SYSTEM_COMPRESSED_FILE_EXTENSION_OLD)
                 || path.endsWith(DataConstants.ROSTER_COMPRESSED_FILE_EXTENSION)
                 || path.endsWith(DataConstants.ROSTER_COMPRESSED_FILE_EXTENSION_OLD)
-                || path.endsWith(DataConstants.INDEX_COMPRESSED_FILE_EXTENSION)) {
-            return true;
-        }
-        return false;
+                || path.endsWith(DataConstants.INDEX_COMPRESSED_FILE_EXTENSION);
     }
     
     public static String getCompressedFileName(File file) {
@@ -237,7 +259,9 @@ public class Utils {
      * Buffers internally.
      * Closes inputStream.
      * 
+     * @param inputStream
      * @return 
+     * @throws java.io.IOException 
      */
     public static ByteArrayInputStream decompressStream(ByteArrayInputStream inputStream) throws IOException {
         ZipInputStream zipInputStream = getDecompressedInputStream(inputStream);
@@ -289,5 +313,41 @@ public class Utils {
         ZipEntry zipEntry = new ZipEntry(getUncompressedFileName(zipEntryName));
         zipOutputStream.putNextEntry(zipEntry);
         return zipOutputStream;
+    }
+    
+    /**
+     * Decompress all zip entries from the stream
+     * 
+     * @param data
+     * @return
+     * @throws IOException 
+     */
+    public static HashMap<String, byte[]> unpackZip(byte[] data) throws IOException {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+        ZipInputStream zipInputStream = new ZipInputStream(inputStream);
+                
+        HashMap<String, byte[]> zipData = new HashMap<>();
+        
+        try {
+            ZipEntry zipEntry = zipInputStream.getNextEntry();
+            while (zipEntry != null) {
+                String fileName = zipEntry.getName();
+                if (fileName.startsWith("/")) {
+                    fileName = fileName.substring(1);
+                }
+                
+                // Can't use readStreamToMemory because it closes zipInputStream
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024 * 80);
+                IOUtils.copy(zipInputStream, outputStream);
+                zipData.put(fileName, outputStream.toByteArray());
+                
+                zipEntry = zipInputStream.getNextEntry();
+            }
+        }
+        finally {
+            IOUtils.closeQuietly(zipInputStream);
+        }
+        
+        return zipData;
     }
 }

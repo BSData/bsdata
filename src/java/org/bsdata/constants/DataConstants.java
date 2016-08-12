@@ -38,6 +38,7 @@ public class DataConstants {
     public static final String CATALOGUE_COMPRESSED_FILE_EXTENSION_OLD = ".cat.zip";
     public static final String GAME_SYSTEM_COMPRESSED_FILE_EXTENSION_OLD = ".gst.zip";
     
+    public static final String ZIP_FILE_EXTENSION = ".zip";
     public static final String REPOSITORY_FILE_EXTENSION = ".bsr";
     public static final String INDEX_COMPRESSED_FILE_EXTENSION = ".bsi";
     public static final String XML_FILE_EXTENSION = ".xml";
@@ -74,7 +75,7 @@ public class DataConstants {
         CATALOGUE("catalogue"),
         GAME_SYSTEM("gamesystem");
         
-        private String value;
+        private final String value;
 
         DataType(String value) {
             this.value = value;

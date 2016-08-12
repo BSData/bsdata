@@ -77,17 +77,17 @@ public class GitHubDao {
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
-    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 240;
-    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 240;
+    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 60;
+    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 60;
     
     private static Cache<String, List<Repository>> repoListCache;
     private static Cache<String, List<Release>> repoReleasesCache;
     private static Cache<String, HashMap<String, DataFile>> repoFileCache;
     
-    private static HashMap<String, ReentrantLock> repoDownloadLocks = new HashMap<>();
-    private static HashMap<String, Date> repoReleaseDates = new HashMap<>();
+    private static final HashMap<String, ReentrantLock> repoDownloadLocks = new HashMap<>();
+    private static final HashMap<String, Date> repoReleaseDates = new HashMap<>();
     
-    private Indexer indexer;
+    private final Indexer indexer;
     
     public GitHubDao() {
         indexer = new Indexer();
@@ -195,6 +195,7 @@ public class GitHubDao {
      * Ensures data files are cached for all data file repositories.
      * 
      * @param baseUrl
+     * @param repoName
      * @throws IOException 
      */
     public synchronized void primeCache(String baseUrl, String repoName) throws IOException {
@@ -214,7 +215,6 @@ public class GitHubDao {
      * 
      * @param repositoryName
      * @param baseUrl
-     * @param repositoryUrls
      * @return
      * @throws IOException
      */
@@ -376,29 +376,39 @@ public class GitHubDao {
     
     /**
      * Downloads all the data files from a specific release in a specific repository.
-     * Returns a hashmap of uncompressed filename --> uncompressed file data
+     * Returns a HashMap of uncompressed filename --> uncompressed file data
      * 
      * @param repositoryName
      * @return
      * @throws IOException 
      */
     private HashMap<String, byte[]> downloadFromGitHub(Repository repository, Release release) throws IOException {
-        GitHubClient gitHubClient = connectToGitHub();
-        DataService dataService = new DataService(gitHubClient);
-        
-        List<RepositoryContents> contents = getRepositoryContents(repository, release);
-        HashMap<String, byte[]> fileDatas = new HashMap<>();
-        for (RepositoryContents repositoryContents : contents) {
-            if (!Utils.isDataFilePath(repositoryContents.getName())) {
-                continue; // Skip non-data files
-            }
-            
-            String content = dataService.getBlob(repository, repositoryContents.getSha()).getContent();
-            byte[] fileData = Base64.decodeBase64(content);
-            fileDatas.put(repositoryContents.getName(), fileData);
+        String zipUrl = repository.getHtmlUrl();
+        if (!zipUrl.endsWith("/")) {
+            zipUrl += "/";
         }
+        zipUrl += "archive/" + release.getTagName() + DataConstants.ZIP_FILE_EXTENSION;
         
-        return fileDatas;
+        byte[] fileData = Utils.downloadFile(zipUrl);
+        
+        return Utils.unpackZip(fileData);
+        
+//        GitHubClient gitHubClient = connectToGitHub();
+//        DataService dataService = new DataService(gitHubClient);
+//        
+//        List<RepositoryContents> contents = getRepositoryContents(repository, release);
+//        HashMap<String, byte[]> fileDatas = new HashMap<>();
+//        for (RepositoryContents repositoryContents : contents) {
+//            if (!Utils.isDataFilePath(repositoryContents.getName())) {
+//                continue; // Skip non-data files
+//            }
+//            
+//            String content = dataService.getBlob(repository, repositoryContents.getSha()).getContent();
+//            byte[] fileData = Base64.decodeBase64(content);
+//            fileDatas.put(repositoryContents.getName(), fileData);
+//        }
+//        
+//        return fileDatas;
     }
     
     /**
@@ -542,7 +552,10 @@ public class GitHubDao {
      * 
      * @param repositoryName
      * @param fileName
+     * @param sourceFileName
      * @param fileData
+     * @param commitMessage
+     * @return 
      * @throws IOException 
      */
     public ResponseVm submitFile(String repositoryName, String fileName, String sourceFileName, byte[] fileData, String commitMessage) throws IOException {
