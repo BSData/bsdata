@@ -123,14 +123,14 @@ public class RepoService {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
-        byte[] fileData = repoData.get(fileName).getData();
-        if (fileData == null) {
+        DataFile dataFile = repoData.get(fileName);
+        if (dataFile == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
         
         return Response
                 .ok()
-                .entity(fileData)
+                .entity(dataFile.getData())
                 .type(mimeType)
                 .build();
     }
