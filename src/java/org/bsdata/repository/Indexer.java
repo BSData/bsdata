@@ -98,6 +98,11 @@ public class Indexer {
         List<String> fileIds = new ArrayList<>();
         
         for (String filePath : fileDatas.keySet()) {
+            if (!Utils.isDataFilePath(filePath)) {
+                // Skip any files that aren't data files
+                continue;
+            }
+            
             if (Utils.isCompressedPath(filePath)) {
                 // We should only get uncompressed data at this point
                 throw new IllegalArgumentException("Data file " + filePath + " is already compressed.");
