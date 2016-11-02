@@ -6,6 +6,16 @@
     <a href="{{m.twitterUrl}}"><img src="app/img/twitter_icon_24.png"/></a>
     <a href="{{m.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a>
 </div>
+          
+<div style="clear: both;">
+    <p class="big bold" ng-show="showLoading">
+        Getting data files...
+    </p>
+
+    <p class="big bold" ng-show="error">
+        There was an error getting the data files. The site may be overloaded right now. Please try again later.
+    </p>
+</div>
 
 <ul class="detailsList">
     <li ng-repeat="repo in m.repos" class="detailsRow">

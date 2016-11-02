@@ -15,6 +15,9 @@ bsDataApp.service("repoRestApi", function($resource) {
 });
 
 bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
+    $scope.showLoading = true;
+    $scope.error = false;
+    
     $scope.m = {
         feedUrl: "",
         twitterUrl: "",
@@ -22,15 +25,23 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
         repos: []
     };
 
-    repoRestApi.list({}, function(data) {
-        $scope.m.feedUrl = data.feedUrl;
-        $scope.m.twitterUrl = data.twitterUrl;
-        $scope.m.facebookUrl = data.facebookUrl;
-        $scope.m.repos = [];
-        angular.forEach(data.repositories, function(repo) {
-            $scope.m.repos.push(repo);
+    repoRestApi.list({}, 
+        function(data) {
+            $scope.showLoading = false;
+            $scope.error = false;
+
+            $scope.m.feedUrl = data.feedUrl;
+            $scope.m.twitterUrl = data.twitterUrl;
+            $scope.m.facebookUrl = data.facebookUrl;
+            $scope.m.repos = [];
+            angular.forEach(data.repositories, function(repo) {
+                $scope.m.repos.push(repo);
+            });
+        },
+        function() {
+            $scope.showLoading = false;
+            $scope.error = true;
         });
-    });
 });
 
 bsDataApp.controller("RepoCtrl", function($scope, $routeParams, repoRestApi) {
