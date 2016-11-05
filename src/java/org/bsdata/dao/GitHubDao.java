@@ -86,6 +86,7 @@ public class GitHubDao {
     
     private static final HashMap<String, ReentrantLock> repoDownloadLocks = new HashMap<>();
     private static final HashMap<String, Date> repoReleaseDates = new HashMap<>();
+    private static final HashMap<String, Boolean> repoUpdateFlags = new HashMap<>();
     
     private final Indexer indexer;
     
@@ -186,11 +187,6 @@ public class GitHubDao {
         }
     }
     
-    private void clearFileCache(String repoName) {
-        repoFileCache.invalidate(repoName);
-        repoFileCache.cleanUp();
-    }
-    
     /**
      * Ensures data files are cached for all data file repositories.
      * 
@@ -204,7 +200,7 @@ public class GitHubDao {
         repoReleasesCache.invalidate(repoName);
         repoReleasesCache.cleanUp();
         
-        clearFileCache(repoName);
+        repoUpdateFlags.put(repoName, Boolean.TRUE);
         
         // Get the repo data to repopulate the cache
         getRepoFileData(repoName, baseUrl);
@@ -263,7 +259,9 @@ public class GitHubDao {
                 logger.log(Level.INFO, "Downloading and caching data for repository {0}.", repository.getName());
                 HashMap<String, byte[]> dataFiles = downloadFromGitHub(repository, latestRelease);
                 HashMap<String, DataFile> repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, dataFiles);
+                
                 repoFileCache.put(repositoryName, repositoryData);
+                repoUpdateFlags.put(repositoryName, Boolean.FALSE);
             }
             finally {
                 // Done! Unlock in a finally block as we don't want to leave anything locked if there's an exception...
@@ -291,6 +289,13 @@ public class GitHubDao {
     private boolean requiresDownload(Repository repository, Release latestRelease) {
         boolean requiresDownload = false;
         
+        Boolean updateFlag = repoUpdateFlags.containsKey(repository.getName());
+        if (updateFlag == null || updateFlag == true) {
+            // No update flag, or flag is true.
+            logger.log(Level.INFO, "Update flag for {0} does not exist or is true.", repository.getName());
+            requiresDownload = true;
+        }
+        
         HashMap<String, DataFile> fileData = repoFileCache.getIfPresent(repository.getName());
         if (fileData == null) {
             // We have no cached data for this repo.
@@ -310,13 +315,15 @@ public class GitHubDao {
             requiresDownload = true;
         }
         
-        if (requiresDownload) {
-            if (latestRelease != null) {
-                repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
-            }
-            else {
-                repoReleaseDates.put(repository.getName(), new Date());
-            }
+        if (!requiresDownload) {
+            return requiresDownload;
+        }
+        
+        if (latestRelease != null) {
+            repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
+        }
+        else {
+            repoReleaseDates.put(repository.getName(), new Date());
         }
         
         return requiresDownload;
@@ -368,8 +375,8 @@ public class GitHubDao {
                 && repoReleaseDates.containsKey(repository.getName()) 
                 && latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
             
-            // Latest release is newer than the last one we saw. Clear file data cache.
-            clearFileCache(repository.getName());
+            // Latest release is newer than the last one we saw. Set flag so we update next opportunity.
+            repoUpdateFlags.put(repository.getName(), Boolean.TRUE);
         }
         return latestRelease;
     }
@@ -833,28 +840,30 @@ public class GitHubDao {
             }
         }
         else {
-            Repository repository = getRepository(organizationName, repositoryName);
-            String feedUrl = Utils.checkUrl(baseUrl + "/feeds/" + repositoryName + ".atom");
+            entries = new ArrayList<>();
             
-            feed.setId(feedUrl);
-            feed.setTitle(repository.getDescription() + " Releases");
-            
-            Link link = new Link();
-            link.setType(DataConstants.HTML_MIME_TYPE);
-            link.setHref(getHtmlLink(baseUrl, repositoryName));
-            feed.setAlternateLinks(Collections.singletonList(link));
-            
-            Link selfLink = new Link();
-            selfLink.setRel("self");
-            selfLink.setHref(feedUrl);
-            feed.setOtherLinks(Collections.singletonList(selfLink));
-            
-            Content description = new Content();
-            description.setType(DataConstants.TEXT_MIME_TYPE);
-            description.setValue("Data file releases for " + repository.getDescription());
-            feed.setSubtitle(description);
-            
-            entries = getReleaseFeedEntries(baseUrl, repository, maxFeedEntries);
+//            Repository repository = getRepository(organizationName, repositoryName);
+//            String feedUrl = Utils.checkUrl(baseUrl + "/feeds/" + repositoryName + ".atom");
+//            
+//            feed.setId(feedUrl);
+//            feed.setTitle(repository.getDescription() + " Releases");
+//            
+//            Link link = new Link();
+//            link.setType(DataConstants.HTML_MIME_TYPE);
+//            link.setHref(getHtmlLink(baseUrl, repositoryName));
+//            feed.setAlternateLinks(Collections.singletonList(link));
+//            
+//            Link selfLink = new Link();
+//            selfLink.setRel("self");
+//            selfLink.setHref(feedUrl);
+//            feed.setOtherLinks(Collections.singletonList(selfLink));
+//            
+//            Content description = new Content();
+//            description.setType(DataConstants.TEXT_MIME_TYPE);
+//            description.setValue("Data file releases for " + repository.getDescription());
+//            feed.setSubtitle(description);
+//            
+//            entries = getReleaseFeedEntries(baseUrl, repository, maxFeedEntries);
         }
         
         Collections.sort(entries, new Comparator<Entry>() {
