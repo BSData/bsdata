@@ -77,8 +77,8 @@ public class GitHubDao {
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
-    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 360;
-    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 360;
+    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 240;
+    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 240;
     
     private static Cache<String, List<Repository>> repoListCache;
     private static Cache<String, List<Release>> repoReleasesCache;
