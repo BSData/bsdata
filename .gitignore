@@ -7,3 +7,4 @@ dist/
 lib/CopyLibs/
 lib/nblibraries.properties
 nbproject
+build.xml
