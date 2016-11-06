@@ -112,7 +112,7 @@ public class RepoService {
         
         HashMap<String, DataFile> repoData;
         try {
-            repoData = dao.getRepoFileData(repoName, getBaseUrl(request));
+            repoData = dao.getRepoFileData(getBaseUrl(request), repoName);
         }
         catch (NotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
@@ -152,7 +152,7 @@ public class RepoService {
         }
     
         try {
-            repositoryVm = dao.getRepoFiles(repoName, getBaseUrl(request));
+            repositoryVm = dao.getRepoFiles(getBaseUrl(request), repoName);
         }
         catch (NotFoundException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
@@ -162,6 +162,10 @@ public class RepoService {
         catch (IOException e) {
             logger.log(Level.SEVERE, "Failed to load repo file list: {0}", e.getMessage());
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+        
+        if (repositoryVm == null) {
+            throw new NotFoundException("Could not find repository named " + repoName);
         }
         
         return gson.toJson(repositoryVm);
@@ -332,20 +336,20 @@ public class RepoService {
     }
 
     @GET
-    @Path("/{repoName}/prime")
+    @Path("/prime")
     @Produces(MediaType.TEXT_PLAIN)
     public String primeRepositoryCache(
-            @PathParam("repoName") String repoName, 
             @Context HttpServletRequest request) {
+        
         try {
-            dao.primeCache(getBaseUrl(request), repoName);
+            dao.primeCache(getBaseUrl(request));
         }
         catch (Exception e) {
             logger.log(Level.SEVERE, "Failed to prime repo cache: {0}", e.getMessage());
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
-        return "Repo cache for " + repoName + " primed!";
+        return "Primed cache";
     }
     
     @GET
