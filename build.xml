@@ -66,22 +66,6 @@
     compile target as regular run target does. Again, for list of available 
     properties which you can use check the target you are overriding in 
     nbproject/build-impl.xml file. 
-    -->
-    
-    <property name="appengine.sdk.dir" location="../Tools/appengine-java-sdk-1.9.28" />
 
-    <import file="${appengine.sdk.dir}/config/user/ant-macros.xml" />
-    
-    <target name="-pre-dist">
-        <copy todir="build/web/WEB-INF/lib" flatten="true">
-            <fileset dir="${appengine.sdk.dir}/lib/user">
-                <include name="**/*.jar" />
-            </fileset>
-        </copy>
-    </target>
-    
-    <target name="appengine-update"
-          description="Uploads the application to App Engine.">
-        <appcfg action="update" war="build/web" />
-    </target>
+    -->
 </project>
