@@ -6,6 +6,7 @@ package org.bsdata.web;
 
 import java.util.Set;
 import javax.ws.rs.core.Application;
+import org.bsdata.dao.GitHubDao;
 
 /**
  *
@@ -28,6 +29,9 @@ public class ApplicationConfig extends Application {
      */
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(org.bsdata.web.RepoService.class);
+        
+//        GitHubDao dao = new GitHubDao();
+//        dao.primeCache(baseUrl, repoName);
     }
     
 }

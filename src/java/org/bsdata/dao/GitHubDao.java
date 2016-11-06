@@ -12,6 +12,7 @@ import com.sun.syndication.feed.atom.Person;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,7 +24,6 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -76,28 +76,49 @@ import org.eclipse.egit.github.core.service.RepositoryService;
  * @author Jonskichov
  */
 public class GitHubDao {
+    
+    private static final int MAX_FEED_ENTRIES = 5;
+    private static final int REPO_CACHE_EXPIRY_MINS = 24 * 60;
+    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 12 * 60;
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
     
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     
-    private static final int MAX_FEED_ENTRIES = 5;
-    
-    private static final long REPO_LIST_CACHE_EXPIRY_TIME_MINS = 24 * 60;
-    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 12 * 60;
-    
-    private static Cache<String, List<Repository>> repoListCache;
-    private static Cache<String, List<Release>> repoReleasesCache;
-    
-    private static final HashMap<String, ReentrantLock> repoDownloadLocks = new HashMap<>();
-    
-    private static final Map<String, HashMap<String, DataFile>> repoFiles = new ConcurrentHashMap<>();
-    private static final Map<String, List<Entry>> repoFeedEntries = new ConcurrentHashMap<>();
-    private static final Map<String, Date> repoReleaseDates = new ConcurrentHashMap<>();
-    private static final Map<String, Boolean> repoRequiresUpdateFlags = new ConcurrentHashMap<>();
-    
     private final Indexer indexer;
+    
+//    private static Cache<String, List<Repository>> repoListCache;
+//    private static Cache<String, List<Release>> repoReleasesCache;
+    
+    
+    private static Date nextReposUpdateDate = new Date();
+    private static boolean reposRequiresUpdate = true;
+    private static ReentrantLock reposUpdateLock = new ReentrantLock(true);
+    
+    private static final Map<String, Repository> repos 
+            = Collections.synchronizedMap(new HashMap<String, Repository>());
+    
+    private static final Map<String, List<Release>> repoReleases 
+            = Collections.synchronizedMap(new HashMap<String, List<Release>>());
+    
+    
+    private static final Map<String, Date> repoReleaseDates 
+            = Collections.synchronizedMap(new HashMap<String, Date>());
+    
+    private static final Map<String, Boolean> dataRequiresUpdateFlags 
+            = Collections.synchronizedMap(new HashMap<String, Boolean>());
+    
+    private static final Map<String, ReentrantLock> repoDownloadLocks 
+            = Collections.synchronizedMap(new HashMap<String, ReentrantLock>());
+    
+    private static final Map<String, HashMap<String, DataFile>> repoFiles 
+            = Collections.synchronizedMap(new HashMap<String, HashMap<String, DataFile>>());
+    
+    private static final Map<String, List<Entry>> repoFeedEntries 
+            = Collections.synchronizedMap(new HashMap<String, List<Entry>>());
+    
+    
     
     public GitHubDao() {
         indexer = new Indexer();
@@ -114,7 +135,7 @@ public class GitHubDao {
         }
         
         repoListCache = CacheBuilder.newBuilder()
-            .expireAfterWrite(REPO_LIST_CACHE_EXPIRY_TIME_MINS, TimeUnit.MINUTES)
+            .expireAfterWrite(REPO_CACHE_EXPIRY_MINS, TimeUnit.MINUTES)
             .build();
         
         repoReleasesCache = CacheBuilder.newBuilder()
@@ -149,7 +170,7 @@ public class GitHubDao {
         repoReleasesCache.invalidate(repoName);
         repoReleasesCache.cleanUp();
         
-        repoRequiresUpdateFlags.put(repoName, Boolean.TRUE);
+        dataRequiresUpdateFlags.put(repoName, Boolean.TRUE);
         
         // Get the repo data to repopulate the cache
         getRepoFileData(repoName, baseUrl);
@@ -160,32 +181,121 @@ public class GitHubDao {
     // Repositories //
     //////////////////
     
-    private List<Repository> getRepositories(final String organizationName) throws IOException {
-        try {
-            return repoListCache.get(organizationName, new Callable<List<Repository>>() {
-
-                @Override
-                public List<Repository> call() throws IOException {
-                    logger.log(Level.INFO, "Getting and caching list of repositories for {0}.", organizationName);
-                    
-                    RepositoryService repositoryService = new RepositoryService(connectToGitHub());
-                    List<Repository> repositories = repositoryService.getOrgRepositories(organizationName);
-                    if (repositories == null) {
-                        // Callable must return a value or throw an exception - can't return null
-                        throw new IllegalArgumentException();
-                    }
-                    return repositories;
-                }
-            });
+    private boolean reposRequireUpdate() {
+        if (nextReposUpdateDate == null
+                || repos.isEmpty()
+                || repoReleases.isEmpty()) {
+            
+            reposRequiresUpdate = true;
+            return true;
         }
-        catch (ExecutionException e) {
-            if (e.getCause() instanceof IOException) {
-                throw (IOException)e.getCause();
+        
+        if (reposRequiresUpdate == true) {
+            return true;
+        }
+        
+        if (new Date().after(nextReposUpdateDate)) {
+            reposRequiresUpdate = true;
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private Future<Void> refreshRepositoriesAsync(final String organizationName) {
+        return Executors.newSingleThreadExecutor().submit(new Callable<Void>() {
+
+            @Override
+            public Void call() throws IOException {
+                try {
+                    refreshRepositories(organizationName);
+                }
+                catch (IOException e) {
+                    logger.log(
+                            Level.SEVERE, 
+                            "Failed to update repositories", 
+                            e);
+                    
+                    throw e;
+                }
+                return null;
             }
-            // Callable should only throw an IOException. If we get here, something fishy is going on...
-            throw new IllegalStateException(e.getCause());
+        });
+    }
+    
+    private void refreshRepositories(String organizationName) throws IOException {
+        if (reposUpdateLock.isLocked()) {
+            // We are currently updating the repos
+            return;
+        }
+            
+        try {
+            reposUpdateLock.lock();
+            
+            List<Repository> repositories = getGitHubRepositories(organizationName);
+
+            for (Repository repo : repositories) {
+                List<Release> releases;
+                try {
+                    releases = getGitHubReleases(repo);
+                }
+                catch (IOException e) {
+
+                    continue;
+                }
+
+                repos.put(repo.getName(), repo);
+                repoReleases.put(repo.getName(), releases);
+            }
+            
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.MINUTE, REPO_CACHE_EXPIRY_MINS);
+            nextReposUpdateDate = calendar.getTime();
+            reposRequiresUpdate = false;
+        }
+        finally {
+            // Done! Unlock in a finally block as we don't want to leave anything locked if there's an exception...
+            reposUpdateLock.unlock();
         }
     }
+    
+    private List<Repository> getGitHubRepositories(String organizationName) throws IOException {
+        logger.log(Level.INFO, "Getting repositories from GitHub for {0}.", organizationName);
+
+        RepositoryService repositoryService = new RepositoryService(connectToGitHub());
+        List<Repository> repositories = repositoryService.getOrgRepositories(organizationName);
+        if (repositories == null) {
+            // Callable must return a value or throw an exception - can't return null
+            throw new IllegalArgumentException();
+        }
+        return repositories;
+    }
+    
+    private List<Release> getGitHubReleases(Repository repository) throws IOException {
+        logger.log(Level.INFO, "Getting releases from GitHub for {0}.", repository.getName());
+
+        ReleaseService releaseService = new ReleaseService(connectToGitHub());
+        List<Release> releases = releaseService.getReleases(repository, 1, 1);
+        if (releases == null) {
+            // Callable must return a value or throw an exception - can't return null
+            throw new IllegalArgumentException();
+        }
+
+        // Sort by publish date so latest release is at position 0
+        Collections.sort(releases, new Comparator<Release>() {
+
+            @Override
+            public int compare(Release o1, Release o2) {
+                return o2.getPublishedAt().compareTo(o1.getPublishedAt());
+            }
+        });
+        
+        return releases;
+    }
+    
+    
+    
+    
     
     private Repository getRepository(String organizationName, String repositoryName) throws IOException {
         for (Repository repository : getRepositories(organizationName)) {
@@ -198,24 +308,14 @@ public class GitHubDao {
         throw new NotFoundException("Could not find repository " + repositoryName + " in organization " + organizationName);
     }
     
-    /**
-     * Get the first page of releases from GitHub for the given repository
-     * 
-     * @param repository
-     * @return
-     * @throws ExecutionException 
-     */
-    private List<RepositoryContents> getRepositoryContents(final Repository repository, final Release release) throws IOException {
-        logger.log(Level.INFO, "Getting contents for {0}.", repository.getName());
-
-        ContentsService contentsService = new ContentsService(connectToGitHub());
-        if (release == null) {
-            // We didn't find a release for this repo. Just return the HEAD contents.
-            return contentsService.getContents(repository);
+    private Release getLatestRelease(Repository repository) throws IOException {
+        List<Release> releases = getReleases(repository);
+        if (releases.isEmpty()) {
+            return null;
         }
-        else {
-            return contentsService.getContents(repository, null, release.getTagName());
-        }
+        
+        // Releases should be sorted so latest is at position 0
+        return getReleases(repository).get(0);
     }
     
     
@@ -236,24 +336,6 @@ public class GitHubDao {
                 
                 @Override
                 public List<Release> call() throws IOException {
-                    logger.log(Level.INFO, "Getting and caching releases for {0}.", repository.getName());
-                    
-                    ReleaseService releaseService = new ReleaseService(connectToGitHub());
-                    List<Release> releases = releaseService.getReleases(repository, 1, 1);
-                    if (releases == null) {
-                        // Callable must return a value or throw an exception - can't return null
-                        throw new IllegalArgumentException();
-                    }
-                    
-                    // Sort by publish date so latest release is at position 0
-                    Collections.sort(releases, new Comparator<Release>() {
-                        
-                        @Override
-                        public int compare(Release o1, Release o2) {
-                            return o2.getPublishedAt().compareTo(o1.getPublishedAt());
-                        }
-                    });
-                    return releases;
                 }
             });
         }
@@ -266,62 +348,62 @@ public class GitHubDao {
         }
     }
     
-    private Release getLatestRelease(Repository repository) throws IOException {
-        List<Release> releases = getReleases(repository);
-        if (releases.isEmpty()) {
-            return null;
-        }
-        
-        // Releases should be sorted so latest is at position 0
-        return getReleases(repository).get(0);
-    }
     
+    //////////////////
+    // Data Refresh //
+    //////////////////
     
-    /////////////
-    // Refresh //
-    /////////////
-    
-    private boolean requiresUpdate(Repository repository, Release latestRelease) {
+    private boolean requiresDataRefresh(Repository repository, Release latestRelease) {
         String repoName = repository.getName();
         
         if (latestRelease == null) {
-            repoRequiresUpdateFlags.put(repoName, false);
+            dataRequiresUpdateFlags.put(repoName, false);
             return false;
         }
         
-        if (!repoRequiresUpdateFlags.containsKey(repoName)
+        if (!dataRequiresUpdateFlags.containsKey(repoName)
                 || !repoReleaseDates.containsKey(repoName)
                 || !repoFiles.containsKey(repoName)
                 || !repoFeedEntries.containsKey(repoName)) {
             
-            repoRequiresUpdateFlags.put(repoName, true);
+            dataRequiresUpdateFlags.put(repoName, true);
             return true;
         }
         
-        if (repoRequiresUpdateFlags.get(repoName) == true) {
+        if (dataRequiresUpdateFlags.get(repoName) == true) {
             return true;
         }
         
         if (latestRelease.getPublishedAt().after(repoReleaseDates.get(repoName))) {
-            repoRequiresUpdateFlags.put(repoName, true);
+            dataRequiresUpdateFlags.put(repoName, true);
             return true;
         }
         
         return false;
     }
     
-    private Future<Void> updateDataAsync(final String baseUrl, final Repository repository, final Release latestRelease) {
+    private Future<Void> refreshDataAsync(final String baseUrl, final Repository repository, final Release latestRelease) {
         return Executors.newSingleThreadExecutor().submit(new Callable<Void>() {
 
             @Override
             public Void call() throws IOException {
-                updateData(baseUrl, repository, latestRelease);
+                try {
+                    refreshData(baseUrl, repository, latestRelease);
+                }
+                catch (IOException e) {
+                    logger.log(
+                            Level.SEVERE, 
+                            "Failed to update data for repository " + repository.getName(), 
+                            e);
+                    
+                    throw e;
+                }
                 return null;
             }
         });
     }
     
-    private void updateData(String baseUrl, Repository repository, Release latestRelease) throws IOException {
+    private void refreshData(String baseUrl, Repository repository, Release latestRelease) throws IOException {
         String repoName = repository.getName();
         
         if (!repoDownloadLocks.containsKey(repoName)) {
@@ -340,162 +422,23 @@ public class GitHubDao {
             downloadLock.lock();
         
             // Download and cache the repository data files
-            logger.log(Level.INFO, "Downloading and caching data for repository {0}.", repository.getName());
             HashMap<String, byte[]> dataFiles = downloadFromGitHub(repository, latestRelease);
             HashMap<String, DataFile> repositoryData = indexer.createRepositoryData(repoName, baseUrl, null, dataFiles);
 
 
             // Setup feed
-            logger.log(Level.INFO, "Creating feed entries for repository {0}.", repository.getName());
             List<Entry> releaseFeedEntries = getReleaseFeedEntries(baseUrl, repository);
 
 
             repoFiles.put(repoName, repositoryData);
             repoFeedEntries.put(repoName, releaseFeedEntries);
             repoReleaseDates.put(repoName, latestRelease.getPublishedAt());
-            repoRequiresUpdateFlags.put(repoName, Boolean.FALSE);
+            dataRequiresUpdateFlags.put(repoName, Boolean.FALSE);
         }
         finally {
             // Done! Unlock in a finally block as we don't want to leave anything locked if there's an exception...
             downloadLock.unlock();
         }
-    }
-    
-    
-    ///////////////
-    // File Data //
-    ///////////////
-    
-    /**
-     * Gets the data files for a particular data file repository. File data is cached.
-     * 
-     * @param repositoryName
-     * @param baseUrl
-     * @return
-     * @throws IOException
-     */
-    public HashMap<String, DataFile> getRepoFileData(
-            String repositoryName, 
-            String baseUrl) throws IOException {
-        
-        if (!repoDownloadLocks.containsKey(repositoryName)) {
-            // Create a lock object for this repo name if we don't already have one
-            repoDownloadLocks.put(repositoryName, new ReentrantLock(true));
-        }
-        
-        // Get the lock object associated with this repo (want to prevent multiple threads downloading from the same repo at the same time)
-        ReentrantLock downloadLock = repoDownloadLocks.get(repositoryName);
-        HashMap<String, DataFile> fileData = repoFiles.get(repositoryName);
-        
-        if (downloadLock.isLocked() && fileData != null) {
-            // We are currently downloading for this repo, but we already have something cached, so return that
-            return fileData;
-        }
-
-        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
-        Repository repository = getRepository(organizationName, repositoryName);
-        Release latestRelease = getLatestRelease(repository);
-        
-        if (requiresDownload(repository, latestRelease)) {
-            try {
-                // Lock as we don't want multiple threads downloading from the same repo at once
-                downloadLock.lock();
-                
-                // Check again if we need to do a download.
-                // We may have a case where one thread has locked this code and is doing the download, and another thread is waiting behind the lock (i.e. requiresDownload returned true for the second thread).
-                // This can happen if we are downloading the data for the first time (i.e. repoFileCache is empty while the first thread does the download).
-                // In this case, the waiting thread should not download the data _again_ and should instead return the data from the cache once it's 
-                //   done waiting for the first thread to finish the download.
-                if (!requiresDownload(repository, latestRelease)) {
-                    fileData = repoFiles.get(repositoryName);
-                    if (fileData == null) {
-                        // We should have this cached now. If not, something weird has happened
-                        throw new IllegalStateException();
-                    }
-                    return fileData;
-                }
-
-                // Download and cache the repository data files
-                logger.log(Level.INFO, "Downloading and caching data for repository {0}.", repository.getName());
-                HashMap<String, byte[]> dataFiles = downloadFromGitHub(repository, latestRelease);
-                HashMap<String, DataFile> repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, dataFiles);
-                
-                repoFiles.put(repositoryName, repositoryData);
-                repoRequiresUpdateFlags.put(repositoryName, Boolean.FALSE);
-            }
-            finally {
-                // Done! Unlock in a finally block as we don't want to leave anything locked if there's an exception...
-                downloadLock.unlock();
-            }
-        }
-
-        fileData = repoFiles.get(repositoryName);
-        if (fileData == null) {
-            // We should have this cached now. If not, something weird has happened
-            throw new IllegalStateException();
-        }
-        return fileData;
-    }
-    
-    /**
-     * Download the data for the latest release if:
-     * 1) We don't already have data cached for this repo
-     * 2) Or the repo has a different number of releases since the last time we downloaded the data (i.e. there has been a new release)
-     * 
-     * @param repositoryName
-     * @param releases
-     * @return 
-     */
-    private boolean requiresDownload(Repository repository, Release latestRelease) {
-        if (latestRelease != null 
-                && repoReleaseDates.containsKey(repository.getName()) 
-                && latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
-            
-            // Latest release is newer than the last one we saw. Set flag so we update next opportunity.
-            repoRequiresUpdateFlags.put(repository.getName(), Boolean.TRUE);
-        }
-        
-        
-        boolean requiresDownload = false;
-        
-        Boolean updateFlag = repoRequiresUpdateFlags.containsKey(repository.getName());
-        if (updateFlag == null || updateFlag == true) {
-            // No update flag, or flag is true.
-            logger.log(Level.INFO, "Update flag for {0} does not exist or is true.", repository.getName());
-            requiresDownload = true;
-        }
-        
-        HashMap<String, DataFile> fileData = repoFiles.get(repository.getName());
-        if (fileData == null) {
-            // We have no cached data for this repo.
-            logger.log(Level.INFO, "File data for {0} not yet cached.", repository.getName());
-            requiresDownload = true;
-        }
-        
-        if (!repoReleaseDates.containsKey(repository.getName())) {
-            // We haven't seen a release for this repo yet.
-            logger.log(Level.INFO, "Last release date for {0} not yet cached.", repository.getName());
-            requiresDownload = true;
-        }
-        
-        else if (latestRelease != null && latestRelease.getPublishedAt().after(repoReleaseDates.get(repository.getName()))) {
-            // Latest release is newer than the one we last downloaded
-            logger.log(Level.INFO, "Latest release date for {0} is after cached last release date.", repository.getName());
-            requiresDownload = true;
-        }
-        
-        if (!requiresDownload) {
-            return requiresDownload;
-        }
-        
-        if (latestRelease != null) {
-            repoReleaseDates.put(repository.getName(), latestRelease.getPublishedAt());
-        }
-        else {
-            repoReleaseDates.put(repository.getName(), new Date());
-        }
-        
-        return requiresDownload;
     }
     
     /**
@@ -507,6 +450,8 @@ public class GitHubDao {
      * @throws IOException 
      */
     private HashMap<String, byte[]> downloadFromGitHub(Repository repository, Release release) throws IOException {
+        logger.log(Level.INFO, "Downloading data from GitHub for {0}.", repository.getName());
+        
         String zipUrl = repository.getHtmlUrl();
         if (!zipUrl.endsWith("/")) {
             zipUrl += "/";
@@ -516,116 +461,14 @@ public class GitHubDao {
         byte[] fileData = Utils.downloadFile(zipUrl);
         
         return Utils.unpackZip(fileData);
-        
-//        GitHubClient gitHubClient = connectToGitHub();
-//        DataService dataService = new DataService(gitHubClient);
-//        
-//        List<RepositoryContents> contents = getRepositoryContents(repository, release);
-//        HashMap<String, byte[]> fileDatas = new HashMap<>();
-//        for (RepositoryContents repositoryContents : contents) {
-//            if (!Utils.isDataFilePath(repositoryContents.getName())) {
-//                continue; // Skip non-data files
-//            }
-//            
-//            String content = dataService.getBlob(repository, repositoryContents.getSha()).getContent();
-//            byte[] fileData = Base64.decodeBase64(content);
-//            fileDatas.put(repositoryContents.getName(), fileData);
-//        }
-//        
-//        return fileDatas;
-    }
-    
-    
-    ///////////////
-    // RSS Feeds //
-    ///////////////
-    
-    public Feed getReleaseFeed(String baseUrl, String repoName) throws IOException {
-        Feed feed = new Feed();
-        feed.setFeedType("atom_1.0");
-        
-        Person author = new Person();
-        author.setName("BattleScribe Data");
-        author.setUrl(baseUrl.replace("/" + WebConstants.REPO_SERVICE_PATH, ""));
-        feed.setAuthors(Collections.singletonList(author));
-        
-        List<Entry> entries;
-        if (repoName.toLowerCase().equals(WebConstants.ALL_REPO_FEEDS)) {
-            String feedUrl = Utils.checkUrl(baseUrl + "/feeds/" + WebConstants.ALL_REPO_FEEDS + ".atom");
-            
-            feed.setId(feedUrl);
-            feed.setTitle("All Repository Releases");
-            
-            Link link = new Link();
-            link.setType(DataConstants.HTML_MIME_TYPE);
-            link.setHref(getHtmlLink(baseUrl, WebConstants.ALL_REPO_FEEDS));
-            feed.setAlternateLinks(Collections.singletonList(link));
-            
-            Link selfLink = new Link();
-            selfLink.setRel("self");
-            selfLink.setHref(feedUrl);
-            feed.setOtherLinks(Collections.singletonList(selfLink));
-            
-            Content description = new Content();
-            description.setType(DataConstants.TEXT_MIME_TYPE);
-            description.setValue("Data file releases for all repositories");
-            feed.setSubtitle(description);
-            
-            entries = new ArrayList<>();
-            for (List<Entry> repoEntries : repoFeedEntries.values()) {
-                entries.addAll(repoEntries);
-            }
-        }
-        else {
-//            Repository repository = getRepository(repoName, repoName);
-        
-            String feedUrl = Utils.checkUrl(baseUrl + "/feeds/" + repoName + ".atom");
-            
-            feed.setId(feedUrl);
-//            feed.setTitle(repository.getDescription() + " Releases");
-            
-            Link link = new Link();
-            link.setType(DataConstants.HTML_MIME_TYPE);
-            link.setHref(getHtmlLink(baseUrl, repoName));
-            feed.setAlternateLinks(Collections.singletonList(link));
-            
-            Link selfLink = new Link();
-            selfLink.setRel("self");
-            selfLink.setHref(feedUrl);
-            feed.setOtherLinks(Collections.singletonList(selfLink));
-            
-            Content description = new Content();
-            description.setType(DataConstants.TEXT_MIME_TYPE);
-//            description.setValue("Data file releases for " + repository.getDescription());
-            feed.setSubtitle(description);
-            
-            entries = repoFeedEntries.get(repoName);
-        }
-        
-        Collections.sort(entries, new Comparator<Entry>() {
-            
-            @Override
-            public int compare(Entry o1, Entry o2) {
-                return o2.getPublished().compareTo(o1.getPublished());
-            }
-        });
-        
-        if (!entries.isEmpty()) {
-            feed.setUpdated(entries.get(0).getPublished());
-        }
-        else {
-            feed.setUpdated(new Date());
-        }
-        
-        feed.setEntries(entries);
-        return feed;
     }
     
     private List<Entry> getReleaseFeedEntries(String baseUrl, Repository repository) throws IOException {
+        logger.log(Level.INFO, "Creating feed entries for {0}.", repository.getName());
+            
         List<Entry> entries = new ArrayList<>();
-        List<Release> releases = getReleases(repository);
         
-        for (Release release : releases) {
+        for (Release release : getReleases(repository)) {
             Entry entry = new Entry();
             
             entry.setId(release.getHtmlUrl());
@@ -635,7 +478,7 @@ public class GitHubDao {
             
             Link link = new Link();
             link.setType(DataConstants.HTML_MIME_TYPE);
-            link.setHref(getHtmlLink(baseUrl, repository.getName()));
+            link.setHref(getFeedHref(baseUrl, repository.getName()));
             entry.setAlternateLinks(Collections.singletonList(link));
             
             StringBuilder contentBuffer = new StringBuilder();
@@ -656,16 +499,135 @@ public class GitHubDao {
                 break;
             }
         }
+        
         return entries;
     }
     
-    private String getHtmlLink(String baseUrl, String repositoryName) {
+    private String getFeedHref(String baseUrl, String repositoryName) {
         if (repositoryName == null || repositoryName.equals(WebConstants.ALL_REPO_FEEDS)) {
             return Utils.checkUrl(baseUrl.replace(WebConstants.REPO_SERVICE_PATH, "#/repos"));
         }
         else {
             return Utils.checkUrl(baseUrl.replace(WebConstants.REPO_SERVICE_PATH, "#/repo/" + repositoryName));
         }
+    }
+    
+    
+    //////////////
+    // Get Data //
+    //////////////
+    
+    /**
+     * Gets the data files for a particular data file repository. File data is cached.
+     * 
+     * @param repoName
+     * @param baseUrl
+     * @return
+     * @throws IOException
+     */
+    public HashMap<String, DataFile> getRepoFileData(
+            String repoName, 
+            String baseUrl) throws IOException {
+        
+        HashMap<String, DataFile> fileData = repoFiles.get(repoName);
+        
+        String organizationName = ApplicationProperties.getProperties().getProperty(PropertiesConstants.GITHUB_ORGANIZATION);
+        Repository repository = getRepository(organizationName, repoName);
+        Release latestRelease = getLatestRelease(repository);
+        
+        if (fileData == null) {
+            refreshData(baseUrl, repository, latestRelease);
+            return repoFiles.get(repoName);
+        }
+        
+        if (requiresDataRefresh(repository, latestRelease)) {
+            refreshDataAsync(baseUrl, repository, latestRelease);
+        }
+        
+        return fileData;
+    }
+    
+    public Feed getReleaseFeed(String baseUrl, String repoName) throws IOException {
+        if (repoName.toLowerCase().equals(WebConstants.ALL_REPO_FEEDS)) {
+            List<Entry> entries = new ArrayList<>();
+            for (List<Entry> repoEntries : repoFeedEntries.values()) {
+                entries.addAll(repoEntries);
+            }
+            
+            return getReleaseFeed(
+                    baseUrl, 
+                    WebConstants.ALL_REPO_FEEDS, 
+                    "All Repository Releases", 
+                    "Data file releases for all repositories", 
+                    entries);
+        }
+        else {
+            List<Entry> entries = repoFeedEntries.get(repoName);
+            if (entries == null) {
+                entries = new ArrayList<>();
+            }
+            
+            return getReleaseFeed(
+                    baseUrl, 
+                    repoName, 
+                    repoName + " Releases", 
+                    "Data file releases for " + repoName, 
+                    entries);
+        }
+    }
+    
+    private Feed getReleaseFeed(
+            String baseUrl, 
+            String repoName,
+            String title, 
+            String description, 
+            List<Entry> entries) {
+        
+        String feedUrl = Utils.checkUrl(baseUrl + "/feeds/" + repoName + ".atom");
+        
+        Feed feed = new Feed();
+        feed.setFeedType("atom_1.0");
+        feed.setId(feedUrl);
+        
+        feed.setTitle(title);
+            
+        Content subTitle = new Content();
+        subTitle.setType(DataConstants.TEXT_MIME_TYPE);
+        subTitle.setValue(description);
+        feed.setSubtitle(subTitle);
+        
+        Person author = new Person();
+        author.setName("BattleScribe Data");
+        author.setUrl(baseUrl.replace("/" + WebConstants.REPO_SERVICE_PATH, ""));
+        feed.setAuthors(Collections.singletonList(author));
+            
+        Link selfLink = new Link();
+        selfLink.setRel("self");
+        selfLink.setHref(feedUrl);
+        feed.setOtherLinks(Collections.singletonList(selfLink));
+            
+        Link altLink = new Link();
+        altLink.setType(DataConstants.HTML_MIME_TYPE);
+        altLink.setHref(getFeedHref(baseUrl, repoName));
+        feed.setAlternateLinks(Collections.singletonList(altLink));
+        
+        Collections.sort(entries, new Comparator<Entry>() {
+            
+            @Override
+            public int compare(Entry o1, Entry o2) {
+                return o2.getPublished().compareTo(o1.getPublished());
+            }
+        });
+        
+        if (!entries.isEmpty()) {
+            feed.setUpdated(entries.get(0).getPublished());
+        }
+        else {
+            feed.setUpdated(new Date());
+        }
+        
+        feed.setEntries(entries);
+        return feed;
     }
     
     
