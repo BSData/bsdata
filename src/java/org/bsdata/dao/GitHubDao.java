@@ -72,7 +72,6 @@ public class GitHubDao {
     
     private static final int MAX_FEED_ENTRIES = 5;
     private static final int REPO_CACHE_EXPIRY_MINS = 24 * 60;
-    private static final long RELEASE_CACHE_EXPIRY_TIME_MINS = 12 * 60;
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
     
@@ -81,9 +80,8 @@ public class GitHubDao {
     
     private final Indexer indexer = new Indexer();
     
-//    private static Cache<String, List<Repository>> repoListCache;
-//    private static Cache<String, List<Release>> repoReleasesCache;
     
+    // Repository & release caches
     
     private static Date nextReposUpdateDate = null;
     private static boolean reposRequiresUpdate = true;
@@ -95,6 +93,8 @@ public class GitHubDao {
     private static final Map<String, List<Release>> repositoryReleases 
             = Collections.synchronizedMap(new HashMap<String, List<Release>>());
     
+    
+    // Data caches
     
     private static final Map<String, Date> repositoryReleaseDates 
             = Collections.synchronizedMap(new HashMap<String, Date>());
@@ -643,7 +643,7 @@ public class GitHubDao {
         
         boolean isDev = baseUrl.toLowerCase().contains("localhost") || baseUrl.toLowerCase().contains("bsdatadev");
         
-        List<RepositoryVm> repositories = new ArrayList<>();
+        List<RepositoryVm> repositoryVms = new ArrayList<>();
         for (Repository repository : orgRepositories) {
             if (repository.getName().equals(DataConstants.GITHUB_BSDATA_REPO_NAME)) {
                 continue;
@@ -658,10 +658,10 @@ public class GitHubDao {
                 continue;
             }
             RepositoryVm repositoryVm = createRepositoryVm(baseUrl, repository, latestRelease);
-            repositories.add(repositoryVm);
+            repositoryVms.add(repositoryVm);
         }
                         
-        Collections.sort(repositories, new Comparator<RepositoryVm>() {
+        Collections.sort(repositoryVms, new Comparator<RepositoryVm>() {
             @Override
             public int compare(RepositoryVm o1, RepositoryVm o2) {
                 return o1.getDescription().compareTo(o2.getDescription());
@@ -669,7 +669,7 @@ public class GitHubDao {
         });
         
         RepositoryListVm repositoryList = new RepositoryListVm();
-        repositoryList.setRepositories(repositories);
+        repositoryList.setRepositories(repositoryVms);
         repositoryList.setFeedUrl(baseUrl + "/feeds/all.atom");
         repositoryList.setTwitterUrl(properties.getProperty(PropertiesConstants.TWITTER_URL));
         repositoryList.setFacebookUrl(properties.getProperty(PropertiesConstants.FACEBOOK_URL));
@@ -695,7 +695,7 @@ public class GitHubDao {
         RepositoryVm repositoryVm = createRepositoryVm(baseUrl, repository, latestRelease);
         
         HashMap<String, DataFile> repoFileData = getRepoFileData(baseUrl, repositoryName);
-        List<RepositoryFileVm> repositoryFiles = new ArrayList<>();
+        List<RepositoryFileVm> repositoryFileVms = new ArrayList<>();
         for (String fileName : repoFileData.keySet()) {
             if (!Utils.isDataFilePath(fileName)) {
                 continue;
@@ -725,10 +725,10 @@ public class GitHubDao {
             repositoryFile.setAuthorContact(dataFile.getAuthorContact());
             repositoryFile.setAuthorUrl(dataFile.getAuthorUrl());
             
-            repositoryFiles.add(repositoryFile);
+            repositoryFileVms.add(repositoryFile);
         }
         
-        Collections.sort(repositoryFiles, new Comparator<RepositoryFileVm>() {
+        Collections.sort(repositoryFileVms, new Comparator<RepositoryFileVm>() {
             @Override
             public int compare(RepositoryFileVm o1, RepositoryFileVm o2) {
                 String o1Type = o1.getType().toLowerCase();
@@ -746,7 +746,7 @@ public class GitHubDao {
             }
         });
         
-        repositoryVm.setRepositoryFiles(repositoryFiles);
+        repositoryVm.setRepositoryFiles(repositoryFileVms);
         return repositoryVm;
     }
     
