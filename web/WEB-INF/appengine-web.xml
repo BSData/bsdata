@@ -5,15 +5,22 @@
     
     <!-- Basic app settings -->
     <application>battlescribedata</application>
-    <version>9</version>
+    <version>10</version>
     <threadsafe>true</threadsafe>
     
-<!--     Appengine scaling 
+    <instance-class>B8</instance-class>
+    <manual-scaling>
+        <instances>1</instances>
+    </manual-scaling>
+    
+    <!--     
+    Appengine scaling 
     <automatic-scaling>
         <max-idle-instances>1</max-idle-instances>
         <min-pending-latency>15.0s</min-pending-latency>
         <max-pending-latency>15.0s</max-pending-latency>
-    </automatic-scaling>-->
+    </automatic-scaling>
+    -->
     
     <!-- Mark all HTML/CSS/JS/Image files as static -->
     <static-files>
