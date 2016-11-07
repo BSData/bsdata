@@ -5,7 +5,7 @@
     
     <!-- Basic app settings -->
     <application>battlescribedata</application>
-    <version>10</version>
+    <version>11</version>
     <threadsafe>true</threadsafe>
     
     <instance-class>B8</instance-class>
