@@ -22,6 +22,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -158,6 +159,11 @@ public class GitHubDao {
     ///////////////////
     
     private boolean requiresRepoUpdate() {
+        if (reposUpdateLock.isLocked()) {
+            // We are currently updating the repos
+            return false;
+        }
+        
         if (nextReposUpdateDate == null
                 || repositories.size() != repositoryReleases.size()) {
             
@@ -178,7 +184,8 @@ public class GitHubDao {
     }
     
     private Future<Void> refreshRepositoriesAsync() {
-        return Executors.newSingleThreadExecutor().submit(new Callable<Void>() {
+        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.currentRequestThreadFactory();
+        return Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
 
             @Override
             public Void call() throws IOException {
