@@ -21,7 +21,6 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -72,7 +71,7 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 public class GitHubDao {
     
     private static final int MAX_FEED_ENTRIES = 5;
-    private static final int REPO_CACHE_EXPIRY_MINS = 6 * 60;
+    private static final int REPO_CACHE_EXPIRY_MINS = 12 * 60;
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
     
