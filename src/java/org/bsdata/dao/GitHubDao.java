@@ -72,7 +72,7 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 public class GitHubDao {
     
     private static final int MAX_FEED_ENTRIES = 5;
-    private static final int REPO_CACHE_EXPIRY_MINS = 24 * 60;
+    private static final int REPO_CACHE_EXPIRY_MINS = 6 * 60;
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
     
@@ -159,11 +159,6 @@ public class GitHubDao {
     ///////////////////
     
     private boolean requiresRepoUpdate() {
-        if (reposUpdateLock.isLocked()) {
-            // We are currently updating the repos
-            return false;
-        }
-        
         if (nextReposUpdateDate == null
                 || repositories.size() != repositoryReleases.size()) {
             
@@ -184,7 +179,7 @@ public class GitHubDao {
     }
     
     private Future<Void> refreshRepositoriesAsync() {
-        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.currentRequestThreadFactory();
+        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
         return Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
 
             @Override
@@ -341,7 +336,7 @@ public class GitHubDao {
         }
         
         // Releases should be sorted so latest is at position 0
-        return getReleases(repository).get(0);
+        return releases.get(0);
     }
     
     
@@ -379,7 +374,8 @@ public class GitHubDao {
     }
     
     private Future<Void> refreshDataAsync(final String baseUrl, final Repository repository, final Release latestRelease) {
-        return Executors.newSingleThreadExecutor().submit(new Callable<Void>() {
+        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
+        return Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
 
             @Override
             public Void call() throws IOException {
