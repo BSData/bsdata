@@ -159,6 +159,11 @@ public class GitHubDao {
     ///////////////////
     
     private boolean requiresRepoUpdate() {
+        if (reposUpdateLock.isLocked()) {
+            // We are currently updating the repos
+            return false;
+        }
+    
         if (nextReposUpdateDate == null
                 || repositories.size() != repositoryReleases.size()) {
             
@@ -346,6 +351,12 @@ public class GitHubDao {
     
     private boolean requiresDataRefresh(Repository repository, Release latestRelease) {
         String repositoryName = repository.getName();
+        
+        ReentrantLock downloadLock = repositoryDownloadLocks.get(repositoryName);
+        if (downloadLock != null && downloadLock.isLocked()) {
+            // We are currently downloading for this repo
+            return false;
+        }
         
         if (latestRelease == null) {
             dataRequiresUpdateFlags.put(repositoryName, false);
