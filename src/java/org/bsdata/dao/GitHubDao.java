@@ -183,9 +183,14 @@ public class GitHubDao {
         return false;
     }
     
-    private Future<Void> refreshRepositoriesAsync() {
+    private void refreshRepositoriesAsync() {
+        if (reposUpdateLock.isLocked()) {
+            // We are currently updating the repos
+            return;
+        }
+        
         ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
-        return Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
+        Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
 
             @Override
             public Void call() throws IOException {
@@ -197,8 +202,6 @@ public class GitHubDao {
                             Level.SEVERE, 
                             "Failed to update repositories", 
                             e);
-                    
-                    throw e;
                 }
                 
                 return null;
@@ -384,9 +387,17 @@ public class GitHubDao {
         return false;
     }
     
-    private Future<Void> refreshDataAsync(final String baseUrl, final Repository repository, final Release latestRelease) {
+    private void refreshDataAsync(final String baseUrl, final Repository repository, final Release latestRelease) {
+        String repositoryName = repository.getName();
+        
+        ReentrantLock downloadLock = repositoryDownloadLocks.get(repositoryName);
+        if (downloadLock != null && downloadLock.isLocked()) {
+            // We are currently downloading for this repo
+            return;
+        }
+        
         ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
-        return Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
+        Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
 
             @Override
             public Void call() throws IOException {
@@ -398,8 +409,6 @@ public class GitHubDao {
                             Level.SEVERE, 
                             "Failed to update data for repository " + repository.getName(), 
                             e);
-                    
-                    throw e;
                 }
                 return null;
             }
