@@ -351,35 +351,4 @@ public class RepoService {
         
         return "Primed cache";
     }
-    
-    @GET
-    @Path("/ping")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String submit(@Context HttpServletRequest request) {
-        try {
-            // Do something...
-            dao.getRepos(getBaseUrl(request));
-        }
-        catch (IOException e) {
-            logger.log(Level.SEVERE, "Failed to load repo list: {0}", e.getMessage());
-        }
-        return "Pong!";
-    }
-    
-//    @Context ServletContext context;
-//    @GET
-//    @Path("/submit")
-//    @Produces(MediaType.TEXT_PLAIN)
-//    public String submit(@Context HttpServletRequest request) {
-//        
-//        try {
-//            dao.createIssue("wh40k", "Issue Title Test", "Issue body test");
-//        }
-//        catch (Exception e) {
-//            logger.log(Level.SEVERE, "Failed to submit file: {0}", e.getMessage());
-//            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-//        }
-//        
-//        return "Submitted!";
-//    }
 }
