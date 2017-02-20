@@ -21,7 +21,9 @@ import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -72,6 +74,9 @@ public class GitHubDao {
     
     private static final int MAX_FEED_ENTRIES = 5;
     private static final int REPO_CACHE_EXPIRY_MINS = 12 * 60;
+    
+    // Max App Engine background threads is 10, but reserve one for refreshReposAsync()
+    private static final int MAX_REPO_DOWNLOAD_THREADS = 9;
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
     
@@ -189,8 +194,8 @@ public class GitHubDao {
         }
         
         ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
-        Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
-
+        Future<Void> future = Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
+            
             @Override
             public Void call() throws IOException {
                 try {
@@ -198,7 +203,7 @@ public class GitHubDao {
                 }
                 catch (IOException e) {
                     logger.log(
-                            Level.SEVERE, 
+                            Level.SEVERE,
                             "Failed to update repositories", 
                             e);
                 }
@@ -206,6 +211,16 @@ public class GitHubDao {
                 return null;
             }
         });
+        
+        try {
+            future.get(60, TimeUnit.SECONDS);
+        }
+        catch (Exception e) {
+            logger.log(
+                    Level.WARNING,
+                    "Timeout refreshing repositories", 
+                    e);
+        }
     }
     
     private void refreshRepositories() throws IOException {
@@ -395,9 +410,14 @@ public class GitHubDao {
             return;
         }
         
+        if (repositoryDownloadLocks.size() >= MAX_REPO_DOWNLOAD_THREADS) {
+            // Already have too many download threads
+            return;
+        }
+        
         ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
-        Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
-
+        Future<Void> future = Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
+            
             @Override
             public Void call() throws IOException {
                 try {
@@ -405,13 +425,23 @@ public class GitHubDao {
                 }
                 catch (IOException e) {
                     logger.log(
-                            Level.SEVERE, 
+                            Level.SEVERE,
                             "Failed to update data for repository " + repository.getName(), 
                             e);
                 }
                 return null;
             }
         });
+        
+        try {
+            future.get(90, TimeUnit.SECONDS);
+        }
+        catch (Exception e) {
+            logger.log(
+                    Level.WARNING,
+                    "Timeout refreshing repositories", 
+                    e);
+        }
     }
     
     private void refreshData(String baseUrl, Repository repository, Release latestRelease) throws IOException {
@@ -445,6 +475,7 @@ public class GitHubDao {
         finally {
             // Done! Unlock in a finally block as we don't want to leave anything locked if there's an exception...
             downloadLock.unlock();
+            repositoryDownloadLocks.remove(repositoryName);
         }
     }
     
