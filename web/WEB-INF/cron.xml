@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
-    <cron>
+<!--    <cron>
         <url>/repos/ping</url>
         <description>Repopulate the cache every 3 minutes</description>
         <schedule>every 3 minutes</schedule>
@@ -14,5 +14,5 @@
         <url>/repos/ping</url>
         <description>Repopulate the cache every 11 minutes</description>
         <schedule>every 11 minutes</schedule>
-    </cron>
+    </cron>-->
 </cronentries>
