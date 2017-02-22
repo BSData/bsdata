@@ -58,6 +58,7 @@ public class Utils {
         InputStream inputStream = null;
         try {
             connection = (HttpURLConnection)new URL(url).openConnection();
+            
             connection.setDoInput(true);
             connection.setRequestMethod("GET");
             connection.setUseCaches(false);

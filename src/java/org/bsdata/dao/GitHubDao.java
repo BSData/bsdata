@@ -76,7 +76,7 @@ public class GitHubDao {
     private static final int REPO_CACHE_EXPIRY_MINS = 12 * 60;
     
     // Max App Engine background threads is 10, but reserve one for refreshReposAsync()
-    private static final int MAX_REPO_DOWNLOAD_THREADS = 9;
+    private static final int MAX_REPO_DOWNLOAD_THREADS = 3;
   
     private static final Logger logger = Logger.getLogger("org.bsdata");
     
@@ -299,7 +299,15 @@ public class GitHubDao {
             refreshRepositories();
         }
         else if (requiresRepoUpdate()) {
-            refreshRepositoriesAsync();
+            try {
+                refreshRepositoriesAsync();
+            }
+            catch (IllegalStateException e) {
+                logger.log(
+                        Level.SEVERE,
+                        "IllegalStateException refreshing repositories", 
+                        e);
+            }
         }
         
         return repositories;
@@ -586,7 +594,15 @@ public class GitHubDao {
             }
         }
         else if (requiresDataRefresh(repository, latestRelease)) {
-            refreshDataAsync(baseUrl, repository, latestRelease);
+            try {
+                refreshDataAsync(baseUrl, repository, latestRelease);
+            }
+            catch (IllegalStateException e) {
+                logger.log(
+                        Level.SEVERE,
+                        "IllegalStateException refreshing repo data for " + repositoryName, 
+                        e);
+            }
         }
         
         return fileData;
