@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
@@ -194,7 +195,8 @@ public class GitHubDao {
         }
         
         ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
-        Future<Void> future = Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
+        Future<Void> future = executorService.submit(new Callable<Void>() {
             
             @Override
             public Void call() throws IOException {
@@ -220,6 +222,9 @@ public class GitHubDao {
                     Level.WARNING,
                     "Timeout refreshing repositories", 
                     e);
+        }
+        finally {
+            executorService.shutdown();
         }
     }
     
@@ -424,7 +429,8 @@ public class GitHubDao {
         }
         
         ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
-        Future<Void> future = Executors.newSingleThreadExecutor(threadFactory).submit(new Callable<Void>() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
+        Future<Void> future = executorService.submit(new Callable<Void>() {
             
             @Override
             public Void call() throws IOException {
@@ -449,6 +455,9 @@ public class GitHubDao {
                     Level.WARNING,
                     "Timeout refreshing repositories", 
                     e);
+        }
+        finally {
+            executorService.shutdown();
         }
     }
     
