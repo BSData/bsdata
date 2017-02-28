@@ -215,7 +215,7 @@ public class GitHubDao {
         });
         
         try {
-            future.get(60, TimeUnit.SECONDS);
+            future.get(5, TimeUnit.MINUTES);
         }
         catch (Exception e) {
             logger.log(
@@ -238,6 +238,8 @@ public class GitHubDao {
             reposUpdateLock.lock();
             
             List<Repository> gitHubRepositories = getGitHubRepositories();
+            List<Repository> tempRepositories = new ArrayList<>();
+            HashMap<String, List<Release>> tempRepositoryReleases = new HashMap<>();
 
             for (Repository repository : gitHubRepositories) {
                 List<Release> gitHubReleases;
@@ -253,9 +255,15 @@ public class GitHubDao {
                     continue;
                 }
 
-                repositories.add(repository);
-                repositoryReleases.put(repository.getName(), gitHubReleases);
+                tempRepositories.add(repository);
+                tempRepositoryReleases.put(repository.getName(), gitHubReleases);
             }
+            
+            repositories.clear();
+            repositories.addAll(tempRepositories);
+            
+            repositoryReleases.clear();
+            repositoryReleases.putAll(tempRepositoryReleases);
             
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.MINUTE, REPO_CACHE_EXPIRY_MINS);
@@ -448,7 +456,7 @@ public class GitHubDao {
         });
         
         try {
-            future.get(90, TimeUnit.SECONDS);
+            future.get(5, TimeUnit.MINUTES);
         }
         catch (Exception e) {
             logger.log(
