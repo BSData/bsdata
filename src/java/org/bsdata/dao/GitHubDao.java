@@ -149,12 +149,20 @@ public class GitHubDao {
         
         refreshRepositories();
         for (Repository repository : getRepositories()) {
-            Release latestRelease = getLatestRelease(repository);
-            if (latestRelease == null) {
-                continue;
+            try {
+                Release latestRelease = getLatestRelease(repository);
+                if (latestRelease == null) {
+                    continue;
+                }
+
+                refreshData(baseUrl, repository, latestRelease);
             }
-            
-            refreshData(baseUrl, repository, latestRelease);
+            catch (IOException e) {
+                logger.log(
+                        Level.SEVERE,
+                        "Failed to prime data for repository " + repository.getName(), 
+                        e);
+            }
         }
     }
     
