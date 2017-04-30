@@ -9,8 +9,8 @@ public class RepositoryVm extends ResponseVm {
     
     private String name;
     private String description;
-    private String repoUrl;
-    private String gitHubUrl;
+    private String indexUrl;
+    private String communityUrl;
     private String bugTrackerUrl;
     private String feedUrl;
     private String lastUpdated;
@@ -29,20 +29,20 @@ public class RepositoryVm extends ResponseVm {
         this.name = name;
     }
 
-    public String getRepoUrl() {
-        return repoUrl;
+    public String getIndexUrl() {
+        return indexUrl;
     }
 
-    public void setRepoUrl(String url) {
-        this.repoUrl = url;
+    public void setIndexUrl(String url) {
+        this.indexUrl = url;
     }
 
-    public String getGitHubUrl() {
-        return gitHubUrl;
+    public String getCommunityUrl() {
+        return communityUrl;
     }
 
-    public void setGitHubUrl(String gitHubUrl) {
-        this.gitHubUrl = gitHubUrl;
+    public void setCommunityUrl(String communityUrl) {
+        this.communityUrl = communityUrl;
     }
 
     public String getBugTrackerUrl() {

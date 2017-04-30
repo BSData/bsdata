@@ -747,12 +747,20 @@ public class GitHubDao {
                 continue; // Hack to prevent test repo showing up on the live site
             }
 
-            Release latestRelease = getLatestRelease(repository);
-            if (latestRelease == null) {
-                continue;
+            try {
+                Release latestRelease = getLatestRelease(repository);
+                if (latestRelease == null) {
+                    continue;
+                }
+                RepositoryVm repositoryVm = createRepositoryVm(baseUrl, repository, latestRelease);
+                repositoryVms.add(repositoryVm);
             }
-            RepositoryVm repositoryVm = createRepositoryVm(baseUrl, repository, latestRelease);
-            repositoryVms.add(repositoryVm);
+            catch (IOException e) {
+                logger.log(
+                        Level.SEVERE,
+                        "IOException getting latest release for " + repository.getName(), 
+                        e);
+            }
         }
                         
         Collections.sort(repositoryVms, new Comparator<RepositoryVm>() {
@@ -808,11 +816,11 @@ public class GitHubDao {
                 repositoryFile.setType(StringUtils.capitalize(DataType.ROSTER.toString()));
             }
             
-            repositoryFile.setDataFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
-            repositoryFile.setIssueUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
+            repositoryFile.setFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
+            repositoryFile.setReportBugUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
             
             String uncompressedFileName = Utils.getUncompressedFileName(fileName);
-            repositoryFile.setGitHubUrl(Utils.checkUrl(repositoryVm.getGitHubUrl() + "/blob/master/" + uncompressedFileName));
+            repositoryFile.setCommunityUrl(Utils.checkUrl(repositoryVm.getCommunityUrl() + "/blob/master/" + uncompressedFileName));
             
             repositoryFile.setRevision(dataFile.getRevision());
             repositoryFile.setAuthorName(dataFile.getAuthorName());
@@ -852,8 +860,8 @@ public class GitHubDao {
             repositoryVm.setLastUpdated(longDateFormat.format(latestRelease.getPublishedAt()));
             repositoryVm.setLastUpdateDescription(latestRelease.getName());
         }
-        repositoryVm.setRepoUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
-        repositoryVm.setGitHubUrl(repository.getHtmlUrl());
+        repositoryVm.setIndexUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
+        repositoryVm.setCommunityUrl(repository.getHtmlUrl());
         repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
         repositoryVm.setFeedUrl(Utils.checkUrl(baseUrl + "/feeds/" + repository.getName() + ".atom"));
         return repositoryVm;

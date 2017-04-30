@@ -6,10 +6,10 @@ public class RepositoryFileVm extends ResponseVm {
     
     private String name;
     private String type;
-    private String gitHubUrl;
-    private String dataFileUrl;
-    private String issueUrl;
     private int revision;
+    private String communityUrl;
+    private String fileUrl;
+    private String reportBugUrl;
     private String authorName;
     private String authorContact;
     private String authorUrl;
@@ -22,28 +22,28 @@ public class RepositoryFileVm extends ResponseVm {
         this.name = name;
     }
 
-    public String getGitHubUrl() {
-        return gitHubUrl;
+    public String getCommunityUrl() {
+        return communityUrl;
     }
 
-    public void setGitHubUrl(String gitHubUrl) {
-        this.gitHubUrl = gitHubUrl;
+    public void setCommunityUrl(String communityUrl) {
+        this.communityUrl = communityUrl;
     }
 
-    public String getDataFileUrl() {
-        return dataFileUrl;
+    public String getFileUrl() {
+        return fileUrl;
     }
 
-    public void setDataFileUrl(String dataFileUrl) {
-        this.dataFileUrl = dataFileUrl;
+    public void setFileUrl(String fileUrl) {
+        this.fileUrl = fileUrl;
     }
 
-    public String getIssueUrl() {
-        return issueUrl;
+    public String getReportBugUrl() {
+        return reportBugUrl;
     }
 
-    public void setIssueUrl(String issueUrl) {
-        this.issueUrl = issueUrl;
+    public void setReportBugUrl(String reportBugUrl) {
+        this.reportBugUrl = reportBugUrl;
     }
 
     public String getType() {

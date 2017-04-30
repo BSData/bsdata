@@ -181,7 +181,7 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
         if ($scope.formData.isUpload && $scope.uploader.queue && $scope.uploader.queue.length === 1) {
             $scope.formData.isLoading = true;
             var item = $scope.uploader.queue[0];
-            item.url = $scope.formData.currentFile.dataFileUrl;
+            item.url = $scope.formData.currentFile.fileUrl;
             item.formData = [
                 {commitMessage: $scope.formData.commitMessage}
             ];
@@ -204,7 +204,7 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
         
         $http({
             method: "POST",
-            url: $scope.formData.currentFile.issueUrl,
+            url: $scope.formData.currentFile.reportBugUrl,
             data: formData,
             transformRequest: angular.identity,
             headers: {
