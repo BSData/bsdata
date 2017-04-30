@@ -814,7 +814,10 @@ public class GitHubDao {
             
             DataFile dataFile = repoFileData.get(fileName);
             RepositoryFileVm repositoryFile = new RepositoryFileVm();
+            
+            repositoryFile.setId(dataFile.getId());
             repositoryFile.setName(fileName);
+            
             if (Utils.isCataloguePath(fileName)) {
                 repositoryFile.setType(StringUtils.capitalize(DataType.CATALOGUE.toString()));
             }

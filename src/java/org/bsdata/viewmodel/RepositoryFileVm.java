@@ -4,6 +4,7 @@ package org.bsdata.viewmodel;
 
 public class RepositoryFileVm extends ResponseVm {
     
+    private String id;
     private String name;
     private String type;
     private int revision;
@@ -84,6 +85,14 @@ public class RepositoryFileVm extends ResponseVm {
 
     public void setRevision(int revision) {
         this.revision = revision;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
     
 }
