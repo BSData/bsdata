@@ -771,10 +771,19 @@ public class GitHubDao {
         });
         
         RepositoryListVm repositoryList = new RepositoryListVm();
+        
         repositoryList.setRepositories(repositoryVms);
+        
+        repositoryList.setName(properties.getProperty(PropertiesConstants.SITE_NAME));
+        repositoryList.setDescription(properties.getProperty(PropertiesConstants.SITE_DESCRIPTION));
+        repositoryList.setWebsiteUrl(properties.getProperty(PropertiesConstants.SITE_WEBSITE_URL));
+        
+        repositoryList.setRepositoryListUrl(baseUrl);
         repositoryList.setFeedUrl(baseUrl + "/feeds/all.atom");
-        repositoryList.setTwitterUrl(properties.getProperty(PropertiesConstants.TWITTER_URL));
-        repositoryList.setFacebookUrl(properties.getProperty(PropertiesConstants.FACEBOOK_URL));
+        repositoryList.setCommunityUrl(properties.getProperty(PropertiesConstants.SITE_COMMUNITY_URL));
+        repositoryList.setTwitterUrl(properties.getProperty(PropertiesConstants.SITE_TWITTER_URL));
+        repositoryList.setFacebookUrl(properties.getProperty(PropertiesConstants.SITE_FACEBOOK_URL));
+        
         return repositoryList;
     }
     

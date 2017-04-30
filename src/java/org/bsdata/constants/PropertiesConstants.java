@@ -19,7 +19,11 @@ public class PropertiesConstants {
     public static final String GITHUB_ORGANIZATION = "github.organisation";
     public static final String GITHUB_MASTER_BRANCH = "github.master.branch";
     
-    public static final String TWITTER_URL = "twitter.url";
-    public static final String FACEBOOK_URL = "facebook.url";
+    public static final String SITE_NAME = "site.name";
+    public static final String SITE_DESCRIPTION = "site.description";
+    public static final String SITE_WEBSITE_URL = "site.website.url";
+    public static final String SITE_COMMUNITY_URL = "site.community.url";
+    public static final String SITE_TWITTER_URL = "site.twitter.url";
+    public static final String SITE_FACEBOOK_URL = "site.facebook.url";
     
 }

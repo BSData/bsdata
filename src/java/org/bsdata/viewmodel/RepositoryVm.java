@@ -11,11 +11,13 @@ public class RepositoryVm extends ResponseVm {
     private String description;
     private String indexUrl;
     private String communityUrl;
-    private String bugTrackerUrl;
     private String feedUrl;
+    private String bugTrackerUrl;
     private String lastUpdated;
     private String lastUpdateDescription;
+    
     private List<RepositoryFileVm> repositoryFiles;
+    
     
     public RepositoryVm() {
         repositoryFiles = new ArrayList<>();
