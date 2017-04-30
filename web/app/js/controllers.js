@@ -30,6 +30,7 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
             $scope.showLoading = false;
             $scope.error = false;
 
+            $scope.m.communityUrl = data.communityUrl;
             $scope.m.feedUrl = data.feedUrl;
             $scope.m.twitterUrl = data.twitterUrl;
             $scope.m.facebookUrl = data.facebookUrl;
