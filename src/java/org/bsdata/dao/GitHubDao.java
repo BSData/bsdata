@@ -870,6 +870,7 @@ public class GitHubDao {
         repositoryVm.setName(repository.getName());
         repositoryVm.setDescription(repository.getDescription());
         if (latestRelease != null) {
+            repositoryVm.setVersion(latestRelease.getTagName());
             repositoryVm.setLastUpdated(longDateFormat.format(latestRelease.getPublishedAt()));
             repositoryVm.setLastUpdateDescription(latestRelease.getName());
         }

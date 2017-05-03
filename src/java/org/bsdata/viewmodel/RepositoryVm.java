@@ -9,12 +9,15 @@ public class RepositoryVm extends ResponseVm {
     
     private String name;
     private String description;
+    
+    private String version;
+    private String lastUpdated;
+    private String lastUpdateDescription;
+    
     private String indexUrl;
     private String communityUrl;
     private String feedUrl;
     private String bugTrackerUrl;
-    private String lastUpdated;
-    private String lastUpdateDescription;
     
     private List<RepositoryFileVm> repositoryFiles;
     
@@ -93,5 +96,13 @@ public class RepositoryVm extends ResponseVm {
 
     public void setLastUpdateDescription(String lastUpdateDescription) {
         this.lastUpdateDescription = lastUpdateDescription;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }
