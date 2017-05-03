@@ -15,7 +15,9 @@ public class DataFile implements Serializable {
     private transient byte[] data;
     
     private String id;
+    private String name;
     private int revision;
+    private String battleScribeVersion;
     private String authorName;
     private String authorContact;
     private String authorUrl;
@@ -26,6 +28,22 @@ public class DataFile implements Serializable {
 
     public void setData(byte[] data) {
         this.data = data;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String value) {
+        this.name = value;
+    }
+
+    public String getBattleScribeVersion() {
+        return battleScribeVersion;
+    }
+
+    public void setBattleScribeVersion(String value) {
+        this.battleScribeVersion = value;
     }
 
     public String getAuthorName() {

@@ -6,26 +6,8 @@ public class Catalogue extends DataFile {
     
     private String gameSystemId;
     private int gameSystemRevision;
-    private String battleScribeVersion;
-    private String name;
 
     public Catalogue() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String value) {
-        this.name = value;
-    }
-
-    public String getBattleScribeVersion() {
-        return battleScribeVersion;
-    }
-
-    public void setBattleScribeVersion(String value) {
-        this.battleScribeVersion = value;
     }
 
     public String getGameSystemId() {

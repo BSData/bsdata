@@ -3,9 +3,7 @@ package org.bsdata.model;
 
 
 public class Roster extends DataFile {
-
-    private String battleScribeVersion;
-    private String name;
+    
     private double points;
     private double pointsLimit;
     private String description;
@@ -14,14 +12,6 @@ public class Roster extends DataFile {
     private int gameSystemRevision;
 
     public Roster() {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String value) {
-        this.name = value;
     }
 
     public double getPoints() {
@@ -38,14 +28,6 @@ public class Roster extends DataFile {
 
     public void setPointsLimit(double value) {
         this.pointsLimit = value;
-    }
-
-    public String getBattleScribeVersion() {
-        return battleScribeVersion;
-    }
-
-    public void setBattleScribeVersion(String value) {
-        this.battleScribeVersion = value;
     }
 
     public String getDescription() {
