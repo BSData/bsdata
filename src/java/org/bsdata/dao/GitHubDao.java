@@ -816,7 +816,9 @@ public class GitHubDao {
             RepositoryFileVm repositoryFile = new RepositoryFileVm();
             
             repositoryFile.setId(dataFile.getId());
-            repositoryFile.setName(fileName);
+            repositoryFile.setName(dataFile.getName());
+            repositoryFile.setRevision(dataFile.getRevision());
+            repositoryFile.setBattleScribeVersion(dataFile.getBattleScribeVersion());
             
             if (Utils.isCataloguePath(fileName)) {
                 repositoryFile.setType(StringUtils.capitalize(DataType.CATALOGUE.toString()));
@@ -834,7 +836,6 @@ public class GitHubDao {
             String uncompressedFileName = Utils.getUncompressedFileName(fileName);
             repositoryFile.setCommunityUrl(Utils.checkUrl(repositoryVm.getCommunityUrl() + "/blob/master/" + uncompressedFileName));
             
-            repositoryFile.setRevision(dataFile.getRevision());
             repositoryFile.setAuthorName(dataFile.getAuthorName());
             repositoryFile.setAuthorContact(dataFile.getAuthorContact());
             repositoryFile.setAuthorUrl(dataFile.getAuthorUrl());

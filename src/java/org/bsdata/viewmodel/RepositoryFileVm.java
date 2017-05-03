@@ -8,13 +8,16 @@ public class RepositoryFileVm extends ResponseVm {
     private String name;
     private String type;
     private int revision;
-    private String communityUrl;
+    private String battleScribeVersion;
     private String fileUrl;
+    
+    private String communityUrl;
     private String reportBugUrl;
     private String authorName;
     private String authorContact;
     private String authorUrl;
 
+    
     public String getName() {
         return name;
     }
@@ -93,6 +96,14 @@ public class RepositoryFileVm extends ResponseVm {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getBattleScribeVersion() {
+        return battleScribeVersion;
+    }
+
+    public void setBattleScribeVersion(String battleScribeVersion) {
+        this.battleScribeVersion = battleScribeVersion;
     }
     
 }
