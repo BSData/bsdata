@@ -9,8 +9,8 @@ public class RepositoryFileVm extends ResponseVm {
     private String type;
     private int revision;
     private String battleScribeVersion;
-    private String fileUrl;
     
+    private String fileUrl;
     private String communityUrl;
     private String reportBugUrl;
     private String authorName;

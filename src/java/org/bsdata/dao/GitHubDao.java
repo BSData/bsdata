@@ -38,7 +38,7 @@ import org.bsdata.constants.WebConstants;
 import org.bsdata.model.DataFile;
 import org.bsdata.viewmodel.RepositoryVm;
 import org.bsdata.viewmodel.RepositoryFileVm;
-import org.bsdata.viewmodel.RepositoryListVm;
+import org.bsdata.viewmodel.RepositorySourceVm;
 import org.bsdata.repository.Indexer;
 import org.bsdata.utils.ApplicationProperties;
 import org.bsdata.utils.Utils;
@@ -731,7 +731,7 @@ public class GitHubDao {
      * @return
      * @throws IOException 
      */
-    public RepositoryListVm getRepos(String baseUrl) throws IOException {
+    public RepositorySourceVm getRepos(String baseUrl) throws IOException {
         Properties properties = ApplicationProperties.getProperties();
         List<Repository> orgRepositories = getRepositories();
         
@@ -770,21 +770,21 @@ public class GitHubDao {
             }
         });
         
-        RepositoryListVm repositoryList = new RepositoryListVm();
+        RepositorySourceVm repositorySourceVm = new RepositorySourceVm();
         
-        repositoryList.setRepositories(repositoryVms);
+        repositorySourceVm.setRepositories(repositoryVms);
         
-        repositoryList.setName(properties.getProperty(PropertiesConstants.SITE_NAME));
-        repositoryList.setDescription(properties.getProperty(PropertiesConstants.SITE_DESCRIPTION));
-        repositoryList.setWebsiteUrl(properties.getProperty(PropertiesConstants.SITE_WEBSITE_URL));
+        repositorySourceVm.setName(properties.getProperty(PropertiesConstants.SITE_NAME));
+        repositorySourceVm.setDescription(properties.getProperty(PropertiesConstants.SITE_DESCRIPTION));
+        repositorySourceVm.setWebsiteUrl(properties.getProperty(PropertiesConstants.SITE_WEBSITE_URL));
         
-        repositoryList.setRepositoryListUrl(baseUrl);
-        repositoryList.setFeedUrl(baseUrl + "/feeds/all.atom");
-        repositoryList.setCommunityUrl(properties.getProperty(PropertiesConstants.SITE_COMMUNITY_URL));
-        repositoryList.setTwitterUrl(properties.getProperty(PropertiesConstants.SITE_TWITTER_URL));
-        repositoryList.setFacebookUrl(properties.getProperty(PropertiesConstants.SITE_FACEBOOK_URL));
+        repositorySourceVm.setRepositorySourceUrl(baseUrl);
+        repositorySourceVm.setFeedUrl(baseUrl + "/feeds/all.atom");
+        repositorySourceVm.setCommunityUrl(properties.getProperty(PropertiesConstants.SITE_COMMUNITY_URL));
+        repositorySourceVm.setTwitterUrl(properties.getProperty(PropertiesConstants.SITE_TWITTER_URL));
+        repositorySourceVm.setFacebookUrl(properties.getProperty(PropertiesConstants.SITE_FACEBOOK_URL));
         
-        return repositoryList;
+        return repositorySourceVm;
     }
     
     /**
@@ -869,15 +869,19 @@ public class GitHubDao {
         RepositoryVm repositoryVm = new RepositoryVm();
         repositoryVm.setName(repository.getName());
         repositoryVm.setDescription(repository.getDescription());
+        
         if (latestRelease != null) {
             repositoryVm.setVersion(latestRelease.getTagName());
             repositoryVm.setLastUpdated(longDateFormat.format(latestRelease.getPublishedAt()));
             repositoryVm.setLastUpdateDescription(latestRelease.getName());
         }
+        
+        repositoryVm.setRepositoryUrl(Utils.checkUrl(baseUrl + "/" + repository.getName()));
         repositoryVm.setIndexUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
         repositoryVm.setCommunityUrl(repository.getHtmlUrl());
         repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
         repositoryVm.setFeedUrl(Utils.checkUrl(baseUrl + "/feeds/" + repository.getName() + ".atom"));
+        
         return repositoryVm;
     }
     

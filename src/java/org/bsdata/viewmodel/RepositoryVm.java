@@ -15,6 +15,7 @@ public class RepositoryVm extends ResponseVm {
     private String lastUpdateDescription;
     
     private String indexUrl;
+    private String repositoryUrl;
     private String communityUrl;
     private String feedUrl;
     private String bugTrackerUrl;
@@ -25,6 +26,7 @@ public class RepositoryVm extends ResponseVm {
     public RepositoryVm() {
         repositoryFiles = new ArrayList<>();
     }
+    
 
     public String getName() {
         return name;
@@ -80,6 +82,14 @@ public class RepositoryVm extends ResponseVm {
 
     public void setLastUpdated(String lastUpdated) {
         this.lastUpdated = lastUpdated;
+    }
+
+    public String getRepositoryUrl() {
+        return repositoryUrl;
+    }
+
+    public void setRepositoryUrl(String repositoryUrl) {
+        this.repositoryUrl = repositoryUrl;
     }
 
     public String getFeedUrl() {

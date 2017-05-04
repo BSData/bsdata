@@ -32,7 +32,7 @@ import org.bsdata.constants.DataConstants;
 import org.bsdata.constants.WebConstants;
 import org.bsdata.dao.GitHubDao;
 import org.bsdata.model.DataFile;
-import org.bsdata.viewmodel.RepositoryListVm;
+import org.bsdata.viewmodel.RepositorySourceVm;
 import org.bsdata.utils.Utils;
 import org.bsdata.viewmodel.RepositoryVm;
 import org.bsdata.viewmodel.ResponseVm;
@@ -207,7 +207,7 @@ public class RepoService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String getRepositories(@Context HttpServletRequest request) {
-        RepositoryListVm repositoryList;
+        RepositorySourceVm repositoryList;
         try {
             repositoryList = dao.getRepos(getBaseUrl(request));
         }
