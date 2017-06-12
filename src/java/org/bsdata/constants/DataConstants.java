@@ -13,6 +13,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author jonskichov
  */
 public class DataConstants {
+
+    public static final String MAX_DATA_FORMAT_VERSION = "2.01";
+    public static final String MIN_DATA_FORMAT_VERSION = "1.13b";
     
     public static final String GITHUB_BSDATA_REPO_NAME = "bsdata";
     

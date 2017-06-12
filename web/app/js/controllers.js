@@ -19,6 +19,8 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
     $scope.error = false;
     
     $scope.m = {
+        battleScribeVersion: "",
+        communityUrl: "",
         feedUrl: "",
         twitterUrl: "",
         facebookUrl: "",
@@ -29,6 +31,8 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
         function(data) {
             $scope.showLoading = false;
             $scope.error = false;
+            
+            $scope.m.battleScribeVersion = data.battleScribeVersion;
 
             $scope.m.communityUrl = data.communityUrl;
             $scope.m.feedUrl = data.feedUrl;

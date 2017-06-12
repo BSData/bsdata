@@ -7,6 +7,12 @@
     <div class="details">
         <span ng-if="m.repo.lastUpdated" class="lastUpdated">Updated {{m.repo.lastUpdated|date:'medium'}}: {{m.repo.lastUpdateDescription}}</span>
     </div>
+    
+    <div class="detailsSmall">
+        <span class="bold">This data requires BattleScribe version {{m.repo.battleScribeVersion}} or above.</span>
+        <br>
+        Get the latest version from the <a target="_blank" href="https://battlescribe.net/?tab=downloads">BattleScribe downloads page</a>.
+    </div>
 </div>
 
 <ul class="detailsList">

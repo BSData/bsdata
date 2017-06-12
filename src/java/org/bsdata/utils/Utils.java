@@ -4,6 +4,7 @@ package org.bsdata.utils;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,13 +15,35 @@ import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.bsdata.constants.DataConstants;
+import org.bsdata.constants.FileConstants;
+import org.bsdata.repository.SAXParseCompleteException;
+import org.xml.sax.Attributes;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 
 public class Utils {
+    
+    public static final int BUFFER_SIZE = 1024 * 64;
+    
+
+    public static boolean isNullOrEmpty(String string) {
+        return string == null || string.length() == 0;
+    }
     
     public static String checkUrl(String url) {
         if (StringUtils.isEmpty(url)) {
@@ -254,6 +277,60 @@ public class Utils {
         }
     }
     
+    public static ByteArrayInputStream readPartialStream(InputStream inputStream, boolean resetInputStream) throws IOException {
+        if (!inputStream.markSupported()) {
+            throw new IllegalArgumentException();
+        }
+        if (!(inputStream instanceof ByteArrayInputStream)) {
+            inputStream.mark(BUFFER_SIZE);
+        }
+        
+        try {
+            int count = 0;
+            int n = 0;
+            int tempBufferSize = 1024 * 8;
+            byte[] buffer = new byte[tempBufferSize];
+            ByteArrayOutputStream output = new ByteArrayOutputStream(BUFFER_SIZE);
+            while (-1 != (n = inputStream.read(buffer)) && (count + tempBufferSize) < BUFFER_SIZE) {
+                if (n == 0) {
+                    throw new IOException("Read returned 0 bytes.");
+                }
+                output.write(buffer, 0, n);
+                count += n;
+            }
+            return new ByteArrayInputStream(output.toByteArray());
+        }
+        catch (EOFException e) {
+            throw new IOException("Reached EOF", e);
+        }
+        finally {
+            if (resetInputStream) {
+                resetStreamQuietly(inputStream);
+            }
+            else {
+                IOUtils.closeQuietly(inputStream);
+            }
+        }
+    }
+    
+    private static void resetStreamQuietly(InputStream inputStream) {
+        if (inputStream == null) {
+            return;
+        }
+        
+        if (!inputStream.markSupported()) {
+            IOUtils.closeQuietly(inputStream);
+            return;
+        }
+        
+        try {
+            inputStream.reset();
+        }
+        catch (IOException e) {
+            IOUtils.closeQuietly(inputStream);
+        }
+    }
+    
     
     /**
      * Assumes there is only one ZipEntry in the stream.
@@ -350,5 +427,186 @@ public class Utils {
         }
         
         return zipData;
+    }
+    
+    
+    ///////////////////
+    // Data Upgrades //
+    ///////////////////
+
+    /**
+     * Buffers internally.
+     * Closes inputStream.
+     * 
+     * @param inputStream
+     * @param filePath
+     * @return
+     * @throws CorruptDataException
+     * @throws IOException 
+     */
+    @SuppressWarnings("UnusedAssignment")
+    public static byte[] upgradeDataVersion(byte[] data, String filePath) throws IOException {
+        InputStream inputStream = new ByteArrayInputStream(data);
+        inputStream = new BOMInputStream(inputStream, false); // Exclude UTF8 Byte Order Mark. See: https://stackoverflow.com/questions/4569123/content-is-not-allowed-in-prolog-saxparserexception
+        
+        if (!requiresUpgrade(inputStream, true)) {
+            return data;
+        }
+        
+        String battleScribeVersion = getBattleScribeVersion(inputStream, true);
+        
+        HashMap<String, ByteArrayInputStream> styleSheetMap = getStyleSheetMap();
+        try {
+            if (isCataloguePath(filePath)) {
+                // 1.13b -> 1.15b
+                if (battleScribeVersion.compareToIgnoreCase("1.15") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.CATALOGUE_1_15_XSL_FILE_PATH));
+                    battleScribeVersion = "1.15";
+                }
+                // 1.15 -> 2.00
+                if (battleScribeVersion.compareToIgnoreCase("2.00") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.CATALOGUE_2_00_XSL_FILE_PATH));
+                    battleScribeVersion = "2.00";
+                }
+                // 2.00 -> 2.01
+                if (battleScribeVersion.compareToIgnoreCase("2.01") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.CATALOGUE_2_01_XSL_FILE_PATH));
+                    battleScribeVersion = "2.01";
+                }
+            }
+            else if (isGameSytstemPath(filePath)) {
+                // 1.13b -> 1.15b
+                if (battleScribeVersion.compareToIgnoreCase("1.15") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.GAME_SYSTEM_1_15_XSL_FILE_PATH));
+                    battleScribeVersion = "1.15";
+                }
+                // 1.15 -> 2.00
+                if (battleScribeVersion.compareToIgnoreCase("2.00") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.GAME_SYSTEM_2_00_XSL_FILE_PATH));
+                    battleScribeVersion = "2.00";
+                }
+                // 2.00 -> 2.01
+                if (battleScribeVersion.compareToIgnoreCase("2.01") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.GAME_SYSTEM_2_01_XSL_FILE_PATH));
+                    battleScribeVersion = "2.01";
+                }
+            }
+        }
+        finally {
+            resetStreamQuietly(inputStream);
+            for (ByteArrayInputStream styleSheet : styleSheetMap.values()) {
+                resetStreamQuietly(styleSheet);
+            }
+        }
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        IOUtils.copy(inputStream, outputStream);
+
+        return outputStream.toByteArray();
+    }
+    
+    public static boolean requiresUpgrade(InputStream inputStream, boolean resetInputStream) throws IOException {
+        String battleScribeVersion = getBattleScribeVersion(inputStream, resetInputStream);
+        
+        if (Utils.isNullOrEmpty(battleScribeVersion)
+                || battleScribeVersion.compareToIgnoreCase(DataConstants.MIN_DATA_FORMAT_VERSION) < 0) {
+            
+            throw new IOException("Data file is too old and is no longer supported (" + battleScribeVersion + ")");
+        }
+        
+        return battleScribeVersion.compareToIgnoreCase(DataConstants.MAX_DATA_FORMAT_VERSION) < 0;
+    }
+
+    /**
+     * Buffers internally.
+     * 
+     * @param inputStream
+     * @param resetInputStream
+     * @return 
+     * @throws CorruptDataException 
+     */
+    public static String getBattleScribeVersion(InputStream inputStream, boolean resetInputStream) throws IOException {
+        try {
+            SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+            InputStream inputStreamCopy = readPartialStream(inputStream, resetInputStream);
+            saxParser.parse(inputStreamCopy, new DefaultHandler() {
+                @Override
+                public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+                    String battleScribeVersion = attributes.getValue(DataConstants.BATTLESCRIBE_VERSION_ATTRIBUTE);
+                    throw new SAXParseCompleteException(battleScribeVersion);
+                }
+            });
+        }
+        catch (ParserConfigurationException e) {
+            throw new IllegalStateException(e);
+        }
+        catch (SAXParseCompleteException e) {
+            return e.getMessage();
+        }
+        catch (Exception ex) {
+            throw new IOException(ex);
+        }
+        return null;
+    }
+    
+    private static HashMap<String, ByteArrayInputStream> styleSheetMapCache;
+    private static HashMap<String, ByteArrayInputStream> getStyleSheetMap() throws IOException {
+        if (styleSheetMapCache == null) {
+            styleSheetMapCache = new HashMap<>();
+            
+            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_1_15_XSL_FILE_PATH);
+            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_1_15_XSL_FILE_PATH);
+            
+            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_00_XSL_FILE_PATH);
+            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_00_XSL_FILE_PATH);
+            
+            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_01_XSL_FILE_PATH);
+            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_01_XSL_FILE_PATH);
+        }
+        return styleSheetMapCache;
+    }
+    
+    private static void addStyleSheetMapEntry(HashMap<String, ByteArrayInputStream> styleSheetMap, String styleSheetPath) throws IOException {
+        styleSheetMap.put(styleSheetPath, readResource(styleSheetPath));
+    }
+    
+    public static ByteArrayInputStream readResource(String resourcePath) throws IOException {
+        InputStream inputStream = new BufferedInputStream(Utils.class.getResourceAsStream(resourcePath));
+        
+        return readStreamToMemory(inputStream);
+    }
+
+    /**
+     * Buffers internally.
+     * Closes sourceStream (but not styleSheet).
+     * 
+     * @param sourceStream
+     * @param styleSheet
+     * @return
+     * @throws CorruptDataException 
+     */
+    public static ByteArrayInputStream transfromXml(InputStream sourceStream, InputStream styleSheet) throws IOException {
+        if (!sourceStream.markSupported() || !styleSheet.markSupported()) {
+            throw new IllegalArgumentException();
+        }
+        
+        try {
+            TransformerFactory transformerFactory = new net.sf.saxon.TransformerFactoryImpl();
+            Transformer transformer = transformerFactory.newTransformer(new StreamSource(styleSheet));
+
+            ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream(1024 * 100);
+            transformer.transform(new StreamSource(sourceStream), new StreamResult(byteOutputStream));
+            
+            return new ByteArrayInputStream(byteOutputStream.toByteArray());
+        }
+        catch (TransformerConfigurationException e) {
+            throw new IllegalStateException();
+        }
+        catch (TransformerException e) {
+            throw new IOException(e);
+        }
+        finally {
+            IOUtils.closeQuietly(sourceStream);
+        }
     }
 }

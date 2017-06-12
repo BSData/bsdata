@@ -12,7 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
@@ -110,7 +110,7 @@ public class RepoService {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         
-        HashMap<String, DataFile> repoData;
+        Map<String, DataFile> repoData;
         try {
             repoData = dao.getRepoFileData(getBaseUrl(request), repoName);
         }

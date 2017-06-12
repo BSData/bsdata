@@ -111,8 +111,8 @@ public class GitHubDao {
     private static final Map<String, ReentrantLock> repositoryDownloadLocks 
             = Collections.synchronizedMap(new HashMap<String, ReentrantLock>());
     
-    private static final Map<String, HashMap<String, DataFile>> repositoryFiles 
-            = Collections.synchronizedMap(new HashMap<String, HashMap<String, DataFile>>());
+    private static final Map<String, Map<String, DataFile>> repositoryFiles 
+            = Collections.synchronizedMap(new HashMap<String, Map<String, DataFile>>());
     
     private static final Map<String, List<Entry>> repositoryFeedEntries 
             = Collections.synchronizedMap(new HashMap<String, List<Entry>>());
@@ -495,8 +495,8 @@ public class GitHubDao {
         try {
             downloadLock.lock();
         
-            HashMap<String, byte[]> dataFiles = downloadFromGitHub(repository, latestRelease);
-            HashMap<String, DataFile> repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, dataFiles);
+            Map<String, byte[]> dataFiles = downloadFromGitHub(repository, latestRelease);
+            Map<String, DataFile> repositoryData = indexer.createRepositoryData(repositoryName, baseUrl, null, dataFiles);
             
             List<Entry> releaseFeedEntries = getReleaseFeedEntries(baseUrl, repository);
 
@@ -520,7 +520,7 @@ public class GitHubDao {
      * @return
      * @throws IOException 
      */
-    private HashMap<String, byte[]> downloadFromGitHub(Repository repository, Release release) throws IOException {
+    private Map<String, byte[]> downloadFromGitHub(Repository repository, Release release) throws IOException {
         logger.log(Level.INFO, "Downloading data from GitHub for {0}.", repository.getName());
         
         String zipUrl = repository.getHtmlUrl();
@@ -531,7 +531,52 @@ public class GitHubDao {
         
         byte[] fileData = Utils.downloadFile(zipUrl);
         
-        return Utils.unpackZip(fileData);
+        Map<String, byte[]> githubFiles = Utils.unpackZip(fileData);
+        
+        for (String fileName : new ArrayList<>(githubFiles.keySet())) {
+            if (!Utils.isDataFilePath(fileName)) {
+                continue;
+            }
+            if (!Utils.isCompressedPath(fileName)) {
+                continue;
+            }
+            
+            try {
+                byte[] decompressedData = Utils.decompressData(githubFiles.get(fileName));
+
+                githubFiles.remove(fileName);
+                githubFiles.put(Utils.getUncompressedFileName(fileName), decompressedData);
+            }
+            catch (IOException e) {
+                githubFiles.remove(fileName);
+                
+                logger.log(
+                        Level.WARNING,
+                        "Failed to decompress repository file " + fileName + " in " + repository.getName(), 
+                        e);
+            }
+        }
+        
+        for (String fileName : new ArrayList<>(githubFiles.keySet())) {
+            if (!Utils.isDataFilePath(fileName)) {
+                continue;
+            }
+            
+            try {
+                byte[] transformedData = Utils.upgradeDataVersion(githubFiles.get(fileName), fileName);
+                githubFiles.put(fileName, transformedData);
+            }
+            catch (IOException e) {
+                githubFiles.remove(fileName);
+                
+                logger.log(
+                        Level.WARNING,
+                        "Failed to transform repository file " + fileName + " in " + repository.getName(), 
+                        e);
+            }
+        }
+        
+        return githubFiles;
     }
     
     private List<Entry> getReleaseFeedEntries(String baseUrl, Repository repository) throws IOException {
@@ -596,7 +641,7 @@ public class GitHubDao {
      * @return
      * @throws IOException
      */
-    public HashMap<String, DataFile> getRepoFileData(
+    public Map<String, DataFile> getRepoFileData(
             String baseUrl, 
             String repositoryName) throws IOException {
         
@@ -607,7 +652,7 @@ public class GitHubDao {
             return new HashMap<>();
         }
         
-        HashMap<String, DataFile> fileData = repositoryFiles.get(repositoryName);
+        Map<String, DataFile> fileData = repositoryFiles.get(repositoryName);
         
         if (fileData == null) {
             refreshData(baseUrl, repository, latestRelease);
@@ -776,6 +821,8 @@ public class GitHubDao {
         
         repositorySourceVm.setName(properties.getProperty(PropertiesConstants.SITE_NAME));
         repositorySourceVm.setDescription(properties.getProperty(PropertiesConstants.SITE_DESCRIPTION));
+        repositorySourceVm.setBattleScribeVersion(DataConstants.MAX_DATA_FORMAT_VERSION);
+        
         repositorySourceVm.setWebsiteUrl(properties.getProperty(PropertiesConstants.SITE_WEBSITE_URL));
         
         repositorySourceVm.setRepositorySourceUrl(baseUrl);
@@ -805,7 +852,7 @@ public class GitHubDao {
         
         RepositoryVm repositoryVm = createRepositoryVm(baseUrl, repository, latestRelease);
         
-        HashMap<String, DataFile> repoFileData = getRepoFileData(baseUrl, repositoryName);
+        Map<String, DataFile> repoFileData = getRepoFileData(baseUrl, repositoryName);
         List<RepositoryFileVm> repositoryFileVms = new ArrayList<>();
         for (String fileName : repoFileData.keySet()) {
             if (!Utils.isDataFilePath(fileName)) {
@@ -869,6 +916,7 @@ public class GitHubDao {
         RepositoryVm repositoryVm = new RepositoryVm();
         repositoryVm.setName(repository.getName());
         repositoryVm.setDescription(repository.getDescription());
+        repositoryVm.setBattleScribeVersion(DataConstants.MAX_DATA_FORMAT_VERSION);
         
         if (latestRelease != null) {
             repositoryVm.setVersion(latestRelease.getTagName());

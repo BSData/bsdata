@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -88,7 +89,7 @@ public class Indexer {
             String repositoryName, 
             String baseUrl, 
             List<String> repositoryUrls, 
-            HashMap<String, byte[]> fileDatas)
+            Map<String, byte[]> fileDatas)
             throws IOException, XmlException {
 
         String indexUrl = Utils.checkUrl(baseUrl + "/" + repositoryName + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME);

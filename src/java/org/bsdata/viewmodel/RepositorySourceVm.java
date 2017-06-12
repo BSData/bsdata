@@ -9,6 +9,7 @@ public class RepositorySourceVm extends ResponseVm {
     
     private String name;
     private String description;
+    private String battleScribeVersion;
     
     private String repositorySourceUrl;
     private String websiteUrl;
@@ -95,5 +96,13 @@ public class RepositorySourceVm extends ResponseVm {
 
     public void setWebsiteUrl(String websiteUrl) {
         this.websiteUrl = websiteUrl;
+    }
+    
+    public String getBattleScribeVersion() {
+        return battleScribeVersion;
+    }
+    
+    public void setBattleScribeVersion(String battleScribeVersion) {
+        this.battleScribeVersion = battleScribeVersion;
     }
 }

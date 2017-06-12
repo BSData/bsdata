@@ -315,6 +315,14 @@ ul {
     font-size: 1.2em;
 }
 
+.subTitle .detailsSmall {
+    float: left;
+    clear: both;
+    margin: 12px 0px 0px 0px;
+    padding: 0px;
+    font-size: 1.0em;
+}
+
 .subTitle .details a {
     font-size: 1em;
     margin: 0px;
@@ -647,7 +655,7 @@ p.olddata {
 }
 
 .small {
-    font-size: 0.8em;
+    font-size: 0.8em !important;
 }
 
 .red {

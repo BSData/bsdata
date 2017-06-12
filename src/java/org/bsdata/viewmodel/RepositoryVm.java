@@ -9,6 +9,7 @@ public class RepositoryVm extends ResponseVm {
     
     private String name;
     private String description;
+    private String battleScribeVersion;
     
     private String version;
     private String lastUpdated;
@@ -114,5 +115,13 @@ public class RepositoryVm extends ResponseVm {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+    
+    public String getBattleScribeVersion() {
+        return battleScribeVersion;
+    }
+    
+    public void setBattleScribeVersion(String battleScribeVersion) {
+        this.battleScribeVersion = battleScribeVersion;
     }
 }

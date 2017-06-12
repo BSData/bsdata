@@ -5,7 +5,7 @@
     
     <!-- Basic app settings -->
     <application>battlescribedata</application>
-    <version>14</version>
+    <version>15</version>
     <threadsafe>true</threadsafe>
     
     <!-- AppEngine instance class -->
