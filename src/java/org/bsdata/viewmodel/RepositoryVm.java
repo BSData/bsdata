@@ -20,6 +20,7 @@ public class RepositoryVm extends ResponseVm {
     private String communityUrl;
     private String feedUrl;
     private String bugTrackerUrl;
+    private String reportBugUrl;
     
     private List<RepositoryFileVm> repositoryFiles;
     
@@ -123,5 +124,13 @@ public class RepositoryVm extends ResponseVm {
     
     public void setBattleScribeVersion(String battleScribeVersion) {
         this.battleScribeVersion = battleScribeVersion;
+    }
+    
+    public String getReportBugUrl() {
+        return reportBugUrl;
+    }
+    
+    public void setReportBugUrl(String reportBugUrl) {
+        this.reportBugUrl = reportBugUrl;
     }
 }

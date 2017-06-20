@@ -928,6 +928,7 @@ public class GitHubDao {
         repositoryVm.setIndexUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
         repositoryVm.setCommunityUrl(repository.getHtmlUrl());
         repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
+        repositoryVm.setReportBugUrl(getFeedHref(baseUrl, repository.getName()));
         repositoryVm.setFeedUrl(Utils.checkUrl(baseUrl + "/feeds/" + repository.getName() + ".atom"));
         
         return repositoryVm;
