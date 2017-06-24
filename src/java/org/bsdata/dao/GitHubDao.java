@@ -878,7 +878,9 @@ public class GitHubDao {
             }
             
             repositoryFile.setFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
-            repositoryFile.setReportBugUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName + "/issue"));
+            
+            repositoryFile.setReportBugUrl(repositoryVm.getReportBugUrl());
+            repositoryFile.setBugTrackerUrl(repositoryVm.getBugTrackerUrl());
             
             String uncompressedFileName = Utils.getUncompressedFileName(fileName);
             repositoryFile.setCommunityUrl(Utils.checkUrl(repositoryVm.getCommunityUrl() + "/blob/master/" + uncompressedFileName));

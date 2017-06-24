@@ -12,6 +12,7 @@ public class RepositoryFileVm extends ResponseVm {
     
     private String fileUrl;
     private String communityUrl;
+    private String bugTrackerUrl;
     private String reportBugUrl;
     private String authorName;
     private String authorContact;
@@ -40,6 +41,14 @@ public class RepositoryFileVm extends ResponseVm {
 
     public void setFileUrl(String fileUrl) {
         this.fileUrl = fileUrl;
+    }
+
+    public String getBugTrackerUrl() {
+        return bugTrackerUrl;
+    }
+
+    public void setBugTrackerUrl(String bugTrackerUrl) {
+        this.bugTrackerUrl = bugTrackerUrl;
     }
 
     public String getReportBugUrl() {
