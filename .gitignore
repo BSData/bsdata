@@ -4,6 +4,7 @@ Thumbs.db
 *.ear
 build/
 dist/
+target/
 lib/CopyLibs/
 lib/nblibraries.properties
 nbproject
