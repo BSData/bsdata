@@ -5,8 +5,6 @@ Thumbs.db
 build/
 dist/
 target/
-lib/CopyLibs/
-lib/nblibraries.properties
-nbproject
-build.xml
+nbproject/
+nb-configuration.xml
 src/main/resources/java/common/github-user.properties
