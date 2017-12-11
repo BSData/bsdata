@@ -39,17 +39,17 @@ public class BattleScribeDataRestConfig extends ResourceConfig {
         
         
         // Specify the package containing REST resource classes: http://javaarm.com/file/glassfish/jersey/doc/userguide/Jersey-2.26-User-Guide.htm#environmenmt.appmodel
-        logger.log(Level.INFO, "+++ Startup: Find REST resource classes +++");
+        logger.log(Level.INFO, "+++ Startup: Find REST resource classes");
         packages("org.battlescribedata.rest");
         
         
         // Registeer Jersey Multipart so we can use file uploads: http://javaarm.com/file/glassfish/jersey/doc/userguide/Jersey-2.26-User-Guide.htm#multipart
-        logger.log(Level.INFO, "+++ Startup: Register Jersey Multipart for file uploads +++");
+        logger.log(Level.INFO, "+++ Startup: Register Jersey Multipart for file uploads");
         register(MultiPartFeature.class);
         
         
         // Register an AbstractBinder to bind classes that will be available for dependency injection (@Inject): http://javaarm.com/file/glassfish/jersey/doc/userguide/Jersey-2.26-User-Guide.htm#ioc
-        logger.log(Level.INFO, "+++ Startup: Register classes for dependency injection +++");
+        logger.log(Level.INFO, "+++ Startup: Register classes for dependency injection");
         register(new AbstractBinder() {
             @Override
             protected void configure() {
@@ -100,7 +100,7 @@ public class BattleScribeDataRestConfig extends ResourceConfig {
         public Logger provide() {
             Logger logger = Logger.getLogger(PropertiesConstants.LOGGER_NAME);
             
-            logger.log(Level.INFO, "+++ Startup: Logger created +++");
+            logger.log(Level.INFO, "+++ Startup: Logger created");
             
             return logger;
         }   
@@ -113,23 +113,44 @@ public class BattleScribeDataRestConfig extends ResourceConfig {
         
         @Override
         public Properties provide() {
+            Properties properties = new Properties();
             
-            Properties properties;
             try {
-                InputStream inputStream = getClass().getClassLoader().getResourceAsStream(
-                        PropertiesConstants.PROPERTIES_FILE_PATH);
-
-                properties = new Properties();
-                properties.load(inputStream);
+                loadPropertiesFile(properties, PropertiesConstants.APPLICATION_PROPERTIES_FILE_PATH);
             }
             catch (IOException e) {
-                logger.log(Level.SEVERE, "+++ ERROR: Failed to load properties file (" + PropertiesConstants.PROPERTIES_FILE_PATH + "): {0}", e.getMessage());
                 throw new RuntimeException(e); // We can't start up the app without loading the properties file. KILL IT WITH FIRE.
             }
             
-            logger.log(Level.INFO, "+++ Startup: Loaded propertis file (" + PropertiesConstants.PROPERTIES_FILE_PATH + ") +++");
+            try {
+                loadPropertiesFile(properties, PropertiesConstants.GITHUB_USER_PROPERTIES_FILE_PATH);
+            }
+            catch (IOException e) {
+                logger.log(
+                        Level.INFO, 
+                        "+++ Make sure the GitHub user properties file exists:"
+                                + "\n+++ src/main/resources/java/common/" + PropertiesConstants.GITHUB_USER_PROPERTIES_FILE_PATH
+                                + "\n+++ See README.md for details");
+                
+                throw new RuntimeException(e); // We can't start up the app without loading the properties file. KILL IT WITH FIRE.
+            }
 
             return properties;
-        }   
+        }
+        
+        private void loadPropertiesFile(Properties properties, String filePath) throws IOException {
+            try {
+                InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+                properties.load(inputStream);
+                logger.log(Level.INFO, "+++ Startup: Loaded propertis file: {0}", filePath);
+            }
+            catch (IOException e) {
+                logger.log(
+                        Level.SEVERE, "+++ ERROR: Failed to load properties file: " + filePath, 
+                        e);
+                
+                throw e;
+            }
+        }
     }
 }

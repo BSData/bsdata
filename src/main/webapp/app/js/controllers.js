@@ -19,11 +19,15 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
     $scope.error = false;
     
     $scope.m = {
+        name: "LOADING...",
+        description: "LOADING...",
         battleScribeVersion: "",
+        
         communityUrl: "",
         feedUrl: "",
         twitterUrl: "",
         facebookUrl: "",
+        
         repos: []
     };
 
@@ -32,12 +36,15 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
             $scope.showLoading = false;
             $scope.error = false;
             
+            $scope.m.name = data.name;
+            $scope.m.description = data.description;
             $scope.m.battleScribeVersion = data.battleScribeVersion;
 
             $scope.m.communityUrl = data.communityUrl;
             $scope.m.feedUrl = data.feedUrl;
             $scope.m.twitterUrl = data.twitterUrl;
             $scope.m.facebookUrl = data.facebookUrl;
+            
             $scope.m.repos = [];
             angular.forEach(data.repositories, function(repo) {
                 $scope.m.repos.push(repo);

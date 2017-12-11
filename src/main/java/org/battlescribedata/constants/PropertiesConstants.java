@@ -6,7 +6,8 @@ public class PropertiesConstants {
     
     public static final String LOGGER_NAME = "org.battlescribedata";
     
-    public static final String PROPERTIES_FILE_PATH = "application.properties";
+    public static final String APPLICATION_PROPERTIES_FILE_PATH = "application.properties";
+    public static final String GITHUB_USER_PROPERTIES_FILE_PATH = "github-user.properties";
     
     public static final String GITHUB_ANON_USERNAME = "github.anon.username";
     public static final String GITHUB_ANON_EMAIL = "github.anon.email";
