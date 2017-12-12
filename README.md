@@ -16,6 +16,8 @@
 
 ##Overview##
 
+@Jonskichov
+
 __What's this?__
 
 BSData organisation created this project. It's open source web app hiding GitHub repository of datafiles under nice GUI hood. Maintained by community, in no way endorsed by BattleScribe. If you want to develop the page, take a look at issues. We will happily collaborate with you. To start, [configure the project in Netbeans][Technical]
