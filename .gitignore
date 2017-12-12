@@ -7,4 +7,5 @@ dist/
 target/
 nbproject/
 nb-configuration.xml
+maven.properties
 src/main/resources/java/common/github-user.properties
