@@ -1,25 +1,6 @@
 
 ## BSData Project ##
 
-#### Contents ####
-
-* [Overview][]
-* [Technical][]
-  * [Configuring the project in Netbeans][]
-* [Links][]
-
-
-[Overview]: #overview
-[Technical]: #technical
-[Configuring the project in Netbeans]: #configuring-the-project-in-netbeans
-[Links]: #links
-
-
-## Overview ##
-
-
-## Technical ##
-
 BattleScribeData is a Java 8 web application designed to run on Google App Engine. It is built and deployed using Maven 3.5.
 
 This guide is written from the perspective of a Netbeans IDE user running Windows, however you can use any IDE or toolset that supports Maven.
@@ -98,12 +79,3 @@ It is assumed that you have some experience with the Java programming language (
     * Right-click the project -> Run Maven -> appengine:deploy.
     * Go to http://YOUR_APP_ENGINE_DEV_PROJECT_NAME.appspot.com to see the app.
     * Take a look at the Google Cloud Console (https://console.cloud.google.com)
-
-
-#### Project Tour ####
-
-## Links ##
-
-[BattleScribe homepage]: http://www.battlescribe.net/
-[BattleScribe Data on Appspot]: http://battlescribedata.appspot.com/
-[Getting Started wiki]: https://github.com/BSData/bsdata/wiki/Home#getting-started
