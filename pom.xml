@@ -276,6 +276,7 @@
                 <artifactId>appengine-maven-plugin</artifactId>
                 <version>1.3.1</version>
                 <configuration>
+                    <!-- https://cloud.google.com/appengine/docs/standard/java/tools/maven-reference -->
                     <!--<cloudSdkPath>${cloud.sdk.path}</cloudSdkPath>-->
                     <!-- App Engine environment for profile -->
                     <deploy.project>${appengine.project.name}</deploy.project>

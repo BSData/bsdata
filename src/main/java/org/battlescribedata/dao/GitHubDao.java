@@ -782,7 +782,7 @@ public class GitHubDao {
     public RepositorySourceVm getRepos(String baseUrl) throws IOException {
         List<Repository> orgRepositories = getRepositories();
         
-        boolean isDev = baseUrl.toLowerCase().contains("localhost") || baseUrl.toLowerCase().contains("bsdatadev");
+        boolean isDev = baseUrl.toLowerCase().contains("localhost") || baseUrl.toLowerCase().contains("battlescribedatatest");
         
         List<RepositoryVm> repositoryVms = new ArrayList<>();
         for (Repository repository : orgRepositories) {

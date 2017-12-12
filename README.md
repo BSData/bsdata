@@ -3,12 +3,14 @@
 
 BattleScribeData is a Java 8 web application designed to run on Google App Engine. It is built and deployed using Maven 3.5.
 
+It consists of a Angular (JavaScript) front end and a RESTful (Jersey / JAX-RS) back end.
+
 This guide is written from the perspective of a Netbeans IDE user running Windows, however you can use any IDE or toolset that supports Maven.
 
 It is assumed that you have some experience with the Java programming language (or are willing to learn it!).
 
 
-#### Before You Start ####
+### Before You Start ###
 
 1. Make sure you have a Google account.
 2. Make sure you have a GitHub account and are a member of the BSData organisation (https://github.com/BSData).
@@ -17,7 +19,7 @@ It is assumed that you have some experience with the Java programming language (
     * Generate a new token with `public_repo` and `read:org` scopes. Take a note of the token.
 
 
-#### Download and Install Everything ####
+### Download and Install Everything ###
 (Note: On Windows, references to "Google Cloud Shell" below means the "Google Cloud Shell" command line launched from the Start Menu.)
 
 1. Download and install the **Java SE 8 JDK** (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
@@ -32,7 +34,7 @@ It is assumed that you have some experience with the Java programming language (
     * Log in with your Google account.
     * Choose to create a new project (or select a previously created project). This will will be your own App Engine development environment that you can deploy and test on. Make a note of the name.
     * You do not need to configure Compute Engine, it can be skipped.
-    * You can view and manage your App Engine environment in the Google Cloud Console (https://console.cloud.google.com).
+    * Make sure your App Engine project is alive and well in Google Cloud Console (https://console.cloud.google.com).
 5. Install the Google Cloud Java Components (https://cloud.google.com/sdk/docs/managing-components).
     * From the Google Cloud Shell, run `gcloud components install app-engine-java`
 6. Download and install Netbeans Java EE bundle (https://netbeans.org/downloads/).
@@ -41,7 +43,7 @@ It is assumed that you have some experience with the Java programming language (
     * On Windows, you can extract it to a folder in Program Files.
 
 
-#### Set up the Project in Netbeans ####
+### Set up the Project in Netbeans ###
 
 1. Launch Netbeans
 2. Set Netbeans to use Maven 3.5
@@ -74,8 +76,37 @@ It is assumed that you have some experience with the Java programming language (
     * Select the `local` Maven profile.
     * Right-click the project -> Run Maven -> appengine:run.
     * Go to http://localhost:8080 to see the app.
+    * (The local server is provided as part of the Cloud SDK)
 8. Deploy the project to your App Engine development environment (`appengine:deploy` Maven goal).
     * Select the `dev` Maven profile.
     * Right-click the project -> Run Maven -> appengine:deploy.
     * Go to http://YOUR_APP_ENGINE_DEV_PROJECT_NAME.appspot.com to see the app.
     * Take a look at the Google Cloud Console (https://console.cloud.google.com)
+
+
+### A Quick Tour ###
+
+* `pom.xml` in the project directory contains Maven configuration.
+    * General app properties, such as name, version, Java version etc.
+    * **Build profiles** which determine app configuration for specific environments.
+        * `local` for running on the local server
+        * `dev` for deploying on your App Engine development environment
+        * `test` and `prod` are for the main BSData test and live App Engine environments. You will only be able to use these if authorised.
+    * Dependencies - the specific versions of libraries required by the app.
+        * Maven will handle downloading and providing the libraries when building and deploying the app.
+* `<project directory>/src/main/resources/` folder contains configuration files for each Maven profile
+    * `.../java/` files are general config used by the java app and are copied into the `WEB-INF/classes/` folder upon build/deploy.
+    * `.../webapp/` files are used to configure the application server and are copied into the `WEB-INF` folder upon build/deploy.
+    * Tbere are folders inside each of the above corresponding to each Maven profile.
+* `<project directory>/src/main/webapp/` folder contains the web front end
+    * HTML and CSS
+    * `.../app/` folder contains the Angular Javascript app
+* `<project directory>/src/main/java/` folder contains the back end Java app
+    * `rest` package contains RESTful web services
+        * `BattleScribeDataRestConfig.java` configures the app and performs startup tasks
+    * `viewmodel` package contains model classes that are used to pass data between the web services and the Angular front end.
+        * These objects are converted to/from JSON to be sent/recieved in web requests.
+    * `model` package contains model classes used internally by the app.
+    * `dao` package contains "Data Access Object" classes used used to read/write to data sources.
+        * `GitHubDao.java` is used for communicating with GitHub.
+    * `repository` package contains classes for creating BattleScribe repository index (`.bsi`) files.
