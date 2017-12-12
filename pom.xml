@@ -12,7 +12,6 @@
     </prerequisites>
 
     <properties>
-        
         <res.folder.path>src/main/resources</res.folder.path>
         <java.res.folder.path>${res.folder.path}/java</java.res.folder.path>
         <webapp.res.folder.path>${res.folder.path}/webapp</webapp.res.folder.path>
@@ -29,7 +28,21 @@
     
     <profiles>
         <profile>
+            <id>local</id>
             <properties>
+                <profile.name>local</profile.name>
+                <appengine.project.name>battlescribedatalocal</appengine.project.name>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        
+        <profile>
+            <id>personal</id>
+            <properties>
+                <profile.name>personal</profile.name>
+                <appengine.project.name>${personal.appengine.project.name}</appengine.project.name>
             </properties>
         </profile>
         
@@ -42,7 +55,10 @@
         </profile>
         
         <profile>
+            <id>prod</id>
             <properties>
+                <profile.name>prod</profile.name>
+                <appengine.project.name>battlescribedata</appengine.project.name>
             </properties>
         </profile>
     </profiles>
@@ -260,9 +276,30 @@
                 <artifactId>appengine-maven-plugin</artifactId>
                 <version>1.3.1</version>
                 <configuration>
+                    <!--<cloudSdkPath>${cloud.sdk.path}</cloudSdkPath>-->
                     <!-- App Engine environment for profile -->
                     <deploy.project>${appengine.project.name}</deploy.project>
                 </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-2</version>
+                <executions>
+                    <!-- Associate the read-project-properties goal with the initialize phase, to read the properties file. -->
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>maven.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
