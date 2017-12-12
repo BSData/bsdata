@@ -39,18 +39,18 @@
         </profile>
         
         <profile>
-            <id>personal</id>
+            <id>dev</id>
             <properties>
-                <profile.name>personal</profile.name>
-                <appengine.project.name>${personal.appengine.project.name}</appengine.project.name>
+                <profile.name>dev</profile.name>
+                <appengine.project.name>${appengine.dev.project.name}</appengine.project.name>
             </properties>
         </profile>
         
         <profile>
-            <id>dev</id>
+            <id>test</id>
             <properties>
-                <profile.name>dev</profile.name>
-                <appengine.project.name>battlescribedatadev</appengine.project.name>
+                <profile.name>test</profile.name>
+                <appengine.project.name>battlescribedatatest</appengine.project.name>
             </properties>
         </profile>
         

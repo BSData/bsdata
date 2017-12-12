@@ -29,12 +29,15 @@ It is assumed that you have some experience with the Java programming language (
 
 #### Before You Start ####
 
-1. Make sure you have a GitHub account and are a member of the BSData organisation (https://github.com/BSData).
-2. Make sure you have a Google account.
-3. On Windows, note that references to "Google Cloud Shell" below means the "Google Cloud Shell" command line launched from the Start Menu.
+1. Make sure you have a Google account.
+2. Make sure you have a GitHub account and are a member of the BSData organisation (https://github.com/BSData).
+3. Generate a GitHub security token to let the app access GitHub on your behalf.
+    * Log in to GitHub and go to Settings -> Developer Settings -> Personal access tokens (https://github.com/settings/tokens).
+    * Generate a new token with `public_repo` and `read:org` scopes. Take a note of the token.
 
 
 #### Download and Install Everything ####
+(Note: On Windows, references to "Google Cloud Shell" below means the "Google Cloud Shell" command line launched from the Start Menu.)
 
 1. Download and install the **Java SE 8 JDK** (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
     * You may be able to use the Java 9 SDK - YMMV.
@@ -46,7 +49,7 @@ It is assumed that you have some experience with the Java programming language (
 4. Set up Cloud SDK (https://cloud.google.com/sdk/docs/quickstarts).
     * You will be presented with a command line after installation, or you can run `gcloud init` from the Google Cloud Shell.
     * Log in with your Google account.
-    * Choose to create a new project (or select a previously created project). This will create be own personal App Engine environment that you can deploy to and test on. Make a note of the name!
+    * Choose to create a new project (or select a previously created project). This will will be your own App Engine development environment that you can deploy and test on. Make a note of the name.
     * You do not need to configure Compute Engine, it can be skipped.
     * You can view and manage your App Engine environment in the Google Cloud Console (https://console.cloud.google.com).
 5. Install the Google Cloud Java Components (https://cloud.google.com/sdk/docs/managing-components).
@@ -65,15 +68,15 @@ It is assumed that you have some experience with the Java programming language (
     * Set Maven Home to the directory you unzipped Maven 3.5 into.
 3. Open the BattleScribeData project you checked out from GitHub.
 4. Create a file in the project directory called `maven.properties`
-    * This file **should not be checked in to GitHub** (it's excluded via .gitignore). It contains Maven settings specific to individual developers.
+    * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains Maven settings specific to individual developers.
     * Add the following line: 
         ```
-        personal.appengine.project.name=YOUR_PERSONAL_APP_ENGINE_PROJECT_NAME
+        appengine.dev.project.name=YOUR_APP_ENGINE_DEV_PROJECT_NAME
         ```
-        (use your personal App Engine project name created when setting up the Cloud SDK above).
+        (Use your App Engine development project name created when setting up the Cloud SDK above).
 5. Create a file in the `<project directory>/src/main/resources/java/common/` directory called `github-user.properties`.
-    * This file **should not be checked in to GitHub** (it's excluded via .gitignore). It contains GitHub authentication settings that should not be public.
-    * **No, REALLY don't check this in** - if the GitHub authentication token is checked in to GitHub, it will be invalidated. This means the app will no longer have access to GitHub and will no longer work. The token will need to be regenerated!
+    * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains GitHub authentication settings that should not be public.
+    * **No, REALLY don't check this in** - if the GitHub authentication token is checked in to GitHub, it will be invalidated and the app will lose access to GitHub. The token will need to be regenerated!
     * Add the following lines
         ```
         ## GitHub User ##
@@ -81,14 +84,26 @@ It is assumed that you have some experience with the Java programming language (
         github.anon.token=GITHUB_AUTHENTICATION_TOKEN
         github.anon.email=BSDataAnon@users.noreply.github.com
         ```
+        (Use your own GitHub username and token).
+6. Build the project
+    * Sslect the `local` Maven profile from the "Project Configuration" dropdown at the top.
+    * Right-click the project and select "Clean and Build".
+    * Wait for Maven to download required dependencies (jar libraries) and build the project.
+7. Run the project locally (`appengine:run` Maven goal).
+    * Select the `local` Maven profile.
+    * Right-click the project -> Run Maven -> appengine:run.
+    * Go to http://localhost:8080 to see the app.
+8. Deploy the project to your App Engine development environment (`appengine:deploy` Maven goal).
+    * Select the `dev` Maven profile.
+    * Right-click the project -> Run Maven -> appengine:deploy.
+    * Go to http://YOUR_APP_ENGINE_DEV_PROJECT_NAME.appspot.com to see the app.
+    * Take a look at the Google Cloud Console (https://console.cloud.google.com)
+
+
+#### Project Tour ####
 
 ## Links ##
 
-* [BattleScribe homepage][]
-* [BattleScribe Data on Appspot][]
-* [Getting Started wiki][]
-
-
 [BattleScribe homepage]: http://www.battlescribe.net/
-[BattleScribe Data on Appspot]: http://battlescribedata.appspot.com/#/repos
+[BattleScribe Data on Appspot]: http://battlescribedata.appspot.com/
 [Getting Started wiki]: https://github.com/BSData/bsdata/wiki/Home#getting-started
