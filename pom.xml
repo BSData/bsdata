@@ -2,7 +2,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>17</version>
 
     <groupId>org.battlescribedata</groupId>
     <artifactId>BattleScribeDataWeb</artifactId>
@@ -22,7 +22,6 @@
             <properties>
                 <profile.name>local</profile.name>
                 <appengine.project.name>battlescribedatalocal</appengine.project.name>
-                <appengine.project.version>17</appengine.project.version>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -34,7 +33,6 @@
             <properties>
                 <profile.name>dev</profile.name>
                 <appengine.project.name>${appengine.dev.project.name}</appengine.project.name>
-                <appengine.project.version>17</appengine.project.version>
             </properties>
         </profile>
         
@@ -43,7 +41,6 @@
             <properties>
                 <profile.name>test</profile.name>
                 <appengine.project.name>battlescribedatatest</appengine.project.name>
-                <appengine.project.version>17</appengine.project.version>
             </properties>
         </profile>
         
@@ -52,12 +49,13 @@
             <properties>
                 <profile.name>prod</profile.name>
                 <appengine.project.name>battlescribedata</appengine.project.name>
-                <appengine.project.version>17</appengine.project.version>
             </properties>
         </profile>
     </profiles>
 
     <properties>
+        <appengine.project.version>${project.version}</appengine.project.version>
+                
         <res.folder.path>src/main/resources</res.folder.path>
         
         <profile.res.folder.path>${res.folder.path}/${profile.name}</profile.res.folder.path>
