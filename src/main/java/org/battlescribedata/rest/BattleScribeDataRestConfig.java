@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.battlescribedata.constants.PropertiesConstants;
+import org.battlescribedata.constants.WebConstants;
 import org.battlescribedata.dao.GitHubDao;
 import org.battlescribedata.service.GitHubService;
 import org.glassfish.hk2.api.Factory;
@@ -40,7 +41,7 @@ public class BattleScribeDataRestConfig extends ResourceConfig {
         
         // Specify the package containing REST resource classes: http://javaarm.com/file/glassfish/jersey/doc/userguide/Jersey-2.26-User-Guide.htm#environmenmt.appmodel
         logger.log(Level.INFO, "+++ Startup: Find REST resource classes");
-        packages("org.battlescribedata.rest");
+        packages(WebConstants.REST_RESOURCE_PACKAGE);
         
         
         // Registeer Jersey Multipart so we can use file uploads: http://javaarm.com/file/glassfish/jersey/doc/userguide/Jersey-2.26-User-Guide.htm#multipart

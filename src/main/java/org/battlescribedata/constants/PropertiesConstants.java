@@ -2,6 +2,9 @@
 package org.battlescribedata.constants;
 
 
+/**
+ * Constants for .propertis files
+ */
 public class PropertiesConstants {
     
     public static final String LOGGER_NAME = "org.battlescribedata";
@@ -15,6 +18,7 @@ public class PropertiesConstants {
     
     public static final String GITHUB_ORGANIZATION = "github.organisation";
     public static final String GITHUB_MASTER_BRANCH = "github.master.branch";
+    public static final String GITHUB_BSDATA_REPO = "github.bsdata.repo";
     
     public static final String SITE_NAME = "site.name";
     public static final String SITE_DESCRIPTION = "site.description";

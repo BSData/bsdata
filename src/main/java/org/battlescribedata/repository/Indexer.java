@@ -29,8 +29,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Handles creating a BattleScribe repository index from a set of data files.
- * 
- * @author Jonskichov
  */
 public class Indexer {
     

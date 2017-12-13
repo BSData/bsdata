@@ -1,15 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.battlescribedata.model;
 
 import java.io.Serializable;
 
-/**
- *
- * @author Jonskichov
- */
+
 public class DataFile implements Serializable {
     
     private transient byte[] data;

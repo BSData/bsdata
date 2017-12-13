@@ -1,13 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.battlescribedata.utils;
 
-/**
- *
- * @author Jonskichov
- */
+
 public class Stopwatch {
 
     private long startTime;

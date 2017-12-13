@@ -78,7 +78,7 @@ public class GitHubDao {
     private Properties properties;
   
     @Inject
-    private Logger logger = Logger.getLogger(PropertiesConstants.LOGGER_NAME);
+    private Logger logger;
     
     
     private static final int MAX_FEED_ENTRIES = 5;
@@ -786,7 +786,8 @@ public class GitHubDao {
         
         List<RepositoryVm> repositoryVms = new ArrayList<>();
         for (Repository repository : orgRepositories) {
-            if (repository.getName().equals(DataConstants.GITHUB_BSDATA_REPO_NAME)) {
+            String bsdataRepoName = properties.getProperty(PropertiesConstants.GITHUB_BSDATA_REPO);
+            if (repository.getName().equals(bsdataRepoName)) {
                 continue;
             }
 

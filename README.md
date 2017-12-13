@@ -24,22 +24,22 @@ It is assumed that you have some experience with the Java programming language (
 
 1. Download and install the **Java SE 8 JDK** (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
     * You may be able to use the Java 9 SDK - YMMV.
-2. Download and install the GitHub desktop app (https://desktop.github.com/).
+2. Download and install the **GitHub Desktop** app (https://desktop.github.com/).
     * Check out the bsdata project. (https://github.com/BSData/bsdata).
     * The root folder you check out into (containing `pom.xml`) will be referred to as the project folder.
-3. Download and install the Google Cloud SDK (https://cloud.google.com/sdk).
+3. Download and install the **Google Cloud SDK** (https://cloud.google.com/sdk).
     * Once installed, tick the boxes to `Start Cloud SDK Shell` and `Run gcloud init` (https://cloud.google.com/sdk/docs/).
-4. Set up Cloud SDK (https://cloud.google.com/sdk/docs/quickstarts).
+4. **Initialise the Google Cloud SDK** (https://cloud.google.com/sdk/docs/quickstarts).
     * You will be presented with a command line after installation, or you can run `gcloud init` from the Google Cloud Shell.
     * Log in with your Google account.
     * Choose to create a new project (or select a previously created project). This will will be your own App Engine development environment that you can deploy and test on. Make a note of the name.
     * You do not need to configure Compute Engine, it can be skipped.
     * Make sure your App Engine project is alive and well in Google Cloud Console (https://console.cloud.google.com).
-5. Install the Google Cloud Java Components (https://cloud.google.com/sdk/docs/managing-components).
+5. Install the **Google Cloud Java Components** (https://cloud.google.com/sdk/docs/managing-components).
     * From the Google Cloud Shell, run `gcloud components install app-engine-java`
-6. Download and install Netbeans Java EE bundle (https://netbeans.org/downloads/).
-    * The current version of Netbeans is 8.2, and by default it **does use include Maven 3.5**. Future versions of Netbeans may change this.
-7. Download and unzip Maven 3.5 (https://maven.apache.org/download.cgi).
+6. Download and install **Netbeans Java EE** bundle (https://netbeans.org/downloads/).
+    * The current version of Netbeans is 8.2, and by default it does not include Maven 3.5. Future versions of Netbeans may change this.
+7. Download and unzip **Maven 3.5** (https://maven.apache.org/download.cgi).
     * On Windows, you can extract it to a folder in Program Files.
 
 
@@ -50,16 +50,15 @@ It is assumed that you have some experience with the Java programming language (
     * Go to Tools -> Options, Select the Java section then the Maven tab.
     * Set Maven Home to the directory you unzipped Maven 3.5 into.
 3. Open the BattleScribeData project you checked out from GitHub.
-4. Create a file in the project directory called `maven.properties`
+4. Create a file in the project directory called **`maven.properties`**
     * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains Maven settings specific to individual developers.
     * Add the following line: 
         ```
         appengine.dev.project.name=YOUR_APP_ENGINE_DEV_PROJECT_NAME
         ```
         (Use your App Engine development project name created when setting up the Cloud SDK above).
-5. Create a file in the `<project directory>/src/main/resources/java/common/` directory called `github-user.properties`.
-    * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains GitHub authentication settings that should not be public.
-    * **No, REALLY don't check this in** - if the GitHub authentication token is checked in to GitHub, it will be invalidated and the app will lose access to GitHub. The token will need to be regenerated!
+5. Create a file in the `<project directory>/src/main/resources/java/common/` directory called **`github-user.properties`**.
+    * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains GitHub authentication settings that should not be public. If your GitHub authentication token is checked in to GitHub, it will be invalidated and you will need to generate a new one.
     * Add the following lines
         ```
         ## GitHub User ##
@@ -69,7 +68,7 @@ It is assumed that you have some experience with the Java programming language (
         ```
         (Use your own GitHub username and token).
 6. Build the project
-    * Sslect the `local` Maven profile from the "Project Configuration" dropdown at the top.
+    * Select the `local` Maven profile from the "Project Configuration" dropdown at the top.
     * Right-click the project and select "Clean and Build".
     * Wait for Maven to download required dependencies (jar libraries) and build the project.
 7. Run the project locally (`appengine:run` Maven goal).
@@ -94,19 +93,22 @@ It is assumed that you have some experience with the Java programming language (
         * `test` and `prod` are for the main BSData test and live App Engine environments. You will only be able to use these if authorised.
     * Dependencies - the specific versions of libraries required by the app.
         * Maven will handle downloading and providing the libraries when building and deploying the app.
+
 * `<project directory>/src/main/resources/` folder contains configuration files for each Maven profile
     * `.../java/` files are general config used by the java app and are copied into the `WEB-INF/classes/` folder upon build/deploy.
     * `.../webapp/` files are used to configure the application server and are copied into the `WEB-INF` folder upon build/deploy.
     * Tbere are folders inside each of the above corresponding to each Maven profile.
+
 * `<project directory>/src/main/webapp/` folder contains the web front end
     * HTML and CSS
     * `.../app/` folder contains the Angular Javascript app
-* `<project directory>/src/main/java/` folder contains the back end Java app
-    * `rest` package contains RESTful web services
-        * `BattleScribeDataRestConfig.java` configures the app and performs startup tasks
+
+* `<project directory>/src/main/java/` folder contains the back end Java app.
+    * `rest` package contains RESTful web services (https://jersey.github.io/documentation/2.26/jaxrs-resources.html).
+        * `BattleScribeDataRestConfig.java` configures the app and performs startup tasks.
     * `viewmodel` package contains model classes that are used to pass data between the web services and the Angular front end.
-        * These objects are converted to/from JSON to be sent/recieved in web requests.
-    * `model` package contains model classes used internally by the app.
+        * These objects are converted to/from JSON to be sent/recieved in web requests/responses.
+    * `model` package contains model classes for BattleScribe XML data files and indexes (http://simple.sourceforge.net/download/stream/doc/tutorial/tutorial.php).
     * `dao` package contains "Data Access Object" classes used used to read/write to data sources.
         * `GitHubDao.java` is used for communicating with GitHub.
-    * `repository` package contains classes for creating BattleScribe repository index (`.bsi`) files.
+    * `repository` package contains classes for creating BattleScribe repository indexes (`.bsi`) files.

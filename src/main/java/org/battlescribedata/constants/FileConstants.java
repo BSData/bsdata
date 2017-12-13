@@ -2,6 +2,9 @@
 package org.battlescribedata.constants;
 
 
+/**
+ * Filename/path constants
+ */
 public class FileConstants {
     
     public static final String GAME_SYSTEM_1_15_XSL_FILE_PATH = "/org/battlescribedata/res/transform/game_system_1_15.xsl";
