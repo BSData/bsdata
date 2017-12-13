@@ -22,6 +22,7 @@
             <properties>
                 <profile.name>local</profile.name>
                 <appengine.project.name>battlescribedatalocal</appengine.project.name>
+                <appengine.project.version>17</appengine.project.version>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -33,6 +34,7 @@
             <properties>
                 <profile.name>dev</profile.name>
                 <appengine.project.name>${appengine.dev.project.name}</appengine.project.name>
+                <appengine.project.version>17</appengine.project.version>
             </properties>
         </profile>
         
@@ -41,6 +43,7 @@
             <properties>
                 <profile.name>test</profile.name>
                 <appengine.project.name>battlescribedatatest</appengine.project.name>
+                <appengine.project.version>17</appengine.project.version>
             </properties>
         </profile>
         
@@ -49,6 +52,7 @@
             <properties>
                 <profile.name>prod</profile.name>
                 <appengine.project.name>battlescribedata</appengine.project.name>
+                <appengine.project.version>17</appengine.project.version>
             </properties>
         </profile>
     </profiles>
@@ -287,8 +291,8 @@
                 <configuration>
                     <!-- https://cloud.google.com/appengine/docs/standard/java/tools/maven-reference -->
                     <!--<cloudSdkPath>${cloud.sdk.path}</cloudSdkPath>-->
-                    <!-- App Engine environment for profile -->
                     <deploy.project>${appengine.project.name}</deploy.project>
+                    <deploy.version>${appengine.project.version}</deploy.version>
                 </configuration>
             </plugin>
             
