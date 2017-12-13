@@ -1,23 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.battlescribedata.constants;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
+
 /**
- *
- * @author jonskichov
+ * Constants relating to BattleScribe data files
  */
 public class DataConstants {
 
     public static final String MAX_DATA_FORMAT_VERSION = "2.01";
     public static final String MIN_DATA_FORMAT_VERSION = "1.13b";
     
-    public static final String GITHUB_BSDATA_REPO_NAME = "bsdata";
+    
+    // MIME types
     
     public static final String REPOSITORY_FILE_MIME_TYPE = "application/battlescribe.bsr";
     public static final String INDEX_FILE_MIME_TYPE = "application/battlescribe.bsi";
@@ -28,6 +26,9 @@ public class DataConstants {
     public static final String ZIP_MIME_TYPE = "application/zip";
     public static final String TEXT_MIME_TYPE = "text/plain";
     public static final String HTML_MIME_TYPE = "text/html";
+    
+    
+    // File names/extensions
     
     public static final String ROSTER_FILE_EXTENSION = ".ros";
     public static final String CATALOGUE_FILE_EXTENSION = ".cat";
@@ -48,6 +49,9 @@ public class DataConstants {
     public static final String DEFAULT_INDEX_COMPRESSED_FILE_NAME = "index.bsi";
     public static final String DEFAULT_INDEX_FILE_NAME = "index.xml";
 
+    
+    // XML tag/attribute names
+    
     public static final String BATTLESCRIBE_VERSION_ATTRIBUTE = "battleScribeVersion";
     public static final String REVISION_ATTRIBUTE = "revision";
     public static final String ID_ATTRIBUTE = "id";
@@ -72,6 +76,7 @@ public class DataConstants {
     public static final String CATALOGUE_LINK_TAG = "catalogueLink";
     public static final String CATALOGUE_LINKS_TAG = "catalogueLinks";
 
+    
     public enum DataType {
 
         ROSTER("roster"),
