@@ -91,18 +91,15 @@ It is assumed that you have some experience with the Java programming language (
     * **Build profiles** which determine app configuration for specific environments.
         * `local` for running on the local server
         * `dev` for deploying on your App Engine development environment
-        * `test` and `prod` are for the main BSData test and live App Engine environments. You will only be able to use these if authorised.
+        * `test` and `prod` are for the main BSData test and live App Engine environments. You will not be able to use these unless authorised.
     * Dependencies - the specific versions of libraries required by the app.
         * Maven will handle downloading and providing the libraries when building and deploying the app.
-
 * `/src/main/resources/` folder contains configuration files for each Maven profile, plus common properties files used by all profiles.
     * `.../java/` files are general config used by the java app and are copied into the `WEB-INF/classes/` folder upon build/deploy.
     * `.../webapp/` files are used to configure the application server and are copied into the `WEB-INF` folder upon build/deploy.
-
 * `/src/main/webapp/` folder contains the web front end
     * HTML and CSS
     * `.../app/` folder contains the Angular Javascript app
-
 * `/src/main/java/` folder contains the back end Java app.
     * `rest` package contains RESTful web services (https://jersey.github.io/documentation/2.26/jaxrs-resources.html).
         * `BattleScribeDataRestConfig.java` configures the app and performs startup tasks.
