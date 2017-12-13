@@ -10,21 +10,11 @@
     <prerequisites>
         <maven>3.5</maven>
     </prerequisites>
+        
 
-    <properties>
-        <res.folder.path>src/main/resources</res.folder.path>
-        <java.res.folder.path>${res.folder.path}/java</java.res.folder.path>
-        <webapp.res.folder.path>${res.folder.path}/webapp</webapp.res.folder.path>
-        <common.folder.name>common</common.folder.name>
-        
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
-        <archiveClasses>true</archiveClasses>
-    </properties>
-        
+    <!-- /////////////////////// -->
+    <!-- Profiles and Properties -->
+    <!-- /////////////////////// -->
     
     <profiles>
         <profile>
@@ -62,6 +52,25 @@
             </properties>
         </profile>
     </profiles>
+
+    <properties>
+        <res.folder.path>src/main/resources</res.folder.path>
+        
+        <profile.res.folder.path>${res.folder.path}/${profile.name}</profile.res.folder.path>
+        <java.profile.res.folder.path>${profile.res.folder.path}/java</java.profile.res.folder.path>
+        <webapp.profile.res.folder.path>${profile.res.folder.path}/webapp</webapp.profile.res.folder.path>
+        
+        <common.res.folder.path>${res.folder.path}/common</common.res.folder.path>
+        <java.common.res.folder.path>${common.res.folder.path}/java</java.common.res.folder.path>
+        <webapp.common.res.folder.path>${common.res.folder.path}/webapp</webapp.common.res.folder.path>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <archiveClasses>true</archiveClasses>
+    </properties>
 
 
     <!-- //////////////////////////// -->
@@ -260,11 +269,11 @@
         <resources>
             <resource>
                 <!-- Java config files for profile -->
-                <directory>${java.res.folder.path}/${profile.name}</directory>
+                <directory>${java.profile.res.folder.path}</directory>
             </resource>
             <resource>
                 <!-- Common java config files -->
-                <directory>${java.res.folder.path}/${common.folder.name}</directory>
+                <directory>${java.common.res.folder.path}</directory>
             </resource>
         </resources>
         
@@ -331,12 +340,12 @@
                     <webResources>
                         <resource>
                             <!-- Webapp config files for profile -->
-                            <directory>${webapp.res.folder.path}/${profile.name}</directory>
+                            <directory>${webapp.profile.res.folder.path}</directory>
                             <targetPath>WEB-INF</targetPath>
                         </resource>
                         <resource>
                             <!-- Common webapp config files -->
-                            <directory>${webapp.res.folder.path}/${common.folder.name}</directory>
+                            <directory>${webapp.common.res.folder.path}</directory>
                             <targetPath>WEB-INF</targetPath>
                         </resource>
                     </webResources>

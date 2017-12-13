@@ -57,7 +57,7 @@ It is assumed that you have some experience with the Java programming language (
         appengine.dev.project.name=YOUR_APP_ENGINE_DEV_PROJECT_NAME
         ```
         (Use your App Engine development project name created when setting up the Cloud SDK above).
-5. Create a file in the `<project directory>/src/main/resources/java/common/` directory called **`github-user.properties`**.
+5. Create a file in the `<project directory>/src/main/resources/common/java/` directory called **`github-user.properties`**.
     * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains GitHub authentication settings that should not be public. If your GitHub authentication token is checked in to GitHub, it will be invalidated and you will need to generate a new one.
     * Add the following lines
         ```
@@ -97,7 +97,6 @@ It is assumed that you have some experience with the Java programming language (
 * `<project directory>/src/main/resources/` folder contains configuration files for each Maven profile
     * `.../java/` files are general config used by the java app and are copied into the `WEB-INF/classes/` folder upon build/deploy.
     * `.../webapp/` files are used to configure the application server and are copied into the `WEB-INF` folder upon build/deploy.
-    * Tbere are folders inside each of the above corresponding to each Maven profile.
 
 * `<project directory>/src/main/webapp/` folder contains the web front end
     * HTML and CSS
