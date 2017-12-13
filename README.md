@@ -95,15 +95,15 @@ It is assumed that you have some experience with the Java programming language (
     * Dependencies - the specific versions of libraries required by the app.
         * Maven will handle downloading and providing the libraries when building and deploying the app.
 
-* `<project directory>/src/main/resources/` folder contains configuration files for each Maven profile
+* `/src/main/resources/` folder contains configuration files for each Maven profile, plus common properties files used by all profiles.
     * `.../java/` files are general config used by the java app and are copied into the `WEB-INF/classes/` folder upon build/deploy.
     * `.../webapp/` files are used to configure the application server and are copied into the `WEB-INF` folder upon build/deploy.
 
-* `<project directory>/src/main/webapp/` folder contains the web front end
+* `/src/main/webapp/` folder contains the web front end
     * HTML and CSS
     * `.../app/` folder contains the Angular Javascript app
 
-* `<project directory>/src/main/java/` folder contains the back end Java app.
+* `/src/main/java/` folder contains the back end Java app.
     * `rest` package contains RESTful web services (https://jersey.github.io/documentation/2.26/jaxrs-resources.html).
         * `BattleScribeDataRestConfig.java` configures the app and performs startup tasks.
     * `viewmodel` package contains model classes that are used to pass data between the web services and the Angular front end.
