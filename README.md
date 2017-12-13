@@ -46,6 +46,7 @@ It is assumed that you have some experience with the Java programming language (
 ### Set up the Project in Netbeans ###
 
 1. Launch Netbeans
+    * Pro tip: If you prefer a dark colour scheme, go to Tools -> Plugins and install "Darcula LAF for Netbeans"
 2. Set Netbeans to use Maven 3.5
     * Go to Tools -> Options, Select the Java section then the Maven tab.
     * Set Maven Home to the directory you unzipped Maven 3.5 into.
@@ -59,7 +60,7 @@ It is assumed that you have some experience with the Java programming language (
         (Use your App Engine development project name created when setting up the Cloud SDK above).
 5. Create a file in the `<project directory>/src/main/resources/common/java/` directory called **`github-user.properties`**.
     * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains GitHub authentication settings that should not be public. If your GitHub authentication token is checked in to GitHub, it will be invalidated and you will need to generate a new one.
-    * Add the following lines
+    * Add the following lines:
         ```
         ## GitHub User ##
         github.anon.username=GITHUB_USER_NAME
