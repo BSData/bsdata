@@ -17,6 +17,11 @@ It is assumes that you have some experience with developing on Windows, or can t
 * [Set up the Project in Netbeans][]
 * [A Quick Tour][]
 
+[Before You Start]: #before-you-start
+[Download and Install Everything]: #download-and-install-everything
+[Set up the Project in Netbeans]: #set-up-the-project-in-netbeans
+[A Quick Tour]: #a-quick-tour
+
 
 ### Before You Start ###
 
