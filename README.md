@@ -1,13 +1,13 @@
 
 ## BSData Project ##
 
-BattleScribeData is a Java 8 web application designed to run on Google App Engine. It is built and deployed using Maven 3.5.
+BattleScribeDataWeb is the web application that serves BattleScribe data files from the various data repositories on GitHub. It is a Java 8 web application designed to run on Google App Engine. It is built and deployed using Maven 3.5.
 
-It consists of a Angular (JavaScript) front end and a RESTful (Jersey / JAX-RS) back end.
+It consists of an Angular (JavaScript) front end and a RESTful (Jersey / JAX-RS) back end.
 
 This guide is written from the perspective of a Netbeans IDE user running Windows, however you can use any IDE or toolset that supports Maven.
 
-It is assumed that you have some experience with the Java programming language (or are willing to learn it!).
+It is assumes that you have some experience with developing on Windows, or can translate the following to your operating system of choice. You should also have some knowledge of software development/programming using Java (or are willing to learn it!).
 
 
 ### Before You Start ###
@@ -41,7 +41,8 @@ It is assumed that you have some experience with the Java programming language (
     * The current version of Netbeans is 8.2, and by default it does not include Maven 3.5. Future versions of Netbeans may change this.
 7. Download and unzip **Maven 3.5** (https://maven.apache.org/download.cgi).
     * On Windows, you can extract it to a folder in Program Files.
-
+    * Make sure you end up with a Maven folder that contains `bin` and `boot`folders.
+    * Your `.../Maven/bin` folder needs to be on your PATH environment variable (https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10).
 
 ### Set up the Project in Netbeans ###
 
