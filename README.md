@@ -10,6 +10,14 @@ This guide is written from the perspective of a Netbeans IDE user running Window
 It is assumes that you have some experience with developing on Windows, or can translate the following to your operating system of choice. You should also have some knowledge of software development/programming using Java (or are willing to learn it!).
 
 
+### Contents ###
+
+* [Before You Start][]
+* [Download and Install Everything][]
+* [Set up the Project in Netbeans][]
+* [A Quick Tour][]
+
+
 ### Before You Start ###
 
 1. Make sure you have a Google account.
