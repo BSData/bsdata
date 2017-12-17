@@ -216,7 +216,7 @@ bsDataApp.controller("FileFormCtrl", function($scope, $routeParams, repoRestApi,
         
         $http({
             method: "POST",
-            url: $scope.formData.currentFile.reportBugUrl,
+            url: $scope.formData.currentFile.fileUrl + "/issue",
             data: formData,
             transformRequest: angular.identity,
             headers: {
