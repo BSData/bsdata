@@ -91,7 +91,13 @@ It is assumes that you have some experience with developing on Windows, or can t
     * Right-click the project -> Run Maven -> appengine:run.
     * Go to http://localhost:8080 to see the app.
     * (The local server is provided as part of the Cloud SDK)
-8. Deploy the project to your App Engine development environment (`appengine:deploy` Maven goal).
+8. Debug the project locally (`appengine:run` Maven goal).
+    * Select the `local-debug` Maven profile.
+    * Right-click the project -> Run Maven -> appengine:run.
+    * The local server will wait listening on port 5005 for the debugger to attach.
+    * Go to Debug -> Attach debugger: Connector `SocketAttach`, Transport `dt_socket`, Host `localhost`, Port `5005`.
+    * Go to http://localhost:8080 to see the app.
+9. Deploy the project to your App Engine development environment (`appengine:deploy` Maven goal).
     * Select the `dev` Maven profile.
     * Right-click the project -> Run Maven -> appengine:deploy.
     * Go to http://YOUR_APP_ENGINE_DEV_PROJECT_NAME.appspot.com to see the app.
@@ -104,6 +110,7 @@ It is assumes that you have some experience with developing on Windows, or can t
     * General app properties, such as name, version, Java version etc.
     * **Build profiles** which determine app configuration for specific environments.
         * `local` for running on the local server
+        * `local-debug` for debugging on the local server
         * `dev` for deploying on your App Engine development environment
         * `test` and `prod` are for the main BSData test and live App Engine environments. You will not be able to use these unless authorised.
     * Dependencies - the specific versions of libraries required by the app.
