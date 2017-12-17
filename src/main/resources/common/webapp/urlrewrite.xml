@@ -10,5 +10,10 @@
         <to type="redirect">/rest/sponsormessage/getMessages$1</to>
     </rule>
     -->
+     
+    <rule match-type="wildcard">
+        <from>/repos/wh40k-mobile-format*</from>
+        <to type="redirect">/repos/wh40k$1</to>
+    </rule>
     
 </urlrewrite>
