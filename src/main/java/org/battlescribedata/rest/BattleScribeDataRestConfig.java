@@ -81,7 +81,6 @@ public class BattleScribeDataRestConfig extends ResourceConfig {
                         .in(Singleton.class);
             }
         });
-        
     }
     
     /**

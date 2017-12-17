@@ -550,18 +550,23 @@ public class Utils {
     }
     
     private static HashMap<String, ByteArrayInputStream> styleSheetMapCache;
-    private static HashMap<String, ByteArrayInputStream> getStyleSheetMap() throws IOException {
+    private static HashMap<String, ByteArrayInputStream> getStyleSheetMap() {
         if (styleSheetMapCache == null) {
             styleSheetMapCache = new HashMap<>();
             
-            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_1_15_XSL_FILE_PATH);
-            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_1_15_XSL_FILE_PATH);
-            
-            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_00_XSL_FILE_PATH);
-            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_00_XSL_FILE_PATH);
-            
-            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_01_XSL_FILE_PATH);
-            addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_01_XSL_FILE_PATH);
+            try {
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_1_15_XSL_FILE_PATH);
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_1_15_XSL_FILE_PATH);
+
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_00_XSL_FILE_PATH);
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_00_XSL_FILE_PATH);
+
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_01_XSL_FILE_PATH);
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_01_XSL_FILE_PATH);
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e); // We can't run the app without reading stylesheets. KILL IT WITH FIRE.
+            }
         }
         return styleSheetMapCache;
     }
