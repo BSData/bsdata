@@ -871,13 +871,13 @@ public class GitHubDao {
             repositoryFile.setBattleScribeVersion(dataFile.getBattleScribeVersion());
             
             if (Utils.isCataloguePath(fileName)) {
-                repositoryFile.setType(StringUtils.capitalize(DataType.CATALOGUE.toString()));
+                repositoryFile.setType(DataType.CATALOGUE.toString());
             }
             else if (Utils.isGameSytstemPath(fileName)) {
-                repositoryFile.setType(StringUtils.capitalize(DataType.GAME_SYSTEM.toString()));
+                repositoryFile.setType(DataType.GAME_SYSTEM.toString());
             }
             else if (Utils.isRosterPath(fileName)) {
-                repositoryFile.setType(StringUtils.capitalize(DataType.ROSTER.toString()));
+                repositoryFile.setType(DataType.ROSTER.toString());
             }
             
             repositoryFile.setFileUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + fileName));
