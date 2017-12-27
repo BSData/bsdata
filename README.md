@@ -125,6 +125,7 @@ It is assumes that you have some experience with developing on Windows, or can t
         * `BattleScribeDataRestConfig.java` configures the app and performs startup tasks.
     * `viewmodel` package contains model classes that are used to pass data between the web services and the Angular front end.
         * These objects are converted to/from JSON to be sent/recieved in web requests/responses.
+        * These objects are used by the BattleScribe app and **should not be changed** without proper planning. Changes could cause problems with BattleScribe reading repository information.
     * `model` package contains model classes for BattleScribe XML data files and indexes (http://simple.sourceforge.net/download/stream/doc/tutorial/tutorial.php).
     * `dao` package contains "Data Access Object" classes used used to read/write to data sources.
         * `GitHubDao.java` is used for communicating with GitHub.
