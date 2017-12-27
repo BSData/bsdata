@@ -5,14 +5,13 @@
     <!-- https://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html#configuration -->
     <!--    
     <rule match-type="wildcard">
-        <condition type="request-uri" operator="notequal">/rest/*</condition>
-        <from>/sponsormessage/getMessages*</from>
-        <to type="redirect">/rest/sponsormessage/getMessages$1</to>
+        <from>/repos/wh40k-mobile-format**</from>
+        <to type="redirect">/repos/wh40k$1</to>
     </rule>
     -->
      
     <rule match-type="wildcard">
-        <from>/repos/wh40k-mobile-format*</from>
+        <from>/repos/wh40k-mobile-format**</from>
         <to type="redirect">/repos/wh40k$1</to>
     </rule>
     
