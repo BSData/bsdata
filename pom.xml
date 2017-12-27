@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>war</packaging>
+    <version>17</version>
+
+    <groupId>org.battlescribedata</groupId>
+    <artifactId>BattleScribeDataWeb</artifactId>
+    
+    <prerequisites>
+        <maven>3.5</maven>
+    </prerequisites>
+        
+
+    <!-- /////////////////////// -->
+    <!-- Profiles and Properties -->
+    <!-- /////////////////////// -->
+    
+    <profiles>
+        <profile>
+            <id>local</id>
+            <properties>
+                <profile.name>local</profile.name>
+                <appengine.project.name>battlescribedatalocal</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        
+        <profile>
+            <id>local-debug</id>
+            <properties>
+                <!-- Use same name as local -->
+                <profile.name>local</profile.name>
+                <appengine.project.name>battlescribedatalocal</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
+            </properties>
+            
+            <!-- Duplicate appengine plugin and include debug JVM args -->
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>appengine-maven-plugin</artifactId>
+                        <version>1.3.1</version>
+                        <configuration>
+                            <!-- https://cloud.google.com/appengine/docs/standard/java/tools/maven-reference -->
+                            <!--<cloudSdkPath>${cloud.sdk.path}</cloudSdkPath>-->
+                            <deploy.project>${appengine.project.name}</deploy.project>
+                            <deploy.version>${appengine.project.version}</deploy.version>
+                            <deploy.promote>${appengine.project.promote}</deploy.promote>
+
+                            <devserver.jvmFlags>
+                                <jvmFlag>-Xdebug</jvmFlag>
+                                <jvmFlag>-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005</jvmFlag>
+                            </devserver.jvmFlags>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>dev</id>
+            <properties>
+                <profile.name>dev</profile.name>
+                <appengine.project.name>${appengine.dev.project.name}</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>test</id>
+            <properties>
+                <profile.name>test</profile.name>
+                <appengine.project.name>battlescribedatatest</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
+            </properties>
+        </profile>
+        
+        <profile>
+            <id>prod</id>
+            <properties>
+                <profile.name>prod</profile.name>
+                <appengine.project.name>battlescribedata</appengine.project.name>
+                <appengine.project.promote>false</appengine.project.promote>
+            </properties>
+        </profile>
+    </profiles>
+
+    <properties>
+        <appengine.project.version>${project.version}</appengine.project.version>
+                
+        <res.folder.path>src/main/resources</res.folder.path>
+        
+        <profile.res.folder.path>${res.folder.path}/${profile.name}</profile.res.folder.path>
+        <java.profile.res.folder.path>${profile.res.folder.path}/java</java.profile.res.folder.path>
+        <webapp.profile.res.folder.path>${profile.res.folder.path}/webapp</webapp.profile.res.folder.path>
+        
+        <common.res.folder.path>${res.folder.path}/common</common.res.folder.path>
+        <java.common.res.folder.path>${common.res.folder.path}/java</java.common.res.folder.path>
+        <webapp.common.res.folder.path>${common.res.folder.path}/webapp</webapp.common.res.folder.path>
+        
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
+        <archiveClasses>true</archiveClasses>
+    </properties>
+
+
+    <!-- //////////////////////////// -->
+    <!-- Compile/runtime Dependencies -->
+    <!-- //////////////////////////// -->
+    
+    <dependencies>
+        
+        <dependency>
+            <!-- Google Cloud API -->
+            <!-- https://cloud.google.com/java -->
+            <!-- https://mvnrepository.com/artifact/com.google.appengine/appengine-api-1.0-sdk -->
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-1.0-sdk</artifactId>
+            <version>1.9.59</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Servlet API 3.1 -->
+            <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Jersey Servlet: RESTful web services --> 
+            <!-- https://jersey.github.io/documentation/2.26/index.html --> 
+            <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.containers/jersey-container-servlet-core -->
+            <groupId>org.glassfish.jersey.containers</groupId>
+            <artifactId>jersey-container-servlet-core</artifactId>
+            <version>2.26</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Jersey Media Multipart: Jaresy for multipart media (e.g. file uploads) -->
+            <!-- https://jersey.github.io/documentation/2.26/media.html#multipart -->
+            <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-multipart -->
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-multipart</artifactId>
+            <version>2.26</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Jersey HK2: Dependency injection -->
+            <!-- https://javaee.github.io/hk2/introduction.html -->
+            <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.inject/jersey-hk2 -->
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>2.26</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <!-- EGit GitHub: GitHub API -->
+            <!-- https://github.com/eclipse/egit-github/tree/master/org.eclipse.egit.github.core -->
+            <!-- https://mvnrepository.com/artifact/org.eclipse.mylyn.github/org.eclipse.egit.github.core -->
+            <groupId>org.eclipse.mylyn.github</groupId>
+            <artifactId>org.eclipse.egit.github.core</artifactId>
+            <version>2.1.5</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Rome: ATOM/RSS feeds -->
+            <!-- https://rometools.github.io/rome -->
+            <!-- https://mvnrepository.com/artifact/com.rometools/rome -->
+            <groupId>com.rometools</groupId>
+            <artifactId>rome</artifactId>
+            <version>1.9.0</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <!-- SimpleXML: XML serialization/deserialization -->
+            <!-- http://simple.sourceforge.net -->
+            <!-- https://mvnrepository.com/artifact/org.simpleframework/simple-xml -->
+            <groupId>org.simpleframework</groupId>
+            <artifactId>simple-xml</artifactId>
+            <version>2.7.1</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Saxon HE: XSLT 2.0 transformation -->
+            <!-- http://saxon.sourceforge.net -->
+            <!-- https://mvnrepository.com/artifact/net.sf.saxon/Saxon-HE -->
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>Saxon-HE</artifactId>
+            <version>9.8.0-6</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <!-- GSon: JSON serialization/deserialization -->
+            <!-- https://github.com/google/gson -->
+            <!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.2</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Apache Commons Lang 3: General Java utils -->
+            <!-- https://commons.apache.org/proper/commons-lang -->
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.7</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Apache Commons IO: File and Stream utils -->
+            <!-- https://commons.apache.org/proper/commons-io -->
+            <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Apache Commons Codec: Encoding/decoding (e.g. Base64) -->
+            <!-- https://commons.apache.org/proper/commons-codec -->
+            <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.11</version>
+            <scope>compile</scope>
+        </dependency>
+        
+        <dependency>
+            <!-- Tuckey URL rewriter -->
+            <!-- http://tuckey.org/urlrewrite/ -->
+            <!-- https://mvnrepository.com/artifact/org.tuckey/urlrewritefilter -->
+            <groupId>org.tuckey</groupId>
+            <artifactId>urlrewritefilter</artifactId>
+            <version>4.0.4</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <!-- Test Dependencies -->
+        <!--
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-testing</artifactId>
+            <version>1.9.59</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-stubs</artifactId>
+            <version>1.9.59</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-tools-sdk</artifactId>
+            <version>1.9.59</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <version>0.33</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>2.0.2-beta</version>
+            <scope>test</scope>
+        </dependency>
+        -->
+        
+    </dependencies>
+
+
+    <build>
+        <resources>
+            <resource>
+                <!-- Java config files for profile -->
+                <directory>${java.profile.res.folder.path}</directory>
+            </resource>
+            <resource>
+                <!-- Common java config files -->
+                <directory>${java.common.res.folder.path}</directory>
+            </resource>
+        </resources>
+        
+        <!-- for hot reload of the web application-->
+        <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
+        <plugins>
+            <plugin>
+                <groupId>com.google.cloud.tools</groupId>
+                <artifactId>appengine-maven-plugin</artifactId>
+                <version>1.3.1</version>
+                <configuration>
+                    <!-- https://cloud.google.com/appengine/docs/standard/java/tools/maven-reference -->
+                    <!--<cloudSdkPath>${cloud.sdk.path}</cloudSdkPath>-->
+                    <deploy.project>${appengine.project.name}</deploy.project>
+                    <deploy.version>${appengine.project.version}</deploy.version>
+                    <deploy.promote>${appengine.project.promote}</deploy.promote>
+                </configuration>
+            </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <version>1.0-alpha-2</version>
+                <executions>
+                    <!-- Associate the read-project-properties goal with the initialize phase, to read the properties file. -->
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>read-project-properties</goal>
+                        </goals>
+                        <configuration>
+                            <files>
+                                <file>maven.properties</file>
+                            </files>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.3</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>display-dependency-updates</goal>
+                            <goal>display-plugin-updates</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>javax.servlet:javax.servlet-api</exclude>
+                        <exclude>com.google.guava:guava</exclude> <!-- avoid android version -->
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <!-- Webapp config files for profile -->
+                            <directory>${webapp.profile.res.folder.path}</directory>
+                            <targetPath>WEB-INF</targetPath>
+                        </resource>
+                        <resource>
+                            <!-- Common webapp config files -->
+                            <directory>${webapp.common.res.folder.path}</directory>
+                            <targetPath>WEB-INF</targetPath>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.6</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.2</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>3.1</version>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>1.4.1</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.5</version>
+                                </requireMavenVersion>
+                                <requirePluginVersions>
+                                    <message>Best Practice is to always define plugin versions!</message>
+                                    <banLatest>true</banLatest>
+                                    <banRelease>true</banRelease>
+                                    <phases>clean,deploy,verify,appengine:run,appengine:deploy,appengine:update,appengine:devappaserver,site</phases>
+                                </requirePluginVersions>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

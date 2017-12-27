@@ -4,7 +4,8 @@ Thumbs.db
 *.ear
 build/
 dist/
-lib/CopyLibs/
-lib/nblibraries.properties
-nbproject
-build.xml
+target/
+nbproject/
+nb-configuration.xml
+maven.properties
+github-user.properties

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<urlrewrite use-context="true" use-query-string="true">
+
+    <!-- https://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html#configuration -->
+    <!--    
+    <rule match-type="wildcard">
+        <from>/repos/wh40k-mobile-format**</from>
+        <to type="redirect">/repos/wh40k$1</to>
+    </rule>
+    -->
+     
+    <rule match-type="wildcard">
+        <from>/repos/wh40k-mobile-format**</from>
+        <to type="redirect">/repos/wh40k$1</to>
+    </rule>
+    
+</urlrewrite>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!-- The following line from HTML5Boilerplate does not validate; it is used by Modernizr: the "no-js" class acts as a fallback if JavaScript is disabled -->
+<!--[if gt IE 8]><!--> <!--<![endif]-->
+
+<html class="no-js" lang="en" data-ng-app="bsdataApp" id="ng-app">
+
+    <head>
+        <meta charset="utf-8">
+        <title>BattleScribe Data Files</title>
+        <link rel="icon" href="app/img/bsdata_logo.png" />
+        <meta name="description" content="Crowd-sourced data repositories for BattleScribe">
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="google-site-verification" content="oJjuSS9A3-M6rX6MH5bJoBvcUAxVh07KV80uOKchP-g" />
+
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="app/css/normalize.css">
+        <link rel="stylesheet" href="app/css/main.css">
+        <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+        <link href="http://fonts.googleapis.com/css?family=Roboto+Slab" rel="stylesheet" type="text/css">
+        
+        <script src="//cdnjs.cloudflare.com/ajax/libs/modernizr/2.7.2/modernizr.min.js"></script>
+        <script type="text/javascript" src="http://updateyourbrowser.net/uyb.js"></script>
+        <script type="text/javascript">
+            var $buoop = {};
+            $buoop.ol = window.onload;
+            window.onload=function(){
+                 try {if ($buoop.ol) $buoop.ol();}catch (e) {}
+                 var e = document.createElement("script");
+                 e.setAttribute("type", "text/javascript");
+                 e.setAttribute("src", "//browser-update.org/update.js");
+                 document.body.appendChild(e);
+            }
+        </script>
+    </head>
+
+    <body>
+        <div id="wrapper">
+            <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+            <![endif]-->
+        
+            <!-- Header -->
+            <div id="header">
+                <div class="center">
+                    <a href="/#/repos">
+                        <img class="logo" src="app/img/bsdata_logo.png" alt="BattleScribe data file hosting platform">
+                    </a>
+
+                    <!-- This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html -->
+                    <div class="pageTitle">
+                        <ul>
+                            <li>
+                                <div class="outerContainer">
+                                    <div class="innerContainer">
+                                        <div class="element">
+                                            <h1>BattleScribe Data Files</h1>
+                                            <h2>Crowd-sourced data repositories for BattleScribe</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <a href="https://github.com/BSData">
+                    <img class="ribbon" src="app/img/ribbons/right-cerulean.png" 
+                         onmouseover="this.src = 'app/img/ribbons/right-red.png';"
+                         onmouseout="this.src = 'app/img/ribbons/right-cerulean.png';"
+                         alt="Fork me on GitHub" />
+                </a>
+            </div>
+
+            <div id="body">
+                <div class="center">
+                    <div class="bodyText">
+                        <ul>
+                            <li>
+                                <span class="bold">Found a bug or problem?</span> Go to a repository's details to report 
+                                a bug or submit a file update.
+                            </li>
+                            <li>
+                                <span class="bold">Stay up to date</span> with the latest data file releases by following 
+                                us on Facebook, Twitter or subscribing to our feeds.
+                            </li>
+                            <li>
+                                We'd love you to <span class="bold">host your data with us!</span> If you have data files 
+                                for a game system we don't have listed, <a href="https://github.com/BSData/bsdata/issues">contact us</a>.
+                            </li>
+                            <li>
+                                All our data files (and this website) are <span class="bold">freely available on 
+                                <a href="https://github.com/BSData">GitHub</a></span> - you're welcome to fork us!
+                            </li>
+                        </ul>
+                        
+                        <p class="olddata">
+                            <span class="bold">Looking for data for BattleScribe 1.15.x?</span>
+                            <br>
+                            The data on this site is being migrated to BattleScribe 2.0 format. This format is not compatible with BattleScribe 1.15.x or below.
+                            Some data authors have archived their old 1.15.x data on their <a href="https://github.com/BSData">GitHub page</a>.
+                        </p>
+                    </div>
+
+                    <div id="container" data-ng-view>
+                        <!-- Angular app gets inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div style="height: 32px; clear: both;"><!-- padding div to make sure footer remains at bottom of screen --></div>
+        </div>
+
+        <!-- Footer -->
+        <div id="footer">
+            <p>
+                <a href="http://aralbalkan.com/scribbles/fork-me-on-github-retina-ribbons/">"Fork me on GitHub Retina Ribbon"</a>
+                by <a href="http://aralbalkan.com/">Aral Balkan</a> is licensed under <a href="http://creativecommons.org/licenses/by-nc-sa/2.0/uk/">CC BY-NC-SA 2.0 UK</a>
+            </p>
+        </div>
+
+        <!-- Javascript libraries -->
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-route.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-resource.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular-cookies.min.js"></script>
+        
+        <!--        
+        <script src="app/lib/angular/angular.js"></script>
+        <script src="app/lib/angular/angular-route.js"></script>
+        <script src="app/lib/angular/angular-resource.js"></script>
+        <script src="app/lib/angular/angular-cookies.js"></script>
+        -->
+        
+        <script src="app/lib/angular-file-upload.min.js"></script>
+        
+        <!-- Application Javascript -->
+        <script src="app/js/app.js"></script>
+        <script src="app/js/services.js"></script>
+        <script src="app/js/controllers.js"></script>
+        <script src="app/js/filters.js"></script>
+        <script src="app/js/directives.js"></script>
+
+        <!-- Google Analytics -->
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+            ga('create', 'UA-11720294-6', 'battlescribedata.appspot.com');
+            ga('send', 'pageview');
+        </script>
+    </body>
+</html>
