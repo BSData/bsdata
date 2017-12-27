@@ -22,6 +22,7 @@
             <properties>
                 <profile.name>local</profile.name>
                 <appengine.project.name>battlescribedatalocal</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
             </properties>
             <activation>
                 <activeByDefault>true</activeByDefault>
@@ -34,6 +35,7 @@
                 <!-- Use same name as local -->
                 <profile.name>local</profile.name>
                 <appengine.project.name>battlescribedatalocal</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
             </properties>
             
             <!-- Duplicate appengine plugin and include debug JVM args -->
@@ -48,6 +50,7 @@
                             <!--<cloudSdkPath>${cloud.sdk.path}</cloudSdkPath>-->
                             <deploy.project>${appengine.project.name}</deploy.project>
                             <deploy.version>${appengine.project.version}</deploy.version>
+                            <deploy.promote>${appengine.project.promote}</deploy.promote>
 
                             <devserver.jvmFlags>
                                 <jvmFlag>-Xdebug</jvmFlag>
@@ -64,6 +67,7 @@
             <properties>
                 <profile.name>dev</profile.name>
                 <appengine.project.name>${appengine.dev.project.name}</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
             </properties>
         </profile>
         
@@ -72,6 +76,7 @@
             <properties>
                 <profile.name>test</profile.name>
                 <appengine.project.name>battlescribedatatest</appengine.project.name>
+                <appengine.project.promote>true</appengine.project.promote>
             </properties>
         </profile>
         
@@ -80,6 +85,7 @@
             <properties>
                 <profile.name>prod</profile.name>
                 <appengine.project.name>battlescribedata</appengine.project.name>
+                <appengine.project.promote>false</appengine.project.promote>
             </properties>
         </profile>
     </profiles>
@@ -322,6 +328,7 @@
                     <!--<cloudSdkPath>${cloud.sdk.path}</cloudSdkPath>-->
                     <deploy.project>${appengine.project.name}</deploy.project>
                     <deploy.version>${appengine.project.version}</deploy.version>
+                    <deploy.promote>${appengine.project.promote}</deploy.promote>
                 </configuration>
             </plugin>
             
