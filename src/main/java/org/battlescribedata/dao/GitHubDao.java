@@ -88,7 +88,7 @@ public class GitHubDao {
     private static final int REPO_CACHE_EXPIRY_MINS = 12 * 60;
     
     // Max App Engine background threads is 10, but reserve one for refreshReposAsync()
-    private static final int MAX_REPO_DOWNLOAD_THREADS = 9;
+    private static final int MAX_REPO_DOWNLOAD_THREADS = 3;
     
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
