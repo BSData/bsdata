@@ -75,6 +75,9 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 public class GitHubDao {
     
     @Inject
+    private ThreadFactory threadFactory;
+    
+    @Inject
     private Properties properties;
   
     @Inject
@@ -85,7 +88,7 @@ public class GitHubDao {
     private static final int REPO_CACHE_EXPIRY_MINS = 12 * 60;
     
     // Max App Engine background threads is 10, but reserve one for refreshReposAsync()
-    private static final int MAX_REPO_DOWNLOAD_THREADS = 3;
+    private static final int MAX_REPO_DOWNLOAD_THREADS = 9;
     
     private static final SimpleDateFormat branchDateFormat = new SimpleDateFormat("yyMMddHHmmssSSS");
     private static final SimpleDateFormat longDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
@@ -97,7 +100,7 @@ public class GitHubDao {
     
     private static Date nextReposUpdateDate = null;
     private static boolean reposRequiresUpdate = true;
-    private static ReentrantLock reposUpdateLock = new ReentrantLock(true);
+    private static final ReentrantLock reposUpdateLock = new ReentrantLock(true);
     
     private static final List<Repository> repositories 
             = Collections.synchronizedList(new ArrayList<Repository>());
@@ -205,7 +208,6 @@ public class GitHubDao {
             return;
         }
         
-        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
         ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
         Future<Void> future = executorService.submit(new Callable<Void>() {
             
@@ -447,7 +449,6 @@ public class GitHubDao {
             return;
         }
         
-        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
         ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
         Future<Void> future = executorService.submit(new Callable<Void>() {
             
