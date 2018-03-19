@@ -49,12 +49,14 @@ It is assumes that you have some experience with developing on Windows, or can t
     * Make sure your App Engine project is alive and well in Google Cloud Console (https://console.cloud.google.com).
 5. Install the **Google Cloud Java Components** (https://cloud.google.com/sdk/docs/managing-components).
     * From the Google Cloud Shell, run `gcloud components install app-engine-java`
+    * To update the Google Cloud SDK to the latest version, run `gcloud components update`
 6. Download and install **Netbeans Java EE** bundle (https://netbeans.org/downloads/).
     * The current version of Netbeans is 8.2, and by default it does not include Maven 3.5. Future versions of Netbeans may change this.
 7. Download and unzip **Maven 3.5** (https://maven.apache.org/download.cgi).
     * On Windows, you can extract it to a folder in Program Files.
-    * Make sure you end up with a Maven folder that contains `bin` and `boot`folders.
+    * Make sure you end up with a Maven folder that contains `bin` and `boot` folders.
     * Your `.../Maven/bin` folder needs to be on your PATH environment variable (https://superuser.com/questions/949560/how-do-i-set-system-environment-variables-in-windows-10).
+
 
 ### Set up the Project in Netbeans ###
 

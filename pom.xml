@@ -124,8 +124,8 @@
             <!-- https://mvnrepository.com/artifact/com.google.appengine/appengine-api-1.0-sdk -->
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-api-1.0-sdk</artifactId>
-            <version>1.9.59</version>
-            <scope>provided</scope>
+            <version>1.9.63</version>
+            <scope>compile</scope>
         </dependency>
         
         <dependency>
