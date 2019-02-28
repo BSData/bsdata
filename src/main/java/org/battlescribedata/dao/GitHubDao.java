@@ -75,9 +75,6 @@ import org.eclipse.egit.github.core.service.RepositoryService;
 public class GitHubDao {
     
     @Inject
-    private ThreadFactory threadFactory;
-    
-    @Inject
     private Properties properties;
   
     @Inject
@@ -100,7 +97,7 @@ public class GitHubDao {
     
     private static Date nextReposUpdateDate = null;
     private static boolean reposRequiresUpdate = true;
-    private static final ReentrantLock reposUpdateLock = new ReentrantLock(true);
+    private static ReentrantLock reposUpdateLock = new ReentrantLock(true);
     
     private static final List<Repository> repositories 
             = Collections.synchronizedList(new ArrayList<Repository>());
@@ -208,6 +205,7 @@ public class GitHubDao {
             return;
         }
         
+        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
         ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
         Future<Void> future = executorService.submit(new Callable<Void>() {
             
@@ -449,6 +447,7 @@ public class GitHubDao {
             return;
         }
         
+        ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
         ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
         Future<Void> future = executorService.submit(new Callable<Void>() {
             

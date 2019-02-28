@@ -1,11 +1,9 @@
 
 package org.battlescribedata.rest;
 
-import com.google.appengine.api.ThreadManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.concurrent.ThreadFactory;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.inject.Inject;
@@ -69,10 +67,6 @@ public class BattleScribeDataRestConfig extends ResourceConfig {
                         .to(Logger.class)
                         .in(Singleton.class);
                 
-                bindFactory(ThreadFactoryFactory.class)
-                        .to(ThreadFactory.class)
-                        .in(Singleton.class);
-                
                 
                 // Other classes
                 // Bind a class so we can @Inject instances of it
@@ -110,17 +104,6 @@ public class BattleScribeDataRestConfig extends ResourceConfig {
             
             return logger;
         }   
-    }
-    
-    private static class ThreadFactoryFactory extends NoDisposeFactory<ThreadFactory> {
-        
-        @Inject
-        private Logger logger;
-        
-        @Override
-        public ThreadFactory provide() {
-            return ThreadManager.backgroundThreadFactory();
-        }
     }
     
     private static class PropertiesFactory extends NoDisposeFactory<Properties> {
