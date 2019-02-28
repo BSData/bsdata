@@ -6,7 +6,7 @@
     <threadsafe>true</threadsafe>
     
     <!-- AppEngine instance class -->
-    <instance-class>B4_1G</instance-class>
+    <instance-class>B8</instance-class>
     <manual-scaling>
         <instances>1</instances>
     </manual-scaling>
