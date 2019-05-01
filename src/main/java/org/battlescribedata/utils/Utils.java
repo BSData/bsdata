@@ -522,7 +522,7 @@ public class Utils {
             throw new IOException("Data file is too old and is no longer supported (" + battleScribeVersion + ")");
         }
         
-        return battleScribeVersion.compareToIgnoreCase(DataConstants.MAX_DATA_FORMAT_VERSION) < 0;
+        return battleScribeVersion.compareToIgnoreCase(DataConstants.CURRENT_DATA_FORMAT_VERSION) < 0;
     }
 
     /**

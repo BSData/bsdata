@@ -824,7 +824,7 @@ public class GitHubDao {
         
         repositorySourceVm.setName(properties.getProperty(PropertiesConstants.SITE_NAME));
         repositorySourceVm.setDescription(properties.getProperty(PropertiesConstants.SITE_DESCRIPTION));
-        repositorySourceVm.setBattleScribeVersion(DataConstants.MAX_DATA_FORMAT_VERSION);
+        repositorySourceVm.setBattleScribeVersion(DataConstants.CURRENT_DATA_FORMAT_VERSION);
         
         repositorySourceVm.setWebsiteUrl(properties.getProperty(PropertiesConstants.SITE_WEBSITE_URL));
         
@@ -921,7 +921,7 @@ public class GitHubDao {
         RepositoryVm repositoryVm = new RepositoryVm();
         repositoryVm.setName(repository.getName());
         repositoryVm.setDescription(repository.getDescription());
-        repositoryVm.setBattleScribeVersion(DataConstants.MAX_DATA_FORMAT_VERSION);
+        repositoryVm.setBattleScribeVersion(DataConstants.CURRENT_DATA_FORMAT_VERSION);
         
         if (latestRelease != null) {
             repositoryVm.setVersion(latestRelease.getTagName());
