@@ -23,7 +23,8 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
         description: "LOADING...",
         battleScribeVersion: "",
         
-        communityUrl: "",
+        githubUrl: "",
+        discordUrl: "",
         feedUrl: "",
         twitterUrl: "",
         facebookUrl: "",
@@ -40,7 +41,8 @@ bsDataApp.controller("ReposCtrl", function($scope, repoRestApi) {
             $scope.m.description = data.description;
             $scope.m.battleScribeVersion = data.battleScribeVersion;
 
-            $scope.m.communityUrl = data.communityUrl;
+            $scope.m.githubUrl = data.githubUrl;
+            $scope.m.discordUrl = data.discordUrl;
             $scope.m.feedUrl = data.feedUrl;
             $scope.m.twitterUrl = data.twitterUrl;
             $scope.m.facebookUrl = data.facebookUrl;

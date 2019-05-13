@@ -23,7 +23,8 @@ public class PropertiesConstants {
     public static final String SITE_NAME = "site.name";
     public static final String SITE_DESCRIPTION = "site.description";
     public static final String SITE_WEBSITE_URL = "site.website.url";
-    public static final String SITE_COMMUNITY_URL = "site.community.url";
+    public static final String SITE_GITHUB_URL = "site.github.url";
+    public static final String SITE_DISCORD_URL = "site.discord.url";
     public static final String SITE_TWITTER_URL = "site.twitter.url";
     public static final String SITE_FACEBOOK_URL = "site.facebook.url";
     

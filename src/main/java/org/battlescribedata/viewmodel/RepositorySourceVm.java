@@ -13,7 +13,8 @@ public class RepositorySourceVm extends ResponseVm {
     
     private String repositorySourceUrl;
     private String websiteUrl;
-    private String communityUrl;
+    private String githubUrl;
+    private String discordUrl;
     private String feedUrl;
     private String twitterUrl;
     private String facebookUrl;
@@ -66,12 +67,12 @@ public class RepositorySourceVm extends ResponseVm {
         this.facebookUrl = facebookUrl;
     }
 
-    public String getCommunityUrl() {
-        return communityUrl;
+    public String getGithubUrl() {
+        return githubUrl;
     }
 
-    public void setCommunityUrl(String communityUrl) {
-        this.communityUrl = communityUrl;
+    public void setGithubUrl(String githubUrl) {
+        this.githubUrl = githubUrl;
     }
 
     public String getRepositorySourceUrl() {
@@ -104,5 +105,13 @@ public class RepositorySourceVm extends ResponseVm {
     
     public void setBattleScribeVersion(String battleScribeVersion) {
         this.battleScribeVersion = battleScribeVersion;
+    }
+
+    public String getDiscordUrl() {
+        return discordUrl;
+    }
+
+    public void setDiscordUrl(String discordUrl) {
+        this.discordUrl = discordUrl;
     }
 }

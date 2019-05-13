@@ -830,7 +830,8 @@ public class GitHubDao {
         
         repositorySourceVm.setRepositorySourceUrl(baseUrl);
         repositorySourceVm.setFeedUrl(baseUrl + "/feeds/all.atom");
-        repositorySourceVm.setCommunityUrl(properties.getProperty(PropertiesConstants.SITE_COMMUNITY_URL));
+        repositorySourceVm.setGithubUrl(properties.getProperty(PropertiesConstants.SITE_GITHUB_URL));
+        repositorySourceVm.setDiscordUrl(properties.getProperty(PropertiesConstants.SITE_DISCORD_URL));
         repositorySourceVm.setTwitterUrl(properties.getProperty(PropertiesConstants.SITE_TWITTER_URL));
         repositorySourceVm.setFacebookUrl(properties.getProperty(PropertiesConstants.SITE_FACEBOOK_URL));
         
