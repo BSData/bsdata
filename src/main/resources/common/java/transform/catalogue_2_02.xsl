@@ -17,7 +17,7 @@
             
             <!-- Nodes -->
             <publications>
-                <xsl:apply-templates select="//*[not(@book = '')]" mode="entry"/>
+                <xsl:apply-templates select="//*[@book]" mode="entry"/>
             </publications>
             
             <xsl:apply-templates select="node()"/>
@@ -26,9 +26,9 @@
     
     
     <!-- Publication -->
-    <xsl:key name="bookId" match="//*[not(@book = '')]" use="@book"/>
+    <xsl:key name="bookId" match="//*[@book]" use="@book"/>
     <xsl:template match="*" mode="entry">
-        <xsl:if test="generate-id() = generate-id(key('bookId', @book)[1])">
+        <xsl:if test="not(@book = '') and generate-id() = generate-id(key('bookId', @book)[1])">
             <publication>
                 <!-- Attributes -->
                 <xsl:attribute name="id"><xsl:value-of select="substring(/bsc:catalogue/@id, 1, 9)"/>-pub<xsl:value-of select="generate-id(key('bookId', @book))"/></xsl:attribute>
