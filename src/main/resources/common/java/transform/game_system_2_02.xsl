@@ -32,7 +32,7 @@
         <xsl:if test="not(@book = '') and generate-id() = generate-id(key('bookId', @book)[1])">
             <publication>
                 <!-- Attributes -->
-                <xsl:attribute name="id"><xsl:value-of select="substring(/bsg:gameSystem/@id, 1, 9)"/>-pub<xsl:value-of select="generate-id(key('bookId', @book))"/></xsl:attribute>
+                <xsl:attribute name="id"><xsl:value-of select="substring(/bsg:gameSystem/@id, 1, 9)"/>-pub<xsl:value-of select="generate-id(key('bookId', @book)[1])"/></xsl:attribute>
                 <xsl:attribute name="name"><xsl:value-of select="@book"/></xsl:attribute>
             </publication>
         </xsl:if>
@@ -42,7 +42,7 @@
     <!-- PublicationLink -->
     <xsl:template match="@book">
         <xsl:if test="not(. = '')">
-            <xsl:attribute name="publicationId"><xsl:value-of select="substring(/bsg:gameSystem/@id, 1, 9)"/>-pub<xsl:value-of select="generate-id(key('bookId', .))"/></xsl:attribute>
+            <xsl:attribute name="publicationId"><xsl:value-of select="substring(/bsg:gameSystem/@id, 1, 9)"/>-pub<xsl:value-of select="generate-id(key('bookId', .)[1])"/></xsl:attribute>
         </xsl:if>
     </xsl:template>
     
