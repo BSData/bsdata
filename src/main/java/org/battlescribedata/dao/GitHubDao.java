@@ -887,7 +887,7 @@ public class GitHubDao {
             repositoryFile.setBugTrackerUrl(repositoryVm.getBugTrackerUrl());
             
             String uncompressedFileName = Utils.getUncompressedFileName(fileName);
-            repositoryFile.setCommunityUrl(Utils.checkUrl(repositoryVm.getCommunityUrl() + "/blob/master/" + uncompressedFileName));
+            repositoryFile.setGithubUrl(Utils.checkUrl(repositoryVm.getGithubUrl() + "/blob/master/" + uncompressedFileName));
             
             repositoryFile.setAuthorName(dataFile.getAuthorName());
             repositoryFile.setAuthorContact(dataFile.getAuthorContact());
@@ -932,7 +932,7 @@ public class GitHubDao {
         
         repositoryVm.setRepositoryUrl(Utils.checkUrl(baseUrl + "/" + repository.getName()));
         repositoryVm.setIndexUrl(Utils.checkUrl(baseUrl + "/" + repository.getName() + "/" + DataConstants.DEFAULT_INDEX_COMPRESSED_FILE_NAME));
-        repositoryVm.setCommunityUrl(repository.getHtmlUrl());
+        repositoryVm.setGithubUrl(repository.getHtmlUrl());
         repositoryVm.setBugTrackerUrl(repository.getHtmlUrl() + "/issues");
         repositoryVm.setReportBugUrl(getFeedHref(baseUrl, repository.getName()));
         repositoryVm.setFeedUrl(Utils.checkUrl(baseUrl + "/feeds/" + repository.getName() + ".atom"));

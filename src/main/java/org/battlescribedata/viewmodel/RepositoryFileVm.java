@@ -11,7 +11,7 @@ public class RepositoryFileVm extends ResponseVm {
     private String battleScribeVersion;
     
     private String fileUrl;
-    private String communityUrl;
+    private String githubUrl;
     private String bugTrackerUrl;
     private String reportBugUrl;
     private String authorName;
@@ -27,12 +27,12 @@ public class RepositoryFileVm extends ResponseVm {
         this.name = name;
     }
 
-    public String getCommunityUrl() {
-        return communityUrl;
+    public String getGithubUrl() {
+        return githubUrl;
     }
 
-    public void setCommunityUrl(String communityUrl) {
-        this.communityUrl = communityUrl;
+    public void setGithubUrl(String githubUrl) {
+        this.githubUrl = githubUrl;
     }
 
     public String getFileUrl() {

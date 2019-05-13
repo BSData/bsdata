@@ -17,7 +17,7 @@ public class RepositoryVm extends ResponseVm {
     
     private String indexUrl;
     private String repositoryUrl;
-    private String communityUrl;
+    private String githubUrl;
     private String feedUrl;
     private String bugTrackerUrl;
     private String reportBugUrl;
@@ -46,12 +46,12 @@ public class RepositoryVm extends ResponseVm {
         this.indexUrl = url;
     }
 
-    public String getCommunityUrl() {
-        return communityUrl;
+    public String getGithubUrl() {
+        return githubUrl;
     }
 
-    public void setCommunityUrl(String communityUrl) {
-        this.communityUrl = communityUrl;
+    public void setGithubUrl(String githubUrl) {
+        this.githubUrl = githubUrl;
     }
 
     public String getBugTrackerUrl() {

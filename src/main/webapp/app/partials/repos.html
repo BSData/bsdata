@@ -30,7 +30,7 @@
         <div class="details">
             <span ng-if="repo.lastUpdated">Updated {{repo.lastUpdated | date:'medium'}}</span><span class="detailsPadding"> | </span>
             <a ng-href="#/repo/{{repo.name}}">Details/Report Bug</a><span class="detailsPadding"> | </span>
-            <a href="{{repo.communityUrl}}"><img src="app/img/github_icon_16.png"/></a>
+            <a href="{{repo.githubUrl}}"><img src="app/img/github_icon_16.png"/></a>
             <a style="margin-left: 4px;" href="{{repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_16.png"/></a>
         </div>
     </li>

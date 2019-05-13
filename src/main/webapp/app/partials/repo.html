@@ -1,7 +1,7 @@
 
 <div class="subTitle">
     <a href="{{m.repo.indexUrl}}"><h3><img src="app/img/blank.png">{{m.repo.description}}</h3></a>
-    <a href="{{m.repo.communityUrl}}"><img src="app/img/github_icon_24.png"/></a>
+    <a href="{{m.repo.githubUrl}}"><img src="app/img/github_icon_24.png"/></a>
     <a href="{{m.repo.feedUrl}}" type="application/atom+xml"><img src="app/img/rss_icon_24.png"/></a>
     
     <div class="details">
@@ -31,7 +31,7 @@
             <span ng-show="!isHtml5()">
                 <span style="padding-left: 4px; color: #999;">Bug / file submissions unavailable</span><span class="detailsPadding"> | </span>
             </span>
-            <a href="{{file.communityUrl}}"><img src="app/img/github_icon_16.png"/></a>
+            <a href="{{file.githubUrl}}"><img src="app/img/github_icon_16.png"/></a>
         </div>
         
         <div class="formContainer" ng-show="formData.isUpload || formData.isIssue">
