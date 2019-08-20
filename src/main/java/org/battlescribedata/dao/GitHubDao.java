@@ -204,27 +204,44 @@ public class GitHubDao {
             // We are currently updating the repos
             return;
         }
-        
+
         ThreadFactory threadFactory = com.google.appengine.api.ThreadManager.backgroundThreadFactory();
         ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
-        Future<Void> future = executorService.submit(new Callable<Void>() {
-            
-            @Override
-            public Void call() throws IOException {
-                try {
-                    refreshRepositories();
+        Future<Void> future;
+        try {
+            /*
+            This line seems to be tha cause of Appspot failing to update some repos, we receive
+            "IllegalStateException "Limit on the number of active background threads was reached for this app version"
+            which seems to be because the timeout doesnt kill the thread, and since we have a max thread count of 10,
+            causes some problems. We can't just kill the Thread as we don't know the knock on effects that might have
+            For now we'll just catch the exception and continue on, if this fixes the problem we can look into a more
+            elegant solution
+            */
+            future = executorService.submit(new Callable<Void>() {
+
+                @Override
+                public Void call() {
+                    try {
+                        refreshRepositories();
+                    } catch (IOException e) {
+                        logger.log(
+                                Level.SEVERE,
+                                "Failed to update repositories",
+                                e);
+                    }
+
+                    return null;
                 }
-                catch (IOException e) {
-                    logger.log(
-                            Level.SEVERE,
-                            "Failed to update repositories", 
-                            e);
-                }
-                
-                return null;
-            }
-        });
-        
+            });
+        } catch (Exception e) {
+            logger.log(
+                    Level.WARNING,
+                    "Problem submitting repository refresh task",
+                    e);
+            // if we can't submit the task, there's no point on continuing
+            return;
+        }
+
         try {
             future.get(5, TimeUnit.MINUTES);
         }
