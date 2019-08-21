@@ -6,6 +6,8 @@ build/
 dist/
 target/
 nbproject/
+.idea
+*.iml
 nb-configuration.xml
 maven.properties
 github-user.properties
