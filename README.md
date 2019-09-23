@@ -133,3 +133,20 @@ It is assumes that you have some experience with developing on Windows, or can t
         * `GitHubDao.java` is used for communicating with GitHub.
     * `repository` package contains classes for creating BattleScribe repository indexes (`.bsi`) files.
 
+### C# Backend ###
+
+1. Create a file in the `<project directory>\src\main\dotnetCore\dotnetCore` directory called **`github-user.json`**.
+    * **This file should not be checked in to GitHub** (it's excluded via .gitignore). It contains GitHub authentication settings that should not be public. If your GitHub authentication token is checked in to GitHub, it will be invalidated and you will need to generate a new one.
+    * Add the following lines:
+		```
+		{
+		  "AppSettings": {
+			"GitHub": {
+			  "username": "<GITHUB_USER_NAME>",
+			  "token": "<GITHUB_AUTHENTICATION_TOKEN>",
+			  "email": "BSDataAnon@users.noreply.github.com"
+		    }
+		  }
+		}
+		```
+        (Use your own GitHub username and token).
