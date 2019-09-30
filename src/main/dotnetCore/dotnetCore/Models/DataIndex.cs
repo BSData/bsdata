@@ -9,8 +9,6 @@ namespace dotnetCore.Models
     [Serializable]
     public class DataIndex : DataFile
     {
-        public string BattleScribeVersion { get; set; }
-        public string Name { get; set; }
         public string IndexUrl { get; set; }
         public List<string> RepositoryUrls { get; set; }
         public List<DataIndexEntry> DataIndexEntries { get; set; }

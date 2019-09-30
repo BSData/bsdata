@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using dotnetCore.Constants;
 using dotnetCore.Services;
 using dotnetCore.ViewModel;
-using Google.Apis.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
@@ -14,17 +11,17 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace dotnetCore.Controllers
 {
-    [Route("api/repos")]
+    [Route("repos")]
     [ApiController]
     public class RepoController : ControllerBase
     {
-        private readonly ILogger _logger;
-        private readonly IGitHubService _gitHubService;
+        private readonly ILogger logger;
+        private readonly IGitHubService gitHubService;
 
         public RepoController(ILogger<RepoController> logger, IGitHubService gitHubService)
         {
-            _logger = logger;
-            _gitHubService = gitHubService;
+            this.logger = logger;
+            this.gitHubService = gitHubService;
         }
 
         /// <summary>
@@ -41,30 +38,33 @@ namespace dotnetCore.Controllers
             return url;
         }
 
-        [HttpGet]        
-        public async Task<ActionResult<RepositorySourceVm>> getRepositories()
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesDefaultResponseType]
+        public async Task<ActionResult<RepositorySourceVm>> GetRepositories()
         {
             try
             {
                 var url = GetBaseUrl(Request);
 
-                var repositoryList = await _gitHubService.GetRepos(url);
+                var repositoryList = await gitHubService.GetRepos(url);
 
                 return Ok(repositoryList);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Failed to load repo list", ex);
+                logger.LogError($"Failed to load repo list", ex);
                 return StatusCode(500);
             }
         }
 
         [HttpGet("{repoName}")]
-        public async Task<ActionResult> getRepositoryFiles(string repoName)
+        public async Task<ActionResult> GetRepositoryDetails(string repoName)
         {
             var repositoryVm = new RepositoryVm();
 
-            if(string.IsNullOrWhiteSpace(repoName))
+            if (string.IsNullOrWhiteSpace(repoName))
             {
                 repositoryVm = new RepositoryVm();
                 repositoryVm.ErrorMessage = "You must provide a repository name.";
@@ -73,8 +73,9 @@ namespace dotnetCore.Controllers
 
             try
             {
-                repositoryVm = await _gitHubService.GetRepoFiles(GetBaseUrl(Request), repoName);
-            } catch(Exception ex)
+                repositoryVm = await gitHubService.GetRepoFiles(GetBaseUrl(Request), repoName);
+            }
+            catch (Exception ex)
             {
                 // Todo: this
             }

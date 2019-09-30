@@ -1,9 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.438
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29215.179
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnetCore", "dotnetCore\dotnetCore.csproj", "{A9856AE6-B2F4-4489-A78D-54CD9D887FFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnetCore", "dotnetCore\dotnetCore.csproj", "{A9856AE6-B2F4-4489-A78D-54CD9D887FFD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F2225C05-E469-4717-921D-2A119B2846B5}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		global.json = global.json
+		nuget.config = nuget.config
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
