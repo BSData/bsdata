@@ -11,6 +11,8 @@ namespace dotnetCore
 {
     public static class Program
     {
+        public static IConfiguration Configuration { get; private set; }
+
         public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
@@ -20,6 +22,18 @@ namespace dotnetCore
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, configBuilder) =>
+                {
+                    var hostingEnvironment = context.HostingEnvironment;
+
+                    configBuilder.SetBasePath(hostingEnvironment.ContentRootPath)
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.{hostingEnvironment.EnvironmentName}.json", optional: true)
+                    .AddJsonFile($"github-user.json", optional: true)
+                    .AddEnvironmentVariables();
+
+                    Configuration = configBuilder.Build();
+                })
                 .ConfigureLogging((ctx, logginBuilder) =>
                 {
                     logginBuilder.AddConfiguration(ctx.Configuration.GetSection("Logging"));
