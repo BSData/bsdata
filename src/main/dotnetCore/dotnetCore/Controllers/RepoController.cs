@@ -42,15 +42,50 @@ namespace dotnetCore.Controllers
         }
 
         [HttpGet]        
-        public async Task<ActionResult<RepositorySourceVm>> GetRepos()
+        public async Task<ActionResult<RepositorySourceVm>> getRepositories()
         {
-            _logger.LogInformation("Message displayed: Test message");
+            try
+            {
+                var url = GetBaseUrl(Request);
 
-            var url = GetBaseUrl(Request);
+                var repositoryList = await _gitHubService.GetRepos(url);
 
-            var repositoryList = await _gitHubService.GetRepos(url);
-
-            return Ok(repositoryList);
+                return Ok(repositoryList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Failed to load repo list", ex);
+                return StatusCode(500);
+            }
         }
+
+        [HttpGet("{repoName}")]
+        public async Task<ActionResult> getRepositoryFiles(string repoName)
+        {
+            var repositoryVm = new RepositoryVm();
+
+            if(string.IsNullOrWhiteSpace(repoName))
+            {
+                repositoryVm = new RepositoryVm();
+                repositoryVm.ErrorMessage = "You must provide a repository name.";
+                return Ok(repositoryVm);
+            }
+
+            try
+            {
+                repositoryVm = await _gitHubService.GetRepoFiles(GetBaseUrl(Request), repoName);
+            } catch(Exception ex)
+            {
+                // Todo: this
+            }
+
+            if (repositoryVm == null)
+            {
+                throw new NullReferenceException($"Could not find repository named {repoName}");
+            }
+
+            return Ok(repositoryVm);
+        }
+
     }
 }

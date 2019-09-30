@@ -9,5 +9,6 @@ namespace dotnetCore.Services
     {
         Task<RepositorySourceVm> GetRepos(string baseUrl);
         Task<IReadOnlyList<Repository>> RefreshRepositoriesAsync();
+        Task<RepositoryVm> GetRepoFiles(string baseUrl, string repositoryName);
     }
 }

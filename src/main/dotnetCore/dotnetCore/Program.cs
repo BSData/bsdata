@@ -48,6 +48,7 @@ namespace dotnetCore
                     // Add framework services.Microsoft.VisualStudio.ExtensionManager.ExtensionManagerService
                     services.AddMvc();
                     services.AddScoped<IGitHubService, GitHubService>();
+                    services.AddScoped<IIndexerService, IndexerService>();
 
                     if (HasGcpProjectId)
                     {
