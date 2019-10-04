@@ -5,19 +5,21 @@ import './App.css';
 import './main.css'
 
 function App() {
+  const repos = require('./dummy.json')
   const [state, setState] = useState({repos:[]});
-  useEffect(() => {
-     axios.get('http://battlescribedata.appspot.com/repos',  { crossDomain: true })
-      .then(res => {
-        const repos = JSON.stringify(res.data)
-        this.setState({ repos:repos });
-      }).catch(err => {
-        console.log( err )
-      })
-  }, []);
+  // useEffect(() => {
+  //    axios.get('http://battlescribedata.appspot.com/repos',  { crossDomain: true })
+  //     .then(res => {
+  //       const repos = JSON.stringify(res.data)
+  //       this.setState({ repos:repos });
+  //     }).catch(err => {
+  //       console.log( err )
+  //     })
+  // }, []);
 
   let ribbon = require("./img/ribbons/right-cerulean.png" )
   let logo = require("./img/bsdata_logo.png")
+  console.log('repos',repos)
   return (
     <div className="App">
     <div id="wrapper">
@@ -82,7 +84,20 @@ function App() {
                     </p>
                 </div>
 
-                <div id="container" data-ng-view>
+                <div id="container">
+                {repos.repositories.map(repo=> {
+                  return (
+                    <li  class="detailsRow">
+                        <a href={repo.indexUrl} class="detailsTitle"><img src={require("./img/blank.png")} />{repo.description}</a>
+                        <div class="details">
+                            {repo.lastUpdated ? <React.Fragment><span>Updated {repo.lastUpdated}</span><span class="detailsPadding"> | </span></React.Fragment> : null}
+                            <a href={`#/repo/${repo.name}`}>Details/Report Bug</a><span class="detailsPadding"> | </span>
+                            <a href={repo.githubUrl}><img src={require("./img/github_icon_16.png")}/></a>
+                            <a style={{marginLeft: 4}} href={repo.feedUrl} type="application/atom+xml"><img src={require("./img/rss_icon_16.png")}/></a>
+                        </div>
+                    </li>
+                  )
+                })}
                 </div>
             </div>
         </div>
