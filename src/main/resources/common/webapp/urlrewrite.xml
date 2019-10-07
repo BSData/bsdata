@@ -14,5 +14,15 @@
         <from>/repos/wh40k-mobile-format**</from>
         <to type="redirect">/repos/wh40k$1</to>
     </rule>
+     
+    <rule match-type="wildcard">
+        <from>/repos/wh40k-heralds-of-ruin-killteam**</from>
+        <to type="redirect">/repos/wh40k-heralds-of-ruin$1</to>
+    </rule>
+     
+    <rule match-type="wildcard">
+        <from>/repos/the-walking-dead-march-to-war**</from>
+        <to type="redirect">/repos/the-walking-dead-call-to-arms$1</to>
+    </rule>
     
 </urlrewrite>
