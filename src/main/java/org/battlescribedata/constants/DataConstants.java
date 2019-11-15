@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class DataConstants {
 
-    public static final String CURRENT_DATA_FORMAT_VERSION = "2.02";
+    public static final String CURRENT_DATA_FORMAT_VERSION = "2.03";
     public static final String MIN_DATA_FORMAT_VERSION = "1.13b";
     
     

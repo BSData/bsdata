@@ -19,4 +19,7 @@ public class FileConstants {
     public static final String GAME_SYSTEM_2_02_XSL_FILE_PATH = "/transform/game_system_2_02.xsl";
     public static final String CATALOGUE_2_02_XSL_FILE_PATH = "/transform/catalogue_2_02.xsl";
     
+    public static final String GAME_SYSTEM_2_03_XSL_FILE_PATH = "/transform/game_system_2_03.xsl";
+    public static final String CATALOGUE_2_03_XSL_FILE_PATH = "/transform/catalogue_2_03.xsl";
+    
 }

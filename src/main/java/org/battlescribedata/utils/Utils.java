@@ -476,6 +476,11 @@ public class Utils {
                     inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.CATALOGUE_2_02_XSL_FILE_PATH));
                     battleScribeVersion = "2.02";
                 }
+                // 2.02 -> 2.03
+                if (battleScribeVersion.compareToIgnoreCase("2.03") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.CATALOGUE_2_03_XSL_FILE_PATH));
+                    battleScribeVersion = "2.03";
+                }
             }
             else if (isGameSytstemPath(filePath)) {
                 // 1.13b -> 1.15b
@@ -497,6 +502,11 @@ public class Utils {
                 if (battleScribeVersion.compareToIgnoreCase("2.02") < 0) {
                     inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.GAME_SYSTEM_2_02_XSL_FILE_PATH));
                     battleScribeVersion = "2.02";
+                }
+                // 2.02 -> 2.03
+                if (battleScribeVersion.compareToIgnoreCase("2.03") < 0) {
+                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.GAME_SYSTEM_2_03_XSL_FILE_PATH));
+                    battleScribeVersion = "2.03";
                 }
             }
         }
@@ -574,6 +584,9 @@ public class Utils {
 
                 addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_02_XSL_FILE_PATH);
                 addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_02_XSL_FILE_PATH);
+
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.CATALOGUE_2_03_XSL_FILE_PATH);
+                addStyleSheetMapEntry(styleSheetMapCache, FileConstants.GAME_SYSTEM_2_03_XSL_FILE_PATH);
             }
             catch (IOException e) {
                 throw new RuntimeException(e); // We can't run the app without reading stylesheets. KILL IT WITH FIRE.
