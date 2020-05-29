@@ -477,10 +477,10 @@ public class Utils {
                     battleScribeVersion = "2.02";
                 }
                 // 2.02 -> 2.03
-                if (battleScribeVersion.compareToIgnoreCase("2.03") < 0) {
-                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.CATALOGUE_2_03_XSL_FILE_PATH));
-                    battleScribeVersion = "2.03";
-                }
+//                if (battleScribeVersion.compareToIgnoreCase("2.03") < 0) {
+//                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.CATALOGUE_2_03_XSL_FILE_PATH));
+//                    battleScribeVersion = "2.03";
+//                }
             }
             else if (isGameSytstemPath(filePath)) {
                 // 1.13b -> 1.15b
@@ -504,10 +504,10 @@ public class Utils {
                     battleScribeVersion = "2.02";
                 }
                 // 2.02 -> 2.03
-                if (battleScribeVersion.compareToIgnoreCase("2.03") < 0) {
-                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.GAME_SYSTEM_2_03_XSL_FILE_PATH));
-                    battleScribeVersion = "2.03";
-                }
+//                if (battleScribeVersion.compareToIgnoreCase("2.03") < 0) {
+//                    inputStream = transfromXml(inputStream, styleSheetMap.get(FileConstants.GAME_SYSTEM_2_03_XSL_FILE_PATH));
+//                    battleScribeVersion = "2.03";
+//                }
             }
         }
         finally {

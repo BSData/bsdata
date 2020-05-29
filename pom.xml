@@ -166,16 +166,6 @@
             <version>2.26</version>
             <scope>compile</scope>
         </dependency>
-
-        <dependency>
-            <!-- EGit GitHub: GitHub API -->
-            <!-- https://github.com/eclipse/egit-github/tree/master/org.eclipse.egit.github.core -->
-            <!-- https://mvnrepository.com/artifact/org.eclipse.mylyn.github/org.eclipse.egit.github.core -->
-            <groupId>org.eclipse.mylyn.github</groupId>
-            <artifactId>org.eclipse.egit.github.core</artifactId>
-            <version>2.1.5</version>
-            <scope>compile</scope>
-        </dependency>
         
         <dependency>
             <!-- Rome: ATOM/RSS feeds -->

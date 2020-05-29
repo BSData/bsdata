@@ -22,6 +22,8 @@ public class RepositoryVm extends ResponseVm {
     private String bugTrackerUrl;
     private String reportBugUrl;
     
+    private boolean archived;
+    
     private List<RepositoryFileVm> repositoryFiles;
     
     
@@ -132,5 +134,13 @@ public class RepositoryVm extends ResponseVm {
     
     public void setReportBugUrl(String reportBugUrl) {
         this.reportBugUrl = reportBugUrl;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 }
