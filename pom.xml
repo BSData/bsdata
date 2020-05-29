@@ -2,7 +2,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
-    <version>26</version>
+    <version>27</version>
 
     <groupId>org.battlescribedata</groupId>
     <artifactId>BattleScribeDataWeb</artifactId>
