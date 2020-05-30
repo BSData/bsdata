@@ -954,6 +954,8 @@ public class GitHubDao {
         repositoryVm.setReportBugUrl(getFeedHref(baseUrl, repository.getName()));
         repositoryVm.setFeedUrl(Utils.checkUrl(baseUrl + "/feeds/" + repository.getName() + ".atom"));
         
+        repositoryVm.setArchived(repository.isArchived());
+        
         return repositoryVm;
     }
     
