@@ -1,0 +1,16 @@
+.items li .outerContainer
+{
+	position: relative;
+}
+
+.items li .outerContainer .innerContainer
+{
+	position: absolute;
+	top: 50%;
+}
+  
+.items li .outerContainer .innerContainer .element
+{
+	position: relative;
+	top: -50%;
+}

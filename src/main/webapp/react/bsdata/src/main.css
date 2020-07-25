@@ -1,0 +1,855 @@
+/*! HTML5 Boilerplate v4.3.0 | MIT License | http://h5bp.com/ */
+
+/*
+ * What follows is the result of much research on cross-browser styling.
+ * Credit left inline and big thanks to Nicolas Gallagher, Jonathan Neal,
+ * Kroc Camen, and the H5BP dev community and team.
+ */
+
+/* ==========================================================================
+   Base styles: opinionated defaults
+   ========================================================================== */
+@import url("https://fonts.googleapis.com/css?family=Roboto+Slab");
+@import url("https://fonts.googleapis.com/css?family=Roboto");
+
+html,
+button,
+input,
+select,
+textarea {
+    color: #222;
+}
+
+html {
+    font-size: 1em;
+    line-height: 1.4em;
+}
+
+/*
+ * Remove text-shadow in selection highlight: h5bp.com/i
+ * These selection rule sets have to be separate.
+ * Customize the background color to match your design.
+ */
+
+::-moz-selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+::selection {
+    background: #b3d4fc;
+    text-shadow: none;
+}
+
+/*
+ * A better looking default horizontal rule
+ */
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+/*
+ * Remove the gap between images, videos, audio and canvas and the bottom of
+ * their containers: h5bp.com/i/440
+ */
+
+audio,
+canvas,
+img,
+video {
+    vertical-align: middle;
+}
+
+/*
+ * Remove default fieldset styles.
+ */
+
+fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+/*
+ * Allow only vertical resizing of textareas.
+ */
+
+textarea {
+    resize: vertical;
+}
+
+/* ==========================================================================
+   Browse Happy prompt
+   ========================================================================== */
+
+.browsehappy {
+    margin: 0.2em 0;
+    background: #ccc;
+    color: #000;
+    padding: 0.2em 0;
+}
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+html,
+body {
+    margin:0px;
+    padding:0px;
+    height:100%;
+    min-width: 668px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    color: #2e3436;
+}
+
+a {
+    color: #477BFF;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #51A2FF;
+    text-decoration: none;
+}
+
+ul {
+    list-style: none outside none;
+    margin: 0px;
+    padding: 0px;
+}
+
+#wrapper {
+    height: 100%;
+    width:100%;
+    min-height: 100%;
+    height: auto !important;
+    margin: 0px 0px -32px 0px; /* Bottom = height of the footer */
+    clear: both;
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+    min-width: 668px;
+    width: 75%;
+    padding: 0px 24px 0px 24px;
+}
+
+#header {
+    background:#000;
+    padding: 0px;
+    margin: 0px;
+    height: 100px;
+    width: 100%;
+}
+.logo {
+    float: left;
+    margin: 7px 1em 8px 0px;
+    padding: 0px;
+    border: none;
+    height: 85px;
+    width: 85px;
+}
+
+/* This is magical vertical-align code from http://www.andy-howard.com/verticalAndHorizontalAlignment/index.html */
+.pageTitle ul {
+    list-style: none;
+    margin: 0px;
+    padding: 0px;
+    float: left;
+}
+
+.pageTitle li
+{
+    margin: 0px;
+    padding: 0px;
+}
+
+.pageTitle li .outerContainer
+{
+    display: table;
+    height: 100px;
+    overflow: hidden;
+}
+
+.pageTitle li .outerContainer .innerContainer
+{
+    display: table-cell;
+    vertical-align: middle;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* END title vertical center code */
+
+.pageTitle li .outerContainer .innerContainer .element h1 {
+    font-family: 'Roboto Slab', serif;
+    color: #fff;
+    text-decoration: none;
+    padding: 0px;
+    margin: 0px;
+    display: block;
+}
+
+.pageTitle li .outerContainer .innerContainer .element h2 {
+    color: #fff;
+    text-decoration: none;
+    padding: 0px;
+    margin: 0px;
+    display: block;
+    font-size: 1.1em;
+}
+
+.ribbon {
+/*    position: absolute;
+    top: 0px;
+    right: 0px;*/
+    float: right;
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
+    width: 100px;
+    height: 100px;
+}
+
+#body {
+    width:100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+/* Container for dynamic/angular elements */
+#container {
+
+}
+
+#footer {
+/*    position:absolute;
+    bottom:0px;*/
+    width:100%;
+    height: 32px;		/* Height of the footer */
+    color: #eeeeec;
+    background-color: #000;
+    font-size: 0.7em;
+    text-align: center;
+    padding: 0px;
+    margin: 0px;
+    clear: both;
+}
+
+#footer a {
+    color: #e9b96e;
+    text-decoration: none;
+}
+
+#footer a:hover {
+    color: #fffffd;
+    text-decoration: underline;
+}
+
+.bodyText {
+    font-size: 0.9em;
+}
+
+.bodyText ul {
+    list-style: disc outside none !important;
+    margin: 24px 0px 0px 20px !important;
+}
+
+.bodyText ul li {
+    margin: 8px 0px 8px 0px !important;
+}
+
+.subTitle {
+    float: left;
+    clear: both;
+    margin: 18px 0px 24px 0px;
+    padding: 0px;
+}
+
+.subTitle h3 {
+    font-size: 1.8em;
+    float: left;
+    margin: 0px;
+    padding: 12px 0px 12px 0px;
+}
+
+.subTitle > a {
+    float: left;
+    margin: 0px;
+    padding: 0px;
+}
+
+.subTitle img {
+    margin: 0px;
+    padding: 14px 0px 12px 16px;
+}
+
+.subTitle a h3 img {
+    width: 32px;
+    height: 32px;
+    padding: 0px;
+    margin: 0px 8px 4px 0px;
+    background-image: url("./img/download_dark_32.png");
+}
+
+.subTitle a:hover h3 img {
+    width: 32px;
+    height: 32px;
+    padding: 0px;
+    margin: 0px 8px 4px 0px;
+    background-image: url("./img/download_light_32.png");
+}
+
+.subTitle .details {
+    float: left;
+    clear: both;
+    margin: 0px;
+    padding: 0px;
+    font-size: 1.2em;
+}
+
+.subTitle .detailsSmall {
+    float: left;
+    clear: both;
+    margin: 12px 0px 0px 0px;
+    padding: 0px;
+    font-size: 1.0em;
+}
+
+.subTitle .details a {
+    font-size: 1em;
+    margin: 0px;
+    padding: 0px 4px 0px 4px;
+}
+
+.subTitle .details img {
+    margin: 0px;
+    padding: 0px 0px 4px 0px;
+}
+
+.subTitle .repoDetailsLink {
+    float: left;
+    margin-top: 1em;
+}
+
+.detailsList {
+    float: left;
+    clear: both;
+    width: 100%;
+}
+
+.detailsList .detailsRow {
+    margin: 0px 0px 12px 0px;
+    width: 100%;
+    position: relative;
+}
+
+.detailsRow .detailsTitle {
+    font-size: 1.4em;
+}
+
+.detailsRow .detailsTitle img {
+    width: 24px;
+    height: 24px;
+    padding: 0px;
+    margin: 0px 4px 4px 0px;
+    background-image: url("./img/download_dark_24.png");
+}
+
+.detailsRow .detailsTitle:hover img {
+    width: 24px;
+    height: 24px;
+    padding: 0px;
+    margin: 0px 4px 4px 0px;
+    background-image: url("./img/download_light_24.png");
+}
+
+.detailsRow .details {
+    font-size: 0.95em;
+    margin: 0px;
+    padding: 4px 4px 0px 0px;
+    height: 32px;
+}
+
+.detailsRow .details a {
+    margin: 0px;
+    padding: 0px 0px 0px 0px;
+    /*color: #E9803E;*/
+}
+
+.detailsRow .details a:hover {
+    /*color: #E9B63E;*/
+}
+
+.detailsRow .details img {
+    margin: 0px;
+    padding: 0px 0px 2px 0px;
+}
+
+.detailsRow .details .detailsText {
+    font-size: 1em;
+    margin: 0px;
+    padding: 0px 4px 0px 0px;
+}
+
+.detailsRow .formContainer {
+    margin-bottom: 24px;
+    clear: both;
+    width: 100%;
+}
+
+.detailsPadding {
+    padding: 0px 4px 0px 4px;
+}
+
+.formContainer h4 {
+    margin: 8px 0px 8px 0px;
+    padding: 0px;
+    font-size: 1.05em;
+    font-weight: bold;
+}
+
+.formContainer {
+    font-size: 0.95em;
+}
+
+.formContainer input, .formContainer textarea, .formContainer select, .formContainer label {
+    padding: 4px;
+    margin: 8px 0px 0px 0px;
+    width: 100%;
+    font-weight: normal;
+}
+
+.formContainer label {
+    display: inline;
+}
+
+.formContainer input[type=radio] {
+    width: auto;
+    margin: 8px 8px 0px 8px;
+}
+
+.formContainer select, .formContainer input[type=text] {
+    width: 50%;
+}
+
+.formContainer textarea {
+    height: 120px;
+}
+
+.formContainer input[type=file] {
+    border: 1px solid #BBBBBB;
+    font-size: 0.8em;
+}
+
+.formContainer .guidelinesLink {
+    display: block;
+    float: right;
+    clear: both;
+    margin-top: 4px;
+    font-size: 0.8em;
+}
+
+.formContainer span.error {
+    float: right;
+    clear: both;
+    width: 100%;
+    display: block;
+    text-align: right;
+}
+
+.formContainer input.accept[type=button] {
+    float: right;
+    clear: right;
+    width: 240px;
+    height: 32px;
+
+    font-weight: bold;
+    background-color: #E8F2FF;
+    color: #477BFF;
+    border: 1px solid #477BFF;
+}
+
+.formContainer input.accept[type=button]:hover {
+    background-color: #477BFF;
+    color: #E8F2FF;
+    border: 1px solid #477BFF;
+}
+
+.formContainer input.accept[type=button]:active {
+    background-color: #E8F2FF;
+    color: #51A2FF;
+    border: 1px solid #51A2FF;
+}
+
+.formContainer input.accept[type=button]:disabled {
+    background-color: #EEEEEE;
+    color: #BBBBBB;
+    border: 1px solid #BBBBBB;
+}
+
+.formContainer input.cancel[type=button] {
+    float: left;
+    clear: left;
+    height: 32px;
+    width: 120px;
+
+    font-size: 0.9em;
+    background-color: #FFFFFF;
+    color: red;
+    border: 1px solid #BBBBBB;
+}
+
+.formContainer input.cancel[type=button]:hover {
+    border: 1px solid red;
+}
+
+.formContainer input.cancel[type=button]:active {
+    border: 1px solid red;
+}
+
+.detailsRow .successMessage {
+    color: green;
+    font-size: 1em;
+}
+
+.detailsRow .errorMessage {
+    color: red;
+    font-size: 1em;
+}
+
+.loading {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+
+    background: #BBBBBB;
+    background-color: rgba(187, 187, 187, 0.25);
+}
+
+.loading div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 160px;
+    height: 140px;
+    margin-left: -80px;
+    margin-top: -70px;
+
+    background: #FFFFFF;
+    border: 1px solid #BBBBBB;
+
+    text-align: center;
+    padding: 16px;
+}
+
+.loading img {
+    margin: 0px auto 0px auto;
+}
+
+.loading p {
+    font-size: 1.2em;
+}
+
+.lightboxWrapper {
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+
+    background: #BBBBBB;
+    background-color: rgba(187, 187, 187, 0.5);
+}
+
+.lightboxWrapper .guidelines {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 560px;  /* adjust as per your needs */
+    height: 660px;   /* adjust as per your needs */
+    margin-left: -280px;   /* negative half of width above */
+    margin-top: -330px;   /* negative half of height above */
+    padding: 16px;
+
+    background: #FFFFFF;
+    border: 1px solid #BBBBBB;
+}
+
+.guidelines h4 {
+    margin: 0px 0px 0px 0px;
+    padding: 0px;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.guidelines h5 {
+    font-size: 0.9em;
+    margin: 24px 0px 8px 0px;
+}
+
+.guidelines .acceptCheckbox {
+    font-size: 0.8em;
+    padding: 0px;
+    margin-top: 8px;
+    display: inline-block;
+
+    font-weight: normal;
+}
+
+.guidelines .acceptCheckbox input[type=checkbox] {
+    margin-right: 8px;
+}
+
+.guidelines a.acceptLink {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0px;
+    margin-top: 8px;
+    display: inline-block;
+}
+
+.guidelines ul {
+    font-size: 0.8em;
+    list-style: disc outside none;
+    margin-left: 24px;
+}
+
+.guidelines li {
+    padding: 4px;
+}
+
+.repoImg {
+    display : block;
+    float: left;
+    margin: 5px 10px;
+}
+
+p.olddata {
+    background-color: rgba(255, 0, 0, 0.1);
+    border: solid 1px rgba(255, 0, 0, 0.3);
+    padding: 16px;
+}
+
+/* ==========================================================================
+   Helper classes
+   ========================================================================== */
+
+.bold {
+    font-weight: bold;
+}
+
+.big {
+    font-size: 1.2em;
+}
+
+.small {
+    font-size: 0.8em !important;
+}
+
+.red {
+    color: red;
+}
+
+.green {
+    color: limegreen;
+}
+
+/*
+ * Image replacement
+ */
+
+.ir {
+    background-color: transparent;
+    border: 0;
+    overflow: hidden;
+    /* IE 6/7 fallback */
+    *text-indent: -9999px;
+}
+
+.ir:before {
+    content: "";
+    display: block;
+    width: 0;
+    height: 150%;
+}
+
+/*
+ * Hide from both screenreaders and browsers: h5bp.com/u
+ */
+
+.hidden {
+    display: none !important;
+    visibility: hidden;
+}
+
+/*
+ * Hide only visually, but have it available for screenreaders: h5bp.com/v
+ */
+
+.visuallyhidden {
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+/*
+ * Extends the .visuallyhidden class to allow the element to be focusable
+ * when navigated to via the keyboard: h5bp.com/p
+ */
+
+.visuallyhidden.focusable:active,
+.visuallyhidden.focusable:focus {
+    clip: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    position: static;
+    width: auto;
+}
+
+/*
+ * Hide visually and from screenreaders, but maintain layout
+ */
+
+.invisible {
+    visibility: hidden;
+}
+
+/*
+ * Clearfix: contain floats
+ *
+ * For modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the
+ *    `contenteditable` attribute is included anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements
+ *    that receive the `clearfix` class.
+ * 2. The use of `table` rather than `block` is only necessary if using
+ *    `:before` to contain the top-margins of child elements.
+ */
+
+.clearfix:before,
+.clearfix:after {
+    content: " "; /* 1 */
+    display: table; /* 2 */
+}
+
+.clearfix:after {
+    clear: both;
+}
+
+/*
+ * For IE 6/7 only
+ * Include this rule to trigger hasLayout and contain floats.
+ */
+
+.clearfix {
+    *zoom: 1;
+}
+
+/* ==========================================================================
+   EXAMPLE Media Queries for Responsive Design.
+   These examples override the primary ('mobile first') styles.
+   Modify as content requires.
+   ========================================================================== */
+
+@media only screen and (min-width: 35em) {
+    /* Style adjustments for viewports that meet the condition */
+}
+
+@media print,
+       (-o-min-device-pixel-ratio: 5/4),
+       (-webkit-min-device-pixel-ratio: 1.25),
+       (min-resolution: 120dpi) {
+    /* Style adjustments for high resolution devices */
+}
+
+/* ==========================================================================
+   Print styles.
+   Inlined to avoid required HTTP connection: h5bp.com/r
+   ========================================================================== */
+
+@media print {
+    * {
+        background: transparent !important;
+        color: #000 !important; /* Black prints faster: h5bp.com/s */
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    a,
+    a:visited {
+        text-decoration: underline;
+    }
+
+    a[href]:after {
+        content: " (" attr(href) ")";
+    }
+
+    abbr[title]:after {
+        content: " (" attr(title) ")";
+    }
+
+    /*
+     * Don't show links for images, or javascript/internal links
+     */
+
+    .ir a:after,
+    a[href^="javascript:"]:after,
+    a[href^="#"]:after {
+        content: "";
+    }
+
+    pre,
+    blockquote {
+        border: 1px solid #999;
+        page-break-inside: avoid;
+    }
+
+    thead {
+        display: table-header-group; /* h5bp.com/t */
+    }
+
+    tr,
+    img {
+        page-break-inside: avoid;
+    }
+
+    img {
+        max-width: 100% !important;
+    }
+
+    @page {
+        margin: 0.5cm;
+    }
+
+    p,
+    h2,
+    h3 {
+        orphans: 3;
+        widows: 3;
+    }
+
+    h2,
+    h3 {
+        page-break-after: avoid;
+    }
+}
