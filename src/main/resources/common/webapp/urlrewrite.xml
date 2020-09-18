@@ -22,25 +22,25 @@
     <!-- redirect RepositorySource (repo list json) to Gallery -->
     <rule>
         <from>^/repos/?$</from>
-        <to type="redirect">https://github.com/BSData/gallery/releases/latest/download/bsdata.catpkg-gallery.json</to>
+        <to type="redirect" last="true">https://github.com/BSData/gallery/releases/latest/download/bsdata.catpkg-gallery.json</to>
     </rule>
     
     <!-- redirect aggregate Atom/RSS to Gallery generated one (WIP) -->
     <!-- <rule>
         <from>^/repos/feeds/all.atom$</from>
-        <to type="redirect">TODO</to>
+        <to type="redirect" last="true">TODO</to>
     </rule> -->
     
     <!-- redirect repo Atom/RSS to repository's releases feed (WIP - enable after aggregate is done) -->
     <!-- <rule>
         <from>^/repos/feeds/(*.)\.atom$</from>
-        <to type="redirect">https://github.com/BSData/$1/releases.atom</to>
+        <to type="redirect" last="true">https://github.com/BSData/$1/releases.atom</to>
     </rule> -->
     
     <!-- redirect Repository (repo json) to BSData/{repo} -->
     <rule>
         <from>^/repos/(.+)$</from>
-        <to type="redirect">https://github.com/BSData/$1/releases/latest/download/$1.catpkg.json</to>
+        <to type="redirect" last="true">https://github.com/BSData/$1/releases/latest/download/$1.catpkg.json</to>
     </rule>
     
 </urlrewrite>
