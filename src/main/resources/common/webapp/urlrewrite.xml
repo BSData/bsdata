@@ -1,28 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<urlrewrite use-context="true" use-query-string="true">
+<urlrewrite use-context="true">
 
     <!-- https://cdn.rawgit.com/paultuckey/urlrewritefilter/master/src/doc/manual/4.0/index.html#configuration -->
-    <!--    
-    <rule match-type="wildcard">
-        <from>/repos/wh40k-mobile-format**</from>
-        <to type="redirect">/repos/wh40k$1</to>
-    </rule>
-    -->
      
-    <rule match-type="wildcard">
-        <from>/repos/wh40k-mobile-format**</from>
-        <to type="redirect">/repos/wh40k$1</to>
+    <rule>
+        <from>^/repos/wh40k-mobile-format(/?)(.*)$</from>
+        <to type="redirect">/repos/wh40k$1$2</to>
     </rule>
-     
-    <rule match-type="wildcard">
-        <from>/repos/wh40k-heralds-of-ruin-killteam**</from>
-        <to type="redirect">/repos/wh40k-heralds-of-ruin$1</to>
+
+    <rule>
+        <from>^/repos/wh40k-heralds-of-ruin-killteam(/?)(.*)$</from>
+        <to type="redirect">/repos/wh40k-heralds-of-ruin$1$2</to>
     </rule>
-     
-    <rule match-type="wildcard">
-        <from>/repos/the-walking-dead-march-to-war**</from>
-        <to type="redirect">/repos/the-walking-dead-call-to-arms$1</to>
+
+    <rule>
+        <from>^/repos/the-walking-dead-march-to-war(/?)(.*)$</from>
+        <to type="redirect">/repos/the-walking-dead-call-to-arms$1$2</to>
+    </rule>
+    
+    <!-- redirect RepositorySource (repo list json) to Gallery -->
+    <rule>
+        <from>^/repos/?$</from>
+        <to type="redirect">https://github.com/BSData/gallery/releases/latest/download/bsdata.catpkg-gallery.json</to>
+    </rule>
+    
+    <!-- redirect aggregate Atom/RSS to Gallery generated one (WIP) -->
+    <!-- <rule>
+        <from>^/repos/feeds/all.atom$</from>
+        <to type="redirect">TODO</to>
+    </rule> -->
+    
+    <!-- redirect repo Atom/RSS to repository's releases feed (WIP - enable after aggregate is done) -->
+    <!-- <rule>
+        <from>^/repos/feeds/(*.)\.atom$</from>
+        <to type="redirect">https://github.com/BSData/$1/releases.atom</to>
+    </rule> -->
+    
+    <!-- redirect Repository (repo json) to BSData/{repo} -->
+    <rule>
+        <from>^/repos/(.+)$</from>
+        <to type="redirect">https://github.com/BSData/$1/releases/latest/download/$1.catpkg.json</to>
     </rule>
     
 </urlrewrite>
