@@ -82,7 +82,7 @@ public class GitHubDao {
     
     
     private static final int MAX_FEED_ENTRIES = 5;
-    private static final int REPO_CACHE_EXPIRY_MINS = 12 * 60;
+    private static final int REPO_CACHE_EXPIRY_HOURS = 12;
     
     // Max App Engine background threads is 10, but reserve one for refreshReposAsync()
     private static final int MAX_REPO_DOWNLOAD_THREADS = 3;
@@ -294,7 +294,18 @@ public class GitHubDao {
             repositoryReleases.putAll(tempRepositoryReleases);
             
             Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MINUTE, REPO_CACHE_EXPIRY_MINS);
+
+            if (nextReposUpdateDate == null) {
+            	if (calendar.get(HOUR_OF_DAY) < 12)) {
+            		calendar.set(HOUR_OF_DAY, 12);
+            	} else {
+            		calendar.set(HOUR_OF_DAY, 0);
+            		calendar.add(DAY, 1);
+            	}
+            } else {
+            	calendar.add(Calendar.HOUR, REPO_CACHE_EXPIRY_HOURS);
+            }
+
             nextReposUpdateDate = calendar.getTime();
             reposRequiresUpdate = false;
         }
